@@ -1,0 +1,50 @@
+body {
+	background-color: #fff;
+    user-select: none;
+}
+
+.fullheight {
+    min-height: 100vh;
+}
+
+.wide-letters {
+    letter-spacing: 50px;
+    /* Fix for letter-spacing center alignment */
+    text-indent: 25px;
+}
+
+.promo {
+    width: 100%;
+}
+.promo i {
+    margin: 40px 0;
+    color: #ee6e73;
+    font-size: 7rem;
+    display: block;
+}
+.promo-caption {
+    font-size: 1.7rem;
+    font-weight: 500;
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.exit {
+    cursor: pointer;
+}
+
+table {
+    margin-bottom: 25px;
+}
+
+#welcome {
+    background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+    background-size: 400% 400%;
+    animation: Gradientanimation 15s ease infinite;
+}
+
+@keyframes Gradientanimation {
+    0% { background-position:0% 50% }
+    50% { background-position:100% 50% }
+    100% { background-position:0% 50% }
+}

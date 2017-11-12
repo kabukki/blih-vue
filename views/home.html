@@ -1,0 +1,14 @@
+<nav class='teal'>
+    <div class='nav-wrapper'>
+        <ul class='left'>
+            <li><a ui-sref='home.repositories'><i class="material-icons left">cloud</i>Repositories</a></li>
+            <li><a ui-sref='home.ssh-keys'><i class="material-icons left">vpn_key</i>SSH keys</a></li>
+            <li><a ui-sref='home.settings'><i class="material-icons left">settings</i>Settings</a></li>
+        </ul>
+        <a class='right exit' ng-click='exit()'><i class="material-icons left">power_settings_new</i></a>
+    </div>
+</nav>
+
+<div class='container'>
+    <ui-view></ui-view>
+</div>

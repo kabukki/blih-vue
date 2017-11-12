@@ -1,0 +1,87 @@
+<div class='row'>
+    <div class='col s12'>
+        <h1 class='teal-text center-aligned'>SSH keys</h1>
+    </div>
+</div>
+<!-- OK -->
+<div class='row' ng-hide='init == true || error'>
+    <div class='col s12' ng-hide='keys.length == 0'>
+        <div class='input-field'>
+            <i class='material-icons prefix'>search</i>
+            <input placeholder='Search' ng-model='search'>
+        </div>
+        <div class='collection' ng-hide='filtered.length == 0'>
+            <a class='collection-item truncate' ng-repeat='key in keys | filter: search as filtered'>{{ key }}</a>
+        </div>
+        <div class='flow-text center' ng-show='filtered.length == 0'>
+            No key matches your query.
+        </div>
+    </div>
+    <div class='col s12' ng-show='keys.length == 0'>
+        <div class='flow-text center'>
+            No SSH key was found.
+        </div>
+    </div>
+</div>
+<!-- Loading -->
+<div class='center row' ng-show='init == true && !error'>
+    <div class="preloader-wrapper big active">
+        <div class="spinner-layer spinner-blue">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-red">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-yellow">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-green">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+    </div>
+</div>
+<!-- Error -->
+<blih-error message='{{ error }}' ng-show='error'></blih-error>
+
+<!-- FAB -->
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large waves-effect waves-light teal" ng-click='keysModal()'>
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+<!-- Add modal -->
+<div id='keysModal' class='modal'>
+    <div class='modal-content'>
+        <h4>Upload a key</h4>
+        <form ng-submit='upload()'>
+            <div class='file-field input-field' ng-hide='loading == true'>
+                <div class='btn'>
+                    <i class='material-icons'>attach_file</i>
+                    <input type='file' required>
+                </div>
+                <div class='file-path-wrapper'>
+                    <input class='file-path validate' type='text' ng-model='keyPath'>
+                </div>
+            </div>
+            <div class='center' ng-hide='loading == true'>
+                <input type='submit' class='waves-effect waves-light btn' value='OK'/>
+            </div>
+            <!-- Loading -->
+            <div ng-show='loading == true'>
+                Loading
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,4 @@
+- Not access DOM from controller (modals)
+- Use templates for spinning loader
+- Use template URL instead of raw string (if possible w/ absolute path)
+- Create ssh-key page

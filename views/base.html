@@ -1,0 +1,30 @@
+<html ng-app='blih'>
+    <head>
+        <title>Blih GUI</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="../assets/css/materialize.min.css" />
+        <link rel="stylesheet" href="../assets/css/fonts/icon.css" />
+        <link rel="stylesheet" href="../assets/css/custom.css" />
+
+        <script src='../assets/js/jquery-3.2.1.min.js'></script>
+        <script src='../assets/js/materialize.min.js'></script>
+        <script src='../assets/js/angular.js'></script>
+        <script src='../assets/js/angular-ui-router.min.js'></script>
+        <!--<script src='../assets/js/angular-materialize.min.js'></script>-->
+    </head>
+    <body>
+        <ui-view></ui-view>
+    </body>
+    <script type="text/javascript">
+        require('../src/app.js');
+        /* Directives */
+        require('../src/directives/blih-error.js');
+        /* Services */
+        require('../src/services/blih.js');
+        require('../src/services/settings.js');
+        require('../src/services/materialize.js');
+        /* Controllers */
+        require('../src/controllers/login.js');
+        require('../src/controllers/home.js');
+    </script>
+</html>

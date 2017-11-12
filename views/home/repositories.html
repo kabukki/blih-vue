@@ -1,0 +1,83 @@
+<div class='row'>
+    <div class='col s12'>
+        <h1 class='teal-text center-aligned'>Repositories</h1>
+    </div>
+</div>
+<!-- OK -->
+<div class='row' ng-hide='init == true || error'>
+    <div class='col s12' ng-hide='repositories.length == 0'>
+        <div class='input-field'>
+            <i class='material-icons prefix'>search</i>
+            <input placeholder='Search' ng-model='search'>
+        </div>
+        <div class='collection' ng-hide='filtered.length == 0'>
+            <a class='collection-item' ui-sref='home.repository({repository: repo})' ng-repeat='repo in repositories | filter: search as filtered'>{{ repo }}</a>
+        </div>
+        <div class='flow-text center' ng-show='filtered.length == 0'>
+            No repository matches your query.
+        </div>
+    </div>
+    <div class='col s12' ng-show='repositories.length == 0'>
+        <div class='flow-text center'>
+            No repository was found.
+        </div>
+    </div>
+</div>
+<!-- Loading -->
+<div class='center row' ng-show='init == true && !error'>
+    <div class="preloader-wrapper big active">
+        <div class="spinner-layer spinner-blue">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-red">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-yellow">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-green">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+    </div>
+</div>
+<!-- Error -->
+<blih-error message='{{ error }}' ng-show='error'></blih-error>
+
+<!-- FAB -->
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large waves-effect waves-light teal" ng-click='addModal()'>
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+<!-- Add modal -->
+<div id='addModal' class='modal'>
+    <div class='modal-content'>
+        <h4>Create a repository</h4>
+        <form ng-submit='create()'>
+            <div class='input-field' ng-hide='loading == true'>
+                <i class='material-icons prefix'>cloud</i>
+                <input id='name' type='text' ng-model='name' required/>
+                <label for='name'>Name</label>
+            </div>
+            <div class='center' ng-hide='loading == true'>
+                <input type='submit' class='waves-effect waves-light btn' value='OK'/>
+            </div>
+            <!-- Loading -->
+            <div ng-show='loading == true'>
+                Loading
+            </div>
+        </form>
+    </div>
+</div>

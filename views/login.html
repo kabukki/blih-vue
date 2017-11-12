@@ -1,0 +1,47 @@
+<div class='fullheight valign-wrapper'>
+    <form class='row' ng-submit='login()' disabled=true>
+        <div class='col s12 center' ng-hide='loading == true'>
+            <h1 class='teal-text'>Log in</h1>
+        </div>
+        <div class='input-field col s12' ng-hide='loading == true'>
+            <!-- TODO: investigate: if type=email, cannot submit -->
+            <i class='material-icons prefix'>person</i>
+            <input placeholder='Email' type='text' ng-model='email' required/>
+        </div>
+        <div class='input-field col s12' ng-hide='loading == true'>
+            <i class='material-icons prefix'>lock</i>
+            <input placeholder='Password' type='password' ng-model='password' required/>
+        </div>
+        <div class='col s12 center' ng-hide='loading == true'>
+            <input type='submit' class='btn waves-effect waves-light' value='OK'/>
+        </div>
+        <!-- Loading -->
+        <div class='col s12 center' ng-show='loading == true'>
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-blue">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+
+                <div class="spinner-layer spinner-red">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+
+                <div class="spinner-layer spinner-yellow">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+
+                <div class="spinner-layer spinner-green">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

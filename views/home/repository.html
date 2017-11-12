@@ -1,0 +1,125 @@
+<div class='row'>
+    <div class='col s12'>
+        <h1 class='teal-text center-aligned'>{{ info.name }}</h1>
+    </div>
+</div>
+<!-- OK -->
+<div class='row' ng-hide='init == true || error'>
+    <div class='col s12'>
+        <h3>Information</h3>
+        <div class='divider'></div>
+        <p ng-hide='info.error == true'>
+            <p><b>Description:</b> {{ info.description }}</p>
+            <p><b>Created on:</b> {{ info.creation_time }}</p>
+            <p><b>URL:</b> {{ info.url }}</p>
+            <p><b>Visibility:</b> {{ info.public == 'True' ? 'Public' : 'Private' }}</p>
+            <p><b>UUID:</b> {{ info.uuid }}</p>
+        </p>
+        <h3>Collaborators</h3>
+        <div class='divider'></div>
+        <table ng-hide='acl.length == 0'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Rights</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='collaborator in acl'>
+                    <td>{{ collaborator.name }}</td>
+                    <td>{{ collaborator.rights }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class='flow-text' ng-show='acl.length == 0'>
+            No ACL is set for this repository.
+        </p>
+    </div>
+    <div class='col s12 center'>
+        <a class='waves-effect waves-light btn' ng-click='addModal()'><i class='material-icons left'>add</i>Add collaborator</a>
+    </div>
+</div>
+<!-- Loading -->
+<div class='center row' ng-show='init == true && !error'>
+    <div class="preloader-wrapper big active">
+        <div class="spinner-layer spinner-blue">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-red">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-yellow">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+
+        <div class="spinner-layer spinner-green">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+    </div>
+</div>
+<!-- Error -->
+<blih-error message='{{ error }}' ng-show='error'></blih-error>
+
+<!-- FAB -->
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large waves-effect waves-light teal" ng-click='deleteModal()'>
+        <i class="large material-icons">delete_forever</i>
+    </a>
+</div>
+
+<!-- Delete modal -->
+<div id='deleteModal' class='modal'>
+    <div class='modal-content'>
+        <h4>Delete a repository</h4>
+        <form ng-submit='delete()'>
+            <div class='center' ng-hide='loading == true'>
+                <p>Are you sure you want to delete this repository ? This cannot be undone.</p>
+                <input type='submit' class='waves-effect waves-light red btn' value='Yes'/>
+            </div>
+            <!-- Loading -->
+            <div ng-show='loading == true'>
+                Loading
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add modal -->
+<div id='addModal' class='modal'>
+    <div class='modal-content'>
+        <h4>Add a collaborator</h4>
+        <form ng-submit='add()'>
+            <div class='input-field' ng-hide='loading == true'>
+                <i class='material-icons prefix'>person</i>
+                <input id='name' type='text' ng-model='name' required/>
+                <label for='name'>Name</label>
+            </div>
+            <p><label>
+                <input name='rights' type='checkbox' ng-model='rights.r'><span>Read</span>
+            </label></p>
+            <p><label>
+                <input name='rights' type='checkbox' ng-model='rights.w'><span>Write</span>
+            </label></p>
+            <p><label>
+                <input name='rights' type='checkbox' ng-model='rights.a'><span>Admin</span>
+            </label></p>
+            <div class='center' ng-hide='loading == true'>
+                <input type='submit' class='waves-effect waves-light btn' value='OK'/>
+            </div>
+            <!-- Loading -->
+            <div ng-show='loading == true'>
+                Loading
+            </div>
+        </form>
+    </div>
+</div>
