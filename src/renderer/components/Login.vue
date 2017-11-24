@@ -1,9 +1,9 @@
 <template>
 	<v-app>
 		<v-content>
-			<v-container fill-height fluid id='login'>
+			<v-container fill-height fluid>
 				<!-- Done -->
-			    <v-layout row align-center justify-space-around v-if="!init">
+		    <v-layout row align-center justify-space-around v-if="!init">
 					<!-- OK -->
 					<v-flex xs8 class='text-xs-center' v-if="!fatalError">
 						<div class='display-2 primary--text '>Log in</div>
@@ -22,10 +22,10 @@
 					</v-flex>
 					<!-- Error -->
 					<v-flex class='text-xs-center' v-else>
-						<error :message="fatalError.message" :description="fatalError.description"></error>
+						<error :message="fatalError.message" :description="fatalError.description"/>
 						<v-btn color='error' @click='_init_'>Try again</v-btn>
 					</v-flex>
-			    </v-layout>
+		    </v-layout>
 
 				<!-- Loading -->
 				<v-layout align-center v-else>
@@ -118,9 +118,6 @@
 </script>
 
 <style lang="css">
-	#login {
-		min-height: 100vh;
-	}
 	/* label focus color */
    .input-field input:focus {
      color: #000;

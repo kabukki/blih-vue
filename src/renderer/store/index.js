@@ -51,29 +51,20 @@ const actions = {
     updateRepositories (context) {
         return context.getters.api.listRepositories()
             .then(data => {
-                const repositories = data.repositories;
+                console.log(data);
                 context.commit('UPDATE_REPOSITORIES', {
-                    repositories: Object.keys(repositories)
-                                    .filter(r => r.length > 0).sort()
-                                    .map(r => ({
-                                        name: r,
-                                        url: repositories[r].url,
-                                        uuid: repositories[r].uuid
-                                    }))
+                  repositories: data.sort((a, b) => {
+                    if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                    else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+                    else return 0;
+                  })
                 });
             });
     },
     updateKeys (context) {
         return context.getters.api.listKeys()
             .then(data => {
-                context.commit('UPDATE_KEYS', {
-                     keys: Object.keys(data)
-                            .filter(k => k.length > 0).sort()
-                            .map(k => ({
-                                name: k,
-                                data: data[k]
-                            }))
-                });
+                context.commit('UPDATE_KEYS', { keys: data });
             });
     }
 };

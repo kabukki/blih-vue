@@ -1,7 +1,7 @@
 <template>
 	<v-container fill-height>
 		<!-- Done -->
-		<v-layout row wrap v-if="!init">
+		<v-layout row :align-center="error" v-if="!init">
 			<!-- OK -->
 			<v-flex class='text-xs-center' v-if="!error">
 				<div v-if="keys.length > 0">
@@ -33,8 +33,9 @@
 				</div>
 			</v-flex>
 			<!-- Error -->
-			<v-flex v-else>
+			<v-flex class='text-xs-center' v-else>
 				<error :message="error"></error>
+				<v-btn color='error' @click='_init_'>Try again</v-btn>
 			</v-flex>
 		</v-layout>
 
@@ -100,13 +101,10 @@
 			}
 		},
 		methods: {
-			...mapActions(['updateKeys']),
-			goto (key) {
-				this.$router.push({ name: 'blih.sshkey', params: { id: key } });
-			}
-		},
-		mounted () {
-			this.updateKeys()
+			_init_ () {
+				this.init = true;
+				this.error = false;
+				this.updateKeys()
 				.then(keys => {
 					console.log(this.keys);
 				}).catch(err => {
@@ -115,6 +113,14 @@
 				}).then(_ => {
 					this.init = false;
 				});
+			},
+			...mapActions(['updateKeys']),
+			goto (key) {
+				this.$router.push({ name: 'blih.sshkey', params: { id: key } });
+			}
+		},
+		mounted () {
+			this._init_();
 		}
 	}
 </script>

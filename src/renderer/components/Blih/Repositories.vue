@@ -1,30 +1,28 @@
 <template>
 	<v-container fill-height>
 		<!-- Done -->
-		<v-layout row v-if="!init">
+		<v-layout row :align-center="error" v-if="!init">
 			<!-- OK -->
 			<v-flex class='text-xs-center' v-if="!error">
 				<div v-if="repositories.length > 0">
 					<v-text-field label='Search' prepend-icon='search' v-model='filter' />
-					<v-expansion-panel v-show='filtered.length > 0'>
-						<v-expansion-panel-content v-for="repo in filtered" :key="repo.name">
-							<div slot='header' class='primary--text'>
-								{{ repo.name }}
-							</div>
-							<v-card class='grey lighten-4'>
-								<v-card-text>
-									<div><b>URL</b> : {{ repo.url }}</div>
-									<div><b>UUID</b> : {{ repo.uuid }}</div>
-								</v-card-text>
-								<v-card-actions>
-									<v-spacer/>
-									<v-btn flat outline :to="{ name: 'blih.repository', params: { name: repo.name } }">Details</v-btn>
-									<v-btn flat outline disabled>Clone</v-btn>
-									<v-btn color='error'><v-icon left>delete</v-icon>Delete</v-btn>
-								</v-card-actions>
-							</v-card>
-						</v-expansion-panel-content>
-					</v-expansion-panel>
+					<v-list class="pt-0" v-show='filtered.length > 0'>
+						<v-list-tile avatar
+							v-for="repo in filtered" :key="repo.name"
+							:to="{ name: 'blih.repository', params: { name: repo.name } }"
+						>
+							<v-list-tile-avatar color="red" class="align-center">
+								<span class=" headline">{{ repo.name[0].toUpperCase() }}</span>
+							</v-list-tile-avatar>
+							<v-list-tile-content>
+								<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
+								<v-list-tile-sub-title>{{ repo.uuid }}</v-list-tile-sub-title>
+							</v-list-tile-content>
+							<v-list-tile-action>
+								<v-icon color='error'>delete</v-icon>
+							</v-list-tile-action>
+						</v-list-tile>
+					</v-list>
 					<div class='text-xs-center' v-show='filtered.length == 0'>
 						No repository matches your query.
 					</div>
@@ -34,8 +32,9 @@
 				</div>
 			</v-flex>
 			<!-- Error -->
-			<v-flex v-else>
-				<error :message="error"></error>
+			<v-flex class='text-xs-center' v-else>
+				<error :message="error"/>
+				<v-btn color='error' @click='_init_'>Try again</v-btn>
 			</v-flex>
 		</v-layout>
 
@@ -100,7 +99,7 @@
 				error: false,
 				fab: false,
 				loading: false,
-				filter: '',
+				filter: ''
 			};
 		},
 		computed: {
@@ -110,13 +109,10 @@
 			}
 		},
 		methods: {
-			...mapActions(['updateRepositories']),
-			addModal: function () {
-				console.log('add');
-			}
-		},
-		mounted () {
-			this.updateRepositories()
+			_init_ () {
+				this.init = true;
+				this.error = false;
+				this.updateRepositories()
 				.then(_ => {
 					console.log('ok repositories updated');
 				}).catch(err => {
@@ -125,6 +121,14 @@
 				}).then(_ => {
 					this.init = false;
 				});
+			},
+			...mapActions(['updateRepositories']),
+			addModal: function () {
+				console.log('add');
+			}
+		},
+		mounted () {
+			this._init_();
 		}
 	}
 </script>

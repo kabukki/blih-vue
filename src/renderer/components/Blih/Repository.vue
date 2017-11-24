@@ -1,7 +1,7 @@
 <template>
 	<v-container fill-height>
 		<!-- Done -->
-		<v-layout row v-if="!init">
+		<v-layout row :align-center="error" v-if="!init">
 			<!-- OK -->
 			<v-flex v-if="!error">
 				<div class='display-2'>Information</div>
@@ -26,8 +26,9 @@
 				</p>
 			</v-flex>
 			<!-- Error -->
-			<v-flex v-else>
+			<v-flex class='text-xs-center' v-else>
 				<error :message="error"/>
+				<v-btn color='error' @click='_init_'>Try again</v-btn>
 			</v-flex>
 		</v-layout>
 
@@ -126,36 +127,42 @@
 				]
 			};
 		},
-		computed: {
-			...mapGetters(['api'])
-		},
 		methods: {
+			_init_ () {
+				this.init = true;
+				this.error = false;
+				this.api.repositoryInfo(this.$route.params.name)
+					.then(data => {
+						console.log('ok got repository info');
+						this.info = data;
+						this.api.getACL(this.$route.params.name)
+						.then(data => {
+							console.log('ok got repository acl');
+							console.log(data);
+							this.acl = data;
+							console.log(this.acl);
+						}).catch(err => {
+							console.log('ko could not get acl');
+							this.error = err;
+						}).then(_ => {
+							this.init = false;
+						});
+					}).catch(err => {
+						console.log('ko could not get info');
+						this.error = err;
+						this.init = false;
+					})
+			},
 			addModal () {
 				console.log('add');
 			}
 		},
+		computed: {
+			...mapGetters(['api'])
+		},
 		mounted () {
 			this.name = this.$route.params.name;
-			this.api.repositoryInfo(this.$route.params.name)
-				.then(data => {
-					console.log('ok got repository info');
-					this.info = data.message;
-					this.api.getACL(this.$route.params.name)
-					.then(data => {
-						console.log('ok got repository acl');
-						console.log(data);
-						this.acl = Object.keys(data).map(c => ({ name: c, rights: data[c] }));
-						console.log(this.acl);
-					}).catch(err => {
-						console.log('ko could not get acl');
-						this.error = err;
-					}).then(_ => {
-						this.init = false;
-					});
-				}).catch(err => {
-					console.log('ko could not get info');
-					this.error = err;
-				})
+			this._init_();
 		}
 	}
 </script>
