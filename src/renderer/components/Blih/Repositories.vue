@@ -1,104 +1,83 @@
 <template>
-	<v-container fill-height>
-		<!-- Done -->
-		<v-layout row :align-center="error" v-if="!init">
-			<!-- OK -->
-			<v-flex class='text-xs-center' v-if="!error">
-				<div v-if="repositories.length > 0">
-					<v-text-field label='Search' prepend-icon='search' v-model='filter' />
-					<v-list class="pt-0" v-show='filtered.length > 0'>
-						<v-list-tile avatar
+	<page v-on:init='_init_'>
+		<v-container fluid>
+			<!-- Content -->
+			<v-layout row>
+				<v-flex class='text-xs-center'>
+					<div v-if="repositories.length > 0">
+						<v-text-field label='Search' prepend-icon='search' v-model='filter' />
+						<v-list class="pt-0 pb-0" v-show='filtered.length > 0'>
+							<v-list-tile avatar
 							v-for="repo in filtered" :key="repo.name"
-							:to="{ name: 'blih.repository', params: { name: repo.name } }"
-						>
-							<v-list-tile-avatar color="red" class="align-center">
-								<span class=" headline">{{ repo.name[0].toUpperCase() }}</span>
-							</v-list-tile-avatar>
-							<v-list-tile-content>
-								<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
-								<v-list-tile-sub-title>{{ repo.uuid }}</v-list-tile-sub-title>
-							</v-list-tile-content>
-							<v-list-tile-action>
-								<v-icon color='error'>delete</v-icon>
-							</v-list-tile-action>
-						</v-list-tile>
-					</v-list>
-					<div class='text-xs-center' v-show='filtered.length == 0'>
-						No repository matches your query.
+							:to="{ name: 'blih.repository', params: { name: repo.name } }">
+								<avatar :name='repo.name' class='mr-3'></avatar>
+								<v-list-tile-content>
+									<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
+								</v-list-tile-content>
+							</v-list-tile>
+						</v-list>
+						<div class='text-xs-center' v-show='filtered.length == 0'>
+							No repository matches your query.
+						</div>
 					</div>
-				</div>
-				<div class='text-xs-center' v-else>
-					No repository was found.
-				</div>
-			</v-flex>
-			<!-- Error -->
-			<v-flex class='text-xs-center' v-else>
-				<error :message="error"/>
-				<v-btn color='error' @click='_init_'>Try again</v-btn>
-			</v-flex>
-		</v-layout>
+					<div class='text-xs-center' v-else>
+						No repository was found.
+					</div>
+				</v-flex>
+			</v-layout>
 
-		<!-- Loading -->
-		<v-layout align-center v-else>
-			<v-flex class='text-xs-center'>
-				<loader/>
-			</v-flex>
-		</v-layout>
+			<!-- Dialog: Create -->
+			<v-dialog max-width='500px' v-model='dialog_create.show'>
+				<v-card>
+					<v-card-title>
+						<span class="headline">Create a new repository</span>
+					</v-card-title>
+					<v-card-text>
+						<v-container>
+							<v-text-field label='Name' prepend-icon='cloud' v-model='dialog_create.name' required
+								type="text"
+								:disabled="dialog_create.loading"/>
+							<v-text-field label='Description' prepend-icon='description' v-model='dialog_create.description'
+								type="text"
+								:disabled="dialog_create.loading"/>
+						</v-container>
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" flat :disabled='dialog_create.loading' @click.stop='createCancel'>Cancel</v-btn>
+						<v-btn color="primary" flat :disabled='dialog_create.loading' :loading='dialog_create.loading' @click.stop='createOk'>OK</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
 
-<!--
-		<!-- FAB --
-		<div class="fixed-action-btn">
-			<a class="btn-floating btn-large waves-effect waves-light teal" @click='addModal'>
-		        <i class="large material-icons">add</i>
-		    </a>
-		</div>
-
-		<!-- Add modal --
-		<div id='addModal' class='modal'>
-			<div class='modal-content'>
-				<h4>Create a repository</h4>
-				<form @submit.prevent='create'>
-					<div class='input-field' v-if='!loading'>
-						<i class='material-icons prefix'>cloud</i>
-						<input id='name' type='text' v-model='name' required/>
-						<label for='name'>Name</label>
-					</div>
-					<div class='center' v-if='!loading'>
-						<input type='submit' class='waves-effect waves-light btn' value='OK' />
-					</div>
-					<!-- Loading --
-					<div v-if='loading'>
-						Loading
-					</div>
-				</form>
-			</div>
-		</div>
-	-->
-		<v-speed-dial fixed v-model='fab' bottom right direction='top'>
-			<v-btn slot='activator' fab color='primary'>
-				<v-icon>account_circle</v-icon>
-				<v-icon>close</v-icon>
-			</v-btn>
-			<v-btn fab small>
+			<!-- FAB -->
+			<v-btn v-model='fab' color='primary' fixed bottom right fab @click.stop='dialog_create.show = true'>
 				<v-icon>add</v-icon>
 			</v-btn>
-		</v-speed-dial>
-	</v-container>
+		</v-container>
+	</page>
 </template>
 
 <script>
 	import { mapGetters, mapActions } from 'vuex';
-	import Error from '../Error';
-	import Loader from '../Loader';
+	import Page from './Page';
+	import Avatar from '../Avatar';
 
 	export default {
-		components: { Error, Loader },
+		components: { Page, Avatar },
 		data () {
 			return {
-				init: true,
-				error: false,
+				/* Page state */
 				fab: false,
-				loading: false,
+				/* Dialogs */
+				dialog_create: {
+					show: false,
+					loading: false,
+					error: false,
+					name: '',
+					description: '',
+				},
+				/* Data */
 				filter: ''
 			};
 		},
@@ -109,26 +88,36 @@
 			}
 		},
 		methods: {
-			_init_ () {
-				this.init = true;
-				this.error = false;
+			_init_ (callback) {
 				this.updateRepositories()
-				.then(_ => {
-					console.log('ok repositories updated');
-				}).catch(err => {
-					console.log('ko could not update repositories');
-					this.error = err;
-				}).then(_ => {
-					this.init = false;
-				});
+					.then(_ => {
+						callback();
+					}).catch(err => {
+						console.log('ko could not update repositories');
+						callback(err);
+					});
 			},
-			...mapActions(['updateRepositories']),
-			addModal: function () {
-				console.log('add');
+			...mapActions(['updateRepositories', 'createRepository']),
+			/* Dialog: Create */
+			createCancel () {
+				this.dialog_create.show = false;
+				this.dialog_create.name = '';
+				this.dialog_create.description = '';
+			},
+			createOk () {
+				this.dialog_create.loading = true;
+				this.createRepository(this.dialog_create.name, this.dialog_create.description)
+					.then(this.updateRepositories)
+					.then(data => {
+						console.log(data);
+						this.dialog_create.show = false;
+						this.dialog_create.name = '';
+					}).catch(err => {
+						console.log(err);
+					}).then(_ => {
+						this.dialog_create.loading = false;
+					});
 			}
-		},
-		mounted () {
-			this._init_();
 		}
 	}
 </script>

@@ -3,7 +3,7 @@
 		<v-content>
 			<v-container fill-height fluid>
 				<!-- Done -->
-		    <v-layout row align-center justify-space-around v-if="!init">
+		    	<v-layout row align-center justify-space-around v-if="!init">
 					<!-- OK -->
 					<v-flex xs8 class='text-xs-center' v-if="!fatalError">
 						<div class='display-2 primary--text '>Log in</div>
@@ -25,7 +25,7 @@
 						<error :message="fatalError.message" :description="fatalError.description"/>
 						<v-btn color='error' @click='_init_'>Try again</v-btn>
 					</v-flex>
-		    </v-layout>
+		    	</v-layout>
 
 				<!-- Loading -->
 				<v-layout align-center v-else>
@@ -52,10 +52,13 @@
 		components: { Error, Loader },
 		data () {
 			return {
+				/* Page state */
 				init: true,
-				fatalError: false,
 				error: false,
+				fatalError: false,
+				/* Login */
 				loading: false,
+				/* Data */
 				snackbar: false,
 				snackbarData: {},
 				email: '',

@@ -7,7 +7,8 @@ module.exports = {
   },
   env: {
     browser: true,
-    node: true
+    node: true,
+    'es6': true
   },
   extends: 'eslint:recommended',
   globals: {
@@ -24,6 +25,7 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-console': 0,
-    'no-unused-vars': 0
+    'no-unused-vars': 0,
+    'no-undef': 0
   }
 }

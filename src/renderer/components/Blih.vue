@@ -1,37 +1,47 @@
 <template>
-	<v-app>
-		<v-navigation-drawer temporary fixed v-model='left'>
-			<v-list>
-				<v-list-tile avatar>
-					<v-list-tile-avatar><img src="../assets/img/user.png" alt="user"></v-list-tile-avatar>
-					<v-list-tile-content>
-						<v-list-tile-title>{{ email }}</v-list-tile-title>
-						<v-list-tile-sub-title>{{ login }}</v-list-tile-sub-title>
-					</v-list-tile-content>
-				</v-list-tile>
-			</v-list>
+	<v-app :dark="dark">
+		<v-navigation-drawer app absolute clipped permanent>
+			<v-toolbar flat class='transparent'>
+				<v-list class='pa-0'>
+					<v-list-tile avatar>
+						<v-list-tile-avatar>
+							<img :src="picture" alt="user">
+						</v-list-tile-avatar>
+						<v-list-tile-content>
+							<v-list-tile-title>{{ email }}</v-list-tile-title>
+							<v-list-tile-sub-title>{{ login }}</v-list-tile-sub-title>
+						</v-list-tile-content>
+					</v-list-tile>
+				</v-list>
+			</v-toolbar>
 			<v-divider></v-divider>
-			<v-list>
+			<v-list class='pt-0'>
 				<v-list-tile v-for='link in links' :key='link.title' :to="{name: link.to}">
 					<v-list-tile-action><v-icon>{{ link.icon }}</v-icon></v-list-tile-action>
 					<v-list-tile-content><v-list-tile-title>{{ link.title }}</v-list-tile-title></v-list-tile-content>
 				</v-list-tile>
-			</v-list>
-			<v-divider></v-divider>
-			<v-list>
+				<v-divider></v-divider>
 				<v-list-tile v-for='link in otherLinks' :key='link.title' :to="{name: link.to}">
 					<v-list-tile-action><v-icon>{{ link.icon }}</v-icon></v-list-tile-action>
 					<v-list-tile-content><v-list-tile-title>{{ link.title }}</v-list-tile-title></v-list-tile-content>
 				</v-list-tile>
+				<v-list-tile :to="{name: 'login'}">
+					<v-list-tile-action><v-icon>exit_to_app</v-icon></v-list-tile-action>
+					<v-list-tile-content><v-list-tile-title>Log out</v-list-tile-title></v-list-tile-content>
+				</v-list-tile>
 			</v-list>
 		</v-navigation-drawer>
-		<v-toolbar dark color='primary' app scroll-target='#content'>
-			<v-toolbar-side-icon @click='left = !left'></v-toolbar-side-icon>
+		<v-toolbar app absolute dark clipped-left>
+			<v-btn icon @click='drawer = !drawer' v-if="navicon == 'drawer'">
+				<v-icon>menu</v-icon>
+			</v-btn>
+			<v-btn icon @click='goBack' v-else>
+				<v-icon>arrow_back</v-icon>
+			</v-btn>
 			<v-toolbar-title>{{ title }}</v-toolbar-title>
 			<v-spacer></v-spacer>
-			<v-btn icon :to="{name: 'login'}"><v-icon>power_settings_new</v-icon></v-btn>
 		</v-toolbar>
-		<v-content id='content'>
+		<v-content>
 			<router-view></router-view>
 		</v-content>
 	</v-app>
@@ -43,30 +53,44 @@
 	export default {
 		data () {
 			return {
-				left: false,
+				drawer: true,
 				links: [
-					{ icon: 'home', title: 'Home', to: 'blih.repositories' },
-					{ icon: 'cloud', title: 'Repositories', to: 'blih.repositories' },
-					{ icon: 'vpn_key', title: 'SSH Keys', to: 'blih.ssh-keys' }
+					{ icon: 'cloud', title: 'Repositories', to: 'blih.repositories', nav: 'drawer' },
+					{ icon: 'vpn_key', title: 'SSH keys', to: 'blih.ssh-keys', nav: 'drawer' }
 				],
 				otherLinks: [
-					{ icon: 'settings', title: 'Settings', to: 'blih.settings' }
+					{ icon: 'settings', title: 'Settings', to: 'blih.settings', nav: 'drawer' }
+				],
+				noLinks: [
+					{ title: 'Repository', to: 'blih.repository', nav: 'back' },
+					{ title: 'SSH key', to: 'blih.ssh-key', nav: 'back' }
 				]
 			};
 		},
 		computed: {
-			...mapGetters(['email', 'login']),
+			...mapGetters(['email', 'login', 'theme']),
+			picture () {
+				return 'https://cdn.local.epitech.eu/userprofil/profilview/' + this.email.split('@')[0] + '.jpg';
+			},
+			dark () {
+				return this.theme == 'dark';
+			},
 			title () {
-				return this.$route.params.name
-					? this.$route.params.name
-					: this.capitalize(this.$route.name.split('.')[1]);
+				let page = this.getCurrentPage();
+				return (page ? page.title : '[untitled]');
+			},
+			navicon () {
+				let page = this.getCurrentPage();
+				return (page ? page.nav : 'drawer');
 			}
 		},
 		methods: {
-			capitalize (str) {
-				return str
-					.replace('-', ' ')
-					.replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+			getCurrentPage () {
+				let links = this.links.concat(this.otherLinks, this.noLinks);
+				return links.filter(l => l.to == this.$route.name)[0];
+			},
+			goBack () {
+				this.$router.go(-1);
 			}
 		}
 	}

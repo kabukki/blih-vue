@@ -28,11 +28,25 @@
 		        <a class='waves-effect waves-light btn' ng-click='save()'><i class='material-icons left'>check</i>Save changes</a>
 		    </div>
 		</div>
+		<v-radio-group v-model='theme'>
+			<v-radio label='Light' value='light'></v-radio>
+			<v-radio label='Dark' value='dark'></v-radio>
+		</v-radio-group>
 	</div>
 </template>
 
 <script>
 	export default {
+		computed: {
+			theme: {
+				get () {
+					return this.$store.state.theme;
+				},
+				set (theme) {
+					this.$store.dispatch('setTheme', theme);
+				}
+			}
+		}
 	}
 </script>
 

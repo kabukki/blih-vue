@@ -1,2 +1,1 @@
-au lieu de panel containers : v-list
-Avec a gauche premiere lettre pour tout l'alphabet
+Revoir la liste des repositories
