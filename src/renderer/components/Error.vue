@@ -2,8 +2,8 @@
     <div>
         <v-icon x-large color='error'>error</v-icon>
         <p class='promo-caption'>Oops!</p>
-		<p class='center light'>An error occurred: {{ message }}</p>
-		<p class='center light' v-if='description'>
+		<p class='center light mb-0'>An error occurred: {{ message }}</p>
+		<p class='center light mb-0' v-if='description'>
 			<b>Details:</b><br>
 			<pre>{{ description }}</pre>
 		</p>

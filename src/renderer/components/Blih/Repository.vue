@@ -1,5 +1,5 @@
 <template>
-	<page v-on:init='_init_'>
+	<page v-on:init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
 		<v-layout row wrap>
 			<!-- Name -->
@@ -8,13 +8,6 @@
 					<v-card-text class='text-xs-center'>
 						<div class="display-3">{{ name }}</div>
 					</v-card-text>
-					<!-- FAB; NOTE: should maybe be absolute bottom right, but fixed right works -->
-					<v-tooltip left>
-						<v-btn fab fixed right color='secondary' slot='activator' @click.stop='dialog_delete.show = true'>
-							<v-icon>delete</v-icon>
-						</v-btn>
-						<span>Delete</span>
-					</v-tooltip>
 				</v-card>
 			</v-flex>
 			<!-- Labels -->
@@ -46,6 +39,10 @@
 							</v-flex>
 						</v-layout>
 					</v-container>
+					<!-- FAB -->
+					<v-btn small fab absolute bottom right color='primary' @click.stop='dialog_add.show = true'>
+						<v-icon small>person_add</v-icon>
+					</v-btn>
 				</v-card>
 			</v-flex>
 			<!-- Collaborators -->
@@ -54,25 +51,42 @@
 					<v-container fluid>
 						<div class="subheading grey--text">Collaborators</div>
 						<v-list two-line v-if='acl.length > 0'>
-							<v-list-tile avatar v-for='collaborator in acl' :key='collaborator.name' @click.stop='edit(collaborator)'>
-								<avatar :name='collaborator.name' class='mr-3'></avatar>
-								<v-list-tile-content>
-									<v-list-tile-title>{{ collaborator.name }}</v-list-tile-title>
-									<v-list-tile-sub-title>{{ legibleRights(collaborator.rights) }}</v-list-tile-sub-title>
-								</v-list-tile-content>
-								<v-list-tile-action>
-									<v-btn icon><v-icon>edit</v-icon></v-btn>
-								</v-list-tile-action>
-							</v-list-tile>
+							<template v-for='(collaborator, index) in acl'>
+								<v-divider v-if='index > 0'></v-divider>
+								<v-list-tile avatar :key='collaborator.name' @click.stop='edit(collaborator)'>
+									<avatar :name='collaborator.name' class='mr-3'></avatar>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ collaborator.name }}</v-list-tile-title>
+										<v-list-tile-sub-title>{{ legibleRights(collaborator.rights) }}</v-list-tile-sub-title>
+									</v-list-tile-content>
+									<v-list-tile-action>
+										<v-btn icon><v-icon>edit</v-icon></v-btn>
+									</v-list-tile-action>
+								</v-list-tile>
+							</template>
 						</v-list>
 						<p class='mb-0' v-else>
 							No ACL is set for this repository.
 						</p>
 					</v-container>
-					<!-- FAB -->
-					<v-btn small fab absolute bottom right color='primary' @click.stop='dialog_add.show = true'>
-						<v-icon small>person_add</v-icon>
-					</v-btn>
+				</v-card>
+			</v-flex>
+			<!-- Git -->
+			<v-flex xs12>
+				<v-card tile class='text-xs-center'>
+					<git :url="gitUrl"></git>
+				</v-card>
+			</v-flex>
+			<!-- Danger zone -->
+			<v-flex xs12>
+				<v-card tile class='text-xs-center'>
+					<v-container fluid>
+						<div class="subheading grey--text">Danger zone</div>
+						<v-btn color='error' @click.stop='dialog_delete.show = true'>
+							<v-icon left>delete</v-icon>
+							Delete
+						</v-btn>
+					</v-container>
 				</v-card>
 			</v-flex>
 		</v-layout>
@@ -100,20 +114,34 @@
 				<v-card-title>
 					<span class="headline">Add a collaborator</span>
 				</v-card-title>
-				<v-container>
-					<v-select label='Name' prepend-icon='person' v-model='dialog_add.name' required
-						:disabled="dialog_add.loading"
-						combobox clearable :items="knownCollaborators">
-					</v-select>
-					<v-layout row wrap>
-						<v-flex xs4>
+				<v-container grid-list-md text-xs-center>
+					<v-layout row wrap align-center>
+						<v-flex xs12>
+							<v-select label='Name' prepend-icon='person' v-model='dialog_add.name' required
+								:disabled="dialog_add.loading"
+								combobox clearable :items="knownCollaborators">
+							</v-select>
+						</v-flex>
+						<!-- Read -->
+						<v-flex xs2 offset-sm2>
 							<v-checkbox label='Read' v-model='dialog_add.rights' value='r' color='green'></v-checkbox>
 						</v-flex>
-						<v-flex xs4>
+						<v-flex xs10 sm8>
+							<p class="grey--text">Allow the user to access the repository</p>
+						</v-flex>
+						<!-- Write -->
+						<v-flex xs2 offset-sm2>
 							<v-checkbox label='Write' v-model='dialog_add.rights' value='w' color='orange'></v-checkbox>
 						</v-flex>
-						<v-flex xs4>
+						<v-flex xs10 sm8>
+							<p class="grey--text">Allow the user to push to the remote</p>
+						</v-flex>
+						<!-- Admin -->
+						<v-flex xs2 offset-sm2>
 							<v-checkbox label='Admin' v-model='dialog_add.rights' value='a' color='red'></v-checkbox>
+						</v-flex>
+						<v-flex xs10 sm8>
+							<p class="grey--text">Grant admin privileges</p>
 						</v-flex>
 					</v-layout>
 		        </v-container>
@@ -132,27 +160,37 @@
 				<v-card-title>
 					<span class="headline">Edit a collaborator's rights</span>
 				</v-card-title>
-				<v-container>
-					<v-layout row wrap class='text-xs-center'>
-						<v-flex xs3 red>
+				<v-container grid-list-md text-xs-center>
+					<v-layout row wrap align-center>
+						<v-flex xs2>
 							<avatar :name='dialog_edit.name'></avatar>
 						</v-flex>
-						<v-flex xs9 yellow>
-							<div class="display-1">{{ dialog_edit.name }}</div>
+						<v-flex xs10>
+							<div class="display-1 ellipsis">{{ dialog_edit.name }}</div>
 						</v-flex>
-						<v-flex xs12 green>
+						<v-flex xs12 class='my-3'>
 							<v-divider></v-divider>
-
 						</v-flex>
-						<v-flex xs4 orange>
-							<v-checkbox label='Read' v-model='dialog_edit.rights' value='r' color='green'>salut</v-checkbox>
-							Details
+						<!-- Read -->
+						<v-flex xs2 offset-sm2>
+							<v-checkbox label='Read' v-model='dialog_edit.rights' value='r' color='green'></v-checkbox>
 						</v-flex>
-						<v-flex xs4>
+						<v-flex xs10 sm8>
+							<p class="grey--text">Allow the user to access the repository</p>
+						</v-flex>
+						<!-- Write -->
+						<v-flex xs2 offset-sm2>
 							<v-checkbox label='Write' v-model='dialog_edit.rights' value='w' color='orange'></v-checkbox>
 						</v-flex>
-						<v-flex xs4>
+						<v-flex xs10 sm8>
+							<p class="grey--text">Allow the user to push to the remote</p>
+						</v-flex>
+						<!-- Admin -->
+						<v-flex xs2 offset-sm2>
 							<v-checkbox label='Admin' v-model='dialog_edit.rights' value='a' color='red'></v-checkbox>
+						</v-flex>
+						<v-flex xs10 sm8>
+							<p class="grey--text">Grant admin privileges</p>
 						</v-flex>
 					</v-layout>
 		        </v-container>
@@ -163,12 +201,6 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-
-		<!-- Snackbar -->
-		<v-snackbar bottom v-model='snackbar.show'>
-			{{ snackbar.message }}
-			<v-btn flat dark @click.stop="snackbar.show = false">Dismiss</v-btn>
-		</v-snackbar>
 	</page>
 </template>
 
@@ -177,9 +209,10 @@
 	import moment from 'moment';
 	import Page from './Page';
 	import Avatar from '../Avatar';
+	import Git from '../Git'
 
 	export default {
-		components: { Page, Avatar },
+		components: { Page, Git, Avatar },
 		data () {
 			return {
 				/* Page state */
@@ -213,7 +246,7 @@
 			};
 		},
 		methods: {
-			...mapActions(['deleteRepository']),
+			...mapActions(['deleteRepository', 'addCollaborator']),
 			_init_ (callback) {
 				Promise.all([
 					this.api.repositoryInfo(this.name),
@@ -221,6 +254,8 @@
 				]).then(data => {
 					this.info = data[0];
 					this.acl = data[1];
+					// Register collaborators
+					this.acl.forEach(a => { this.addCollaborator(a.name) });
 					callback();
 				}).catch(err => {
 					callback(err);
@@ -306,6 +341,8 @@
 					.then(_ => this.api.getACL(name))
 					.then(acl => {
 						console.log(acl);
+						// Register collaborator
+						this.addCollaborator(user);
 						this.acl = acl;
 					});
 			},
@@ -318,7 +355,7 @@
 			}
 		},
 		computed: {
-			...mapGetters(['api', 'knownRepositories', 'knownCollaborators']),
+			...mapGetters(['api', 'login', 'knownRepositories', 'knownCollaborators']),
 			labels () {
 				let labels = [];
 
@@ -375,6 +412,9 @@
 				}
 
 				return labels;
+			},
+			gitUrl () {
+				return `git@git.epitech.eu:/${this.login}/${this.name}`;
 			}
 		},
 		created () {

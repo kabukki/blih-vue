@@ -1,6 +1,6 @@
 <template>
 	<v-app :dark="dark">
-		<v-navigation-drawer app absolute clipped permanent>
+		<v-navigation-drawer app fixed clipped permanent>
 			<v-toolbar flat class='transparent'>
 				<v-list class='pa-0'>
 					<v-list-tile avatar>
@@ -31,7 +31,7 @@
 				</v-list-tile>
 			</v-list>
 		</v-navigation-drawer>
-		<v-toolbar app absolute dark clipped-left>
+		<v-toolbar app fixed dark clipped-left>
 			<v-btn icon @click='drawer = !drawer' v-if="navicon == 'drawer'">
 				<v-icon>menu</v-icon>
 			</v-btn>

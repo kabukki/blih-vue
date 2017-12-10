@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import Blih from 'blih'
+import Store from 'electron-store';
+
+let store = new Store();
 
 Vue.use(Vuex)
 
@@ -12,7 +15,6 @@ function ignoreCaseSort (a, b) {
 }
 
 const state = {
-    theme: 'light',
     api: null,
     email: null,
     login: null,
@@ -37,9 +39,8 @@ const state = {
         ],
         internship: []
     },
-    knownCollaborators: [
-        'ramassage-tek', 'fernan_x', 'benhab_i', 'jaunet_n', 'da-pur_c', 'ophelie.berrier@epitech.eu', 'pellat_c'
-    ]
+    theme: store.get('theme', 'light'),
+    knownCollaborators: store.get('collaborators', [])
 };
 
 const getters = {
@@ -54,9 +55,6 @@ const getters = {
 };
 
 const mutations = {
-    SET_THEME (state, payload) {
-        state.theme = payload.theme;
-    },
     /* API */
     AUTHENTICATE (state, payload) {
         state.api = payload.api;
@@ -77,24 +75,40 @@ const mutations = {
     /* SSH keys */
     UPDATE_KEYS (state, payload) {
         state.keys = payload.keys;
+    },
+    /* Theme */
+    SET_THEME (state, payload) {
+        state.theme = payload.theme;
+        store.set('theme', state.theme);
+    },
+    /* Collaborators */
+    ADD_COLLABORATOR (state, payload) {
+        if (!state.knownCollaborators.includes(payload.name)) {
+            console.log('adding ' + payload.name);
+            state.knownCollaborators.push(payload.name);
+            console.log('saving to store');
+            store.set('collaborators', state.knownCollaborators.sort());
+            console.log('done');
+        }
     }
 };
 
 const actions = {
-    setTheme (context, theme) {
-        context.commit('SET_THEME', { theme });
-    },
     authenticate (context, credentials) {
-        let api = new Blih({ email: credentials.email, password: credentials.password });
+        try {
+            let api = new Blih({ email: credentials.email, password: credentials.password });
 
-        return api.whoami()
-            .then(data => {
-                context.commit('AUTHENTICATE', {
-                    api,
-                    email: credentials.email,
-                    login: data.message
+            return api.whoami()
+                .then(data => {
+                    context.commit('AUTHENTICATE', {
+                        api,
+                        email: credentials.email,
+                        login: data.message
+                    });
                 });
-            });
+        } catch (err) {
+            return Promise.reject(err);
+        }
     },
     /* Repositories */
     updateRepositories (context) {
@@ -117,6 +131,14 @@ const actions = {
             .then(data => {
                 context.commit('UPDATE_KEYS', { keys: data });
             });
+    },
+    /* Theme */
+    setTheme (context, theme) {
+        context.commit('SET_THEME', { theme });
+    },
+    /* Collaborators */
+    addCollaborator (context, name) {
+        context.commit('ADD_COLLABORATOR', { name });
     }
 };
 

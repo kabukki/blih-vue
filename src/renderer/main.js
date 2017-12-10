@@ -7,7 +7,6 @@ import store from './store'
 /* CSS */
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
-//import 'materialize-css/dist/css/materialize.css'
 import './assets/css/fonts/icon.css'
 import './assets/css/custom.css'
 

@@ -1,12 +1,12 @@
 <template>
 	<v-avatar :color='color' :tile='tile'>
-		<img :src="src" alt="" v-if='src'>
+		<img :src="src" v-if='src'>
 		<span class='white--text headline' v-else>{{ letter }}</span>
 	</v-avatar>
 </template>
 <script>
 	export default {
-		props: ['src', 'name', 'tile'],
+		props: ['name', 'tile'],
 		data () {
 			return {
 				a: 'red', b: 'pink', c: 'purple', d: 'deep-purple',
@@ -27,6 +27,9 @@
 			color () {
 				const lower = this.letter.toLowerCase();
 				return this[lower] || 'black';
+			},
+			src () {
+				return (this.name.includes('@') && 'https://cdn.local.epitech.eu/userprofil/profilview/' + this.name.split('@')[0] + '.jpg' || false);
 			}
 		}
 	}
