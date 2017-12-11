@@ -4,7 +4,7 @@
 		<v-layout row wrap>
 			<!-- Name -->
 			<v-flex xs12>
-				<v-card tile dark color='primary' class='pa-4'>
+				<v-card tile dark :color='color' class='pa-4'>
 					<v-card-text class='text-xs-center'>
 						<div class="display-3">{{ name }}</div>
 					</v-card-text>
@@ -48,7 +48,7 @@
 			<!-- Collaborators -->
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
-					<v-container fluid>
+					<v-container>
 						<div class="subheading grey--text">Collaborators</div>
 						<v-list two-line v-if='acl.length > 0'>
 							<template v-for='(collaborator, index) in acl'>
@@ -80,7 +80,7 @@
 			<!-- Danger zone -->
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
-					<v-container fluid>
+					<v-container>
 						<div class="subheading grey--text">Danger zone</div>
 						<v-btn color='error' @click.stop='dialog_delete.show = true'>
 							<v-icon left>delete</v-icon>
@@ -303,7 +303,6 @@
 					.then(_ => {
 						this.dialog_add.show = false;
 						this.dialog_add.error = false;
-						this.dialog_add.loading = false;
 						this.dialog_add.name = '';
 						this.dialog_add.rights = [];
 					}).catch(err => {
@@ -326,7 +325,6 @@
 				this.setACL(this.name, this.dialog_edit.name, this.dialog_edit.rights.join(''))
 					.then(_ => {
 						this.dialog_edit.show = false;
-						this.dialog_edit.loading = false;
 						this.dialog_edit.name = '';
 						this.dialog_edit.rights = [];
 					}).catch(err => {
@@ -355,7 +353,10 @@
 			}
 		},
 		computed: {
-			...mapGetters(['api', 'login', 'knownRepositories', 'knownCollaborators']),
+			...mapGetters(['api', 'login', 'knownRepositories', 'knownCollaborators', 'colorOf']),
+			color () {
+				return this.colorOf(this.name);
+			},
 			labels () {
 				let labels = [];
 
@@ -404,6 +405,10 @@
 					/* OCAML */
 					if (this.name.match(/^OCAML_/)) {
 						labels.push({ name: 'OCAML', icon: 'code', color: 'purple', text: 'white' });
+					}
+					/* SHL */
+					if (this.name.match(/^SHL/)) {
+						labels.push({ name: 'Shell', icon: 'code', color: 'amber', text: 'white' });
 					}
 					/* Internship */
 					if (this.name.match(/^stageTEK/)) {

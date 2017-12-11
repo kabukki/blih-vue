@@ -4,7 +4,6 @@ import Vuex from 'vuex'
 import Blih from 'blih'
 import Store from 'electron-store';
 
-let store = new Store();
 
 Vue.use(Vuex)
 
@@ -13,6 +12,30 @@ function ignoreCaseSort (a, b) {
   else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
   else return 0;
 }
+
+const defaultColorMap = {
+    a: 'red', b: 'pink', c: 'purple', d: 'deep-purple',
+    e: 'indigo', f: 'blue', g: 'light-blue', h: 'cyan',
+    i: 'teal', j: 'green', k: 'light-green', l: 'lime',
+    m: 'yellow', n: 'amber', o: 'orange', p: 'deep-orange',
+    q: 'brown', r: 'blue-grey', s: 'grey', t: 'red lighten-2',
+    u: 'pink lighten-2', v: 'purple lighten-2',w: 'deep-purple lighten-2', x: 'indigo lighten-2',
+    y: 'blue lighten-2', z: 'light-blue lighten-2', '0': 'cyan lighten-2', '1': 'teal lighten-2',
+    '2': 'green lighten-2', '3': 'light-green lighten-2', '4': 'lime lighten-2', '5': 'yellow lighten-2',
+    '6': 'amber lighten-2', '7': 'orange lighten-2', '8': 'deep-orange lighten-2', '9': 'brown lighten-2',
+};
+
+let store = new Store({
+    defaults: {
+        collaborators: [],
+        colorMap: defaultColorMap,
+        theme: 'light'
+    }
+});
+
+/*
+ * Vuex
+ */
 
 const state = {
     api: null,
@@ -40,7 +63,8 @@ const state = {
         internship: []
     },
     theme: store.get('theme', 'light'),
-    knownCollaborators: store.get('collaborators', [])
+    knownCollaborators: store.get('collaborators', []),
+    colorMap: store.get('colorMap', defaultColorMap)
 };
 
 const getters = {
@@ -51,7 +75,11 @@ const getters = {
     repositories: state => state.repositories,
     keys: state => state.keys,
     knownRepositories: state => state.knownRepositories,
-    knownCollaborators: state => state.knownCollaborators
+    knownCollaborators: state => state.knownCollaborators,
+    colorOf: state => text => {
+        const letter = (text && text.length) && text[0].toLowerCase() || '?';
+        return state.colorMap[letter] || 'black';
+    }
 };
 
 const mutations = {
@@ -85,6 +113,7 @@ const mutations = {
     ADD_COLLABORATOR (state, payload) {
         if (!state.knownCollaborators.includes(payload.name)) {
             console.log('adding ' + payload.name);
+            // TODO: state.knownCollaborators.push({ name: payload.name, picture: payload.picture || false });
             state.knownCollaborators.push(payload.name);
             console.log('saving to store');
             store.set('collaborators', state.knownCollaborators.sort());

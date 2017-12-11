@@ -1,27 +1,44 @@
 <template>
 	<page v-on:init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
-		<v-layout row>
-			<v-flex class='text-xs-center'>
-				<div v-if="repositories.length > 0">
-					<v-text-field label='Search' prepend-icon='search' v-model='filter' />
-					<v-list class="pt-0 pb-0" v-show='filtered.length > 0'>
-						<v-list-tile avatar
-						v-for="repo in filtered" :key="repo.name"
-						:to="{ name: 'blih.repository', params: { name: repo.name } }">
-							<avatar :name='repo.name' class='mr-3'></avatar>
-							<v-list-tile-content>
-								<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
-							</v-list-tile-content>
-						</v-list-tile>
-					</v-list>
-					<div class='text-xs-center' v-show='filtered.length == 0'>
-						No repository matches your query.
-					</div>
-				</div>
-				<div class='text-xs-center' v-else>
-					No repository was found.
-				</div>
+		<v-layout row wrap>
+			<!-- Name -->
+			<v-flex xs12>
+				<v-card tile dark color='primary' class='pa-4'>
+					<v-card-text class='text-xs-center'>
+						<div class="display-3">Repositories</div>
+					</v-card-text>
+				</v-card>
+			</v-flex>
+			<!-- Repositories -->
+			<v-flex xs12>
+				<v-card tile>
+					<v-container>
+						<v-text-field label='Search' prepend-icon='search' v-model='filter' />
+						<v-list one-line class="pt-0 pb-0" v-show='repositories.length > 0 && filtered.length > 0'>
+							<template v-for='(repo, index) in filtered'>
+								<v-divider v-if='index > 0'></v-divider>
+								<v-list-tile avatar :key="repo.name"
+									:to="{ name: 'blih.repository', params: { name: repo.name } }"
+								>
+									<avatar :name='repo.name' class='mr-3'></avatar>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
+									</v-list-tile-content>
+								</v-list-tile>
+							</template>
+							<p class='text-xs-center mb-0'>
+								<v-icon>cloud</v-icon> Showing {{ filtered.length }} of {{ repositories.length }} repositories
+							</p>
+						</v-list>
+						<div class='text-xs-center' v-show='repositories.length > 0 && filtered.length == 0'>
+							No repository matches your query.
+						</div>
+						<div class='text-xs-center' v-show='repositories.length == 0'>
+							No repository was found.
+						</div>
+					</v-container>
+				</v-card>
 			</v-flex>
 		</v-layout>
 
@@ -90,6 +107,7 @@
 		computed: {
 			...mapGetters(['repositories']),
 			filtered () {
+				// TODO: maybe create specific getter to filter ? (might optimize)
 				return this.repositories.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
 			}
 		},

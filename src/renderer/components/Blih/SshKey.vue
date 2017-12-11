@@ -1,83 +1,113 @@
 <template>
-	<v-container fill-height>
-		<!-- Done -->
-		<v-layout row v-if="!init">
-			<!-- OK -->
-			<v-flex v-if="!error">
-				<div class='display-2'>Information</div>
-				<v-divider/>
-				<p v-if='!info.error'>
-					<p><b>Owner:</b> {{ info.owner }}</p>
-					<p><b>Host:</b> {{ info.host }}</p>
-				</p>
-				<div class='display-2'>Contents</div>
-				<v-divider/>
-				<v-text-field readonly textarea label='Public SSH key' v-model='key.data' />
+	<page v-on:init='_init_' :snackbar='snackbar'>
+		<!-- Content -->
+		<v-layout row wrap>
+			<!-- Name -->
+			<v-flex xs12>
+				<v-card tile dark :color='color' class='pa-4'>
+					<v-card-text class='text-xs-center'>
+						<div class="display-3">{{ name }}</div>
+					</v-card-text>
+				</v-card>
 			</v-flex>
-			<!-- Error -->
-			<v-flex v-else>
-				<error :message="error"/>
+			<!-- Information -->
+			<v-flex xs12>
+				<v-card tile class='text-xs-center'>
+					<v-container>
+						<v-layout row wrap>
+							<v-flex sm12 md4>
+								<div class="subheading grey--text">Type</div>
+								{{ type }}
+							</v-flex>
+							<v-flex sm12 md4>
+								<div class="subheading grey--text">Comment</div>
+								{{ comment }}
+							</v-flex>
+							<v-flex sm12 md4>
+								<div class="subheading grey--text">Fingerprint</div>
+								{{ fingerprint }}
+							</v-flex>
+						</v-layout>
+					</v-container>
+				</v-card>
+			</v-flex>
+			<!-- Data -->
+			<v-flex xs12>
+				<v-card tile class='text-xs-center'>
+					<v-container>
+						<div class="subheading grey--text">Danger zone</div>
+						<v-text-field label='Contents' textarea readonly auto-grow :value='key.data'></v-text-field>
+					</v-container>
+				</v-card>
+			</v-flex>
+			<!-- Danger zone -->
+			<v-flex xs12>
+				<v-card tile class='text-xs-center'>
+					<v-container>
+						<div class="subheading grey--text">Danger zone</div>
+						<v-btn color='error' @click.stop='dialog_delete.show = true'>
+							<v-icon left>delete</v-icon>
+							Delete
+						</v-btn>
+					</v-container>
+				</v-card>
 			</v-flex>
 		</v-layout>
 
-		<!-- Loading -->
-		<v-layout align-center v-else>
-			<v-flex class='text-xs-center'>
-				<loader/>
-			</v-flex>
-		</v-layout>
-
-		<!-- FAB -->
-		<v-speed-dial v-model='fab' fixed bottom right direction='top'>
-			<v-btn slot='activator' v-model='fab' fab color='primary'>
-				<v-icon>add</v-icon>
-				<v-icon>close</v-icon>
-			</v-btn>
-			<v-btn fab small color='secondary'>
-				<v-icon>delete_forever</v-icon>
-			</v-btn>
-			<v-btn fab small color='secondary'>
-				<v-icon>file_download</v-icon>
-			</v-btn>
-		</v-speed-dial>
-	</v-container>
+	</page>
+	<!-- work-break: break-all -->
 </template>
 
 <script>
 	import { mapGetters } from 'vuex';
-	import Error from '../Error';
-	import Loader from '../Loader';
+	import Page from './Page';
 
 	export default {
-		components: { Error, Loader },
+		components: { Page },
 		data () {
 			return {
-				init: true,
-				error: false,
-				fab: false,
+				/* Snackbar */
+				snackbar: {
+					show: false,
+					color: '',
+					message: ''
+				},
+				/* Dialogs */
+				dialog_delete: {
+					show: false,
+					loading: false
+				},
+				/* Data */
 				name: '',
 				key: {}
 			};
 		},
 		methods: {
-			...mapGetters(['keys'])
+			...mapGetters(['keys']),
+			_init_ (callback) {
+				callback();
+			}
 		},
-		mounted () {
+		computed: {
+			...mapGetters(['colorOf']),
+			color () {
+				return this.colorOf(this.name);
+			},
+			type () {
+				console.log('Key in type:');
+				console.log(this.key);
+				return this.key.data.split(' ')[0];
+			},
+			comment () {
+				return this.key.name;
+			},
+			fingerprint () {
+				return 'f';
+			}
+		},
+		created () {
 			this.name = this.$route.params.name;
 			this.key = this.keys().find(k => k.name == this.name);
-			let info = this.key.name.split('@');
-			if (info) {
-				this.info = {
-					owner: info[0],
-					host: info[1]
-				};
-			} else {
-				this.info = {
-					error: 'Cannot get key info'
-				};
-			}
-			console.log(this.key);
-			this.init = false;
 		}
 	}
 </script>

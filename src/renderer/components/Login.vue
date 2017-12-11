@@ -4,9 +4,9 @@
 			<page v-on:init='_init_' :snackbar='snackbar' fill-height>
 				<!-- Content -->
 				<v-layout row align-center justify-space-around>
-					<v-flex xs8 class='text-xs-center'>
+					<v-flex sm8 md6 lg4 class='text-xs-center'>
 						<div class='display-2 primary--text '>Log in</div>
-						<v-form @submit.prevent='login'>
+						<v-form @submit.prevent='logIn'>
 							<v-text-field label='Email' prepend-icon='person' v-model='email' required
 								suffix="@epitech.eu"
 								type="email"
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-	import { mapActions } from 'vuex';
+	import { mapGetters, mapActions } from 'vuex';
 	import Blih from 'blih';
 	import Page from './Blih/Page';
 
@@ -49,23 +49,26 @@
 			};
 		},
 		methods: {
-			...mapActions(['authenticate']),
+			...mapActions(['authenticate', 'addCollaborator']),
 			_init_ (callback) {
 				Blih.ping()
 					.then(_ => {
 						this.showSnackbar('success', 'Blih is up');
 						callback();
 					}).catch(err => {
-						callback('Blih is unreachable', err); //Blih is unreachable
+						callback('Blih is unreachable', err);
 					});
 			},
 			/* Helpers */
-			login () {
-				console.log('authenticating with ' + this.email + ' / ' + this.password);
+			logIn () {
+				if (!this.email.includes('@')) {
+					this.email += '@epitech.eu';
+				}
 				this.loading = true;
-				this.hideSnackbar();
-				this.authenticate({ email: this.email + '@epitech.eu', password: this.password })
+				this.authenticate({ email: this.email, password: this.password })
 					.then((data) => {
+						// Register yourself
+						this.addCollaborator(this.login);
 						this.$router.push({ name: 'blih.repositories' });
 					}).catch((err) => {
 						this.showSnackbar('error', err);
@@ -80,22 +83,10 @@
 					color,
 					message
 				};
-			},
-			hideSnackbar () {
-				this.snackbar.show = false;
-			},
+			}
+		},
+		computed: {
+			...mapGetters(['login'])
 		}
 	};
 </script>
-
-<style lang="css">
-	/* label focus color */
-   .input-field input:focus {
-     color: #000;
-}
-/* label underline focus color */
-   .input-field input:focus {
-     border-bottom: 1px solid #000;
-     box-shadow: 0 1px 0 0 #000;
-   }
-</style>
