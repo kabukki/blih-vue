@@ -61,21 +61,20 @@
 			},
 			/* Helpers */
 			logIn () {
-				if (!this.email.includes('@')) {
-					this.email += '@epitech.eu';
-				}
 				this.loading = true;
-				this.authenticate({ email: this.email, password: this.password })
-					.then((data) => {
-						// Register yourself
-						this.addCollaborator(this.login);
-						this.$router.push({ name: 'blih.repositories' });
-					}).catch((err) => {
-						this.showSnackbar('error', err);
-					}).then(_ => {
-						this.password = '';
-						this.loading = false;
-					});
+				this.authenticate({
+					email: this.email.includes('@') ? this.email : this.email + '@epitech.eu',
+					password: this.password
+				}).then((data) => {
+					// Register yourself
+					this.addCollaborator(this.login);
+					this.$router.push({ name: 'blih.repositories' });
+				}).catch((err) => {
+					this.showSnackbar('error', err);
+				}).then(_ => {
+					this.password = '';
+					this.loading = false;
+				});
 			},
 			showSnackbar (color, message) {
 				this.snackbar = {

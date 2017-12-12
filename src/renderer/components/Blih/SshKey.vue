@@ -15,15 +15,11 @@
 				<v-card tile class='text-xs-center'>
 					<v-container>
 						<v-layout row wrap>
-							<v-flex sm12 md4>
+							<v-flex sm12 md6>
 								<div class="subheading grey--text">Type</div>
 								{{ type }}
 							</v-flex>
-							<v-flex sm12 md4>
-								<div class="subheading grey--text">Comment</div>
-								{{ comment }}
-							</v-flex>
-							<v-flex sm12 md4>
+							<v-flex sm12 md6>
 								<div class="subheading grey--text">Fingerprint</div>
 								{{ fingerprint }}
 							</v-flex>
@@ -35,8 +31,12 @@
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
 					<v-container>
-						<div class="subheading grey--text">Danger zone</div>
-						<v-text-field label='Contents' textarea readonly auto-grow :value='key.data'></v-text-field>
+						<div class="subheading grey--text">Key contents</div>
+						<v-text-field label='Data' textarea readonly auto-grow :value='key.data'></v-text-field>
+						<!-- FAB -->
+						<v-btn small fab absolute bottom right color='primary' @click.stop='dialog_download.show = true'>
+							<v-icon small>file_download</v-icon>
+						</v-btn>
 					</v-container>
 				</v-card>
 			</v-flex>
@@ -54,11 +54,48 @@
 			</v-flex>
 		</v-layout>
 
+		<!-- Dialog: Delete -->
+		<v-dialog persistent max-width='500px' v-model='dialog_delete.show'>
+			<v-form @submit.prevent='deleteDelete'>
+				<v-card>
+					<v-card-title>
+						<span class="headline">Delete key ?</span>
+					</v-card-title>
+					<v-card-text>
+						This will delete the key "{{ name }}" forever.
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" flat :disabled='dialog_delete.loading' @click.stop='deleteCancel'>Cancel</v-btn>
+						<v-btn color="primary" type='submit' flat :disabled='dialog_delete.loading' :loading='dialog_delete.loading'>Delete</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-form>
+		</v-dialog>
+
+		<!-- Dialog: Download -->
+		<v-dialog persistent max-width='500px' v-model='dialog_download.show'>
+			<v-form @submit.prevent='downloadDownload'>
+				<v-card>
+					<v-card-title>
+						<span class="headline">Download a public key</span>
+					</v-card-title>
+					<v-card-text>
+						stuff
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" flat :disabled='dialog_delete.loading' @click.stop='downloadCancel'>Cancel</v-btn>
+						<v-btn color="primary" type='submit' flat :disabled='dialog_delete.loading' :loading='dialog_delete.loading'>Download</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-form>
+		</v-dialog>
 	</page>
-	<!-- work-break: break-all -->
 </template>
 
 <script>
+	import fingerprint from 'ssh-fingerprint';
 	import { mapGetters } from 'vuex';
 	import Page from './Page';
 
@@ -77,6 +114,10 @@
 					show: false,
 					loading: false
 				},
+				dialog_download: {
+					show: false,
+					loading: false
+				},
 				/* Data */
 				name: '',
 				key: {}
@@ -86,24 +127,53 @@
 			...mapGetters(['keys']),
 			_init_ (callback) {
 				callback();
+			},
+			/* Dialog: Delete */
+			deleteCancel () {
+				this.dialog_delete.show = false;
+			},
+			deleteDelete () {
+				this.dialog_delete.loading = true;
+				this.api.deleteKey(this.name + 'zzzz')
+					.then(data => {
+						this.$router.push({name: 'blih.ssh-keys'});
+					}).catch(err => {
+						this.showSnackbar('error', err);
+					}).then(_ => {
+						this.dialog_delete.loading = false;
+					});
+			},
+			/* Dialog: Download */
+			downloadCancel () {
+				this.dialog_download.show = false;
+			},
+			downloadDownload () {
+				this.dialog_download.loading = true;
+				// then
+				this.dialog_download.show = false;
+				// finally
+				this.dialog_download.loading = false;
+			},
+			/* Helpers */
+			showSnackbar (color, message) {
+				this.snackbar = {
+					show: true,
+					color,
+					message
+				};
 			}
 		},
 		computed: {
-			...mapGetters(['colorOf']),
+			...mapGetters(['api', 'colorOf']),
 			color () {
 				return this.colorOf(this.name);
 			},
 			type () {
-				console.log('Key in type:');
-				console.log(this.key);
 				return this.key.data.split(' ')[0];
 			},
-			comment () {
-				return this.key.name;
-			},
 			fingerprint () {
-				return 'f';
-			}
+				return fingerprint(this.key.data);
+			},
 		},
 		created () {
 			this.name = this.$route.params.name;

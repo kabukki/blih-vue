@@ -1,20 +1,26 @@
 <template>
 	<v-card tile>
-		<v-container grid-list-md>
+		<v-container>
 			<div class="subheading grey--text">Git</div>
 			<v-layout row wrap>
 				<v-flex xs12>
 					<v-icon>link</v-icon> URL: <span class="grey--text">{{ url }}</span>
 				</v-flex>
+				<!-- Done -->
 				<v-flex xs12 v-if="!init && !error">
 					<v-list two-line v-show='commits.length > 0'>
-						<template v-for='(commit, index) in latestCommits'>
+						<template v-for='(commit, index) in pageCommits'>
 							<v-divider v-if='index > 0'></v-divider>
 							<v-list-tile avatar :key='commit.hash' @click.stop='diff(commit)'>
-								<avatar :name='commit.author_email' class='mr-3'></avatar>
+								<tile-avatar :name='commit.author_name' class='mr-3'></tile-avatar>
 								<v-list-tile-content>
-									<v-list-tile-title>{{ commit.message }}</v-list-tile-title>
-									<v-list-tile-sub-title><span class='text--primary'>{{ commit.author_name }}</span> &mdash; {{ shortHash(commit.hash) }}</v-list-tile-sub-title>
+									<v-list-tile-title>
+										{{ commit.message }} &mdash; <span class="grey--text">{{ shortHash(commit.hash) }}</span>
+									</v-list-tile-title>
+									<v-list-tile-sub-title>
+										<span class='text--primary'>{{ commit.author_name }}</span>
+										<span class='text--secondary'>&lt;{{ commit.author_email }}&gt;</span>
+									</v-list-tile-sub-title>
 								</v-list-tile-content>
 								<v-list-tile-action>
 									<v-list-tile-action-text>
@@ -32,20 +38,21 @@
 						No commits
 					</p>
 				</v-flex>
+				<!-- Error -->
 				<v-flex xs12 v-else-if="!init && error">
 					Error: {{ error }}
 				</v-flex>
+				<!-- Loading -->
 				<v-flex xs12 v-else>
 					<v-progress-linear height='5' color='primary' indeterminate></v-progress-linear>
 					<p class="text-xs-center mb-0">Fetching history ...</p>
 				</v-flex>
 				<!-- FAB -->
-				<v-tooltip left>
-					<v-btn small fab absolute bottom right color='primary' slot='activator' @click.stop='dialog_clone.show = true'>
+				<v-fab-transition>
+					<v-btn small fab absolute bottom right color='primary' v-show='!init && !error' @click.stop='dialog_clone.show = true'>
 						<v-icon small>cloud_download</v-icon>
 					</v-btn>
-					<span>Clone</span>
-				</v-tooltip>
+				</v-fab-transition>
 			</v-layout>
 		</v-container>
 
@@ -70,7 +77,7 @@
 		</v-dialog>
 
 		<!-- Dialog: Diff -->
-		<v-dialog persistent max-width='500px' v-model='dialog_diff.show'>
+		<v-dialog persistent scrollable max-width='500px' v-model='dialog_diff.show'>
 			<v-card v-if='dialog_diff.show'>
 				<v-card-title>
 					<span class="headline">
@@ -78,35 +85,36 @@
 						 <span class='grey--text'>{{ shortHash(dialog_diff.commit.hash) }}</span>
 					</span>
 				</v-card-title>
-				<v-container>
-					<v-layout row wrap class='text-xs-center' v-if='dialog_diff.diff'>
-						<v-flex xs12>
-							<v-list two-line>
-								<template v-for='(file, index) in dialog_diff.diff.files'>
-									<v-divider v-if='index > 0'></v-divider>
-									<v-list-tile avatar :key='file.file'>
-										<v-list-tile-avatar color='grey lighten-2' class='text-xs-center'>
-											<v-icon>insert_drive_file</v-icon>
-										</v-list-tile-avatar>
-										<v-list-tile-content>
-											<v-list-tile-title>{{ file.file }}</v-list-tile-title>
-											<v-list-tile-sub-title><span class="success--text">{{ file.insertions }} insertions</span> &mdash; <span class="error--text">{{ file.deletions }} deletions</span></v-list-tile-sub-title>
-										</v-list-tile-content>
-									</v-list-tile>
-								</template>
-								<p class='mb-0'>
-									<v-icon>edit</v-icon> Total: {{ dialog_diff.diff.insertions + dialog_diff.diff.deletions }} changes (<span class="success--text">{{ dialog_diff.diff.insertions }}</span> /  <span class="error--text">{{ dialog_diff.diff.deletions }}</span>)
-								</p>
-							</v-list>
-						</v-flex>
-					</v-layout>
-					<v-layout row wrap v-else>
-						<v-flex xs12>
-							This commit has no parent.
-						</v-flex>
-					</v-layout>
-				</v-container>
+				<v-divider></v-divider>
+				<v-card-text>
+					<v-list two-line v-if='dialog_diff.diff.files.length > 0'>
+						<template v-for='(file, index) in dialog_diff.diff.files'>
+							<v-divider v-if='index > 0'></v-divider>
+							<v-list-tile avatar :key='file.file'>
+								<v-list-tile-avatar color='grey lighten-2'>
+									<v-icon>insert_drive_file</v-icon>
+								</v-list-tile-avatar>
+								<v-list-tile-content>
+									<v-list-tile-title>{{ file.file }}</v-list-tile-title>
+									<v-list-tile-sub-title>
+										<span v-show='file.insertions > 0' class="success--text">{{ file.insertions }} insertions</span>
+										<span v-show='file.insertions > 0 && file.deletions > 0'>&mdash;</span>
+										<span v-show='file.deletions > 0' class="error--text">{{ file.deletions }} deletions</span>
+									</v-list-tile-sub-title>
+								</v-list-tile-content>
+							</v-list-tile>
+						</template>
+					</v-list>
+					<p class='text-xs-center' v-else>
+						Nothing to show.
+					</p>
+				</v-card-text>
+				<v-divider></v-divider>
 				<v-card-actions>
+					<v-icon>edit</v-icon>
+					Total: {{ dialog_diff.diff.insertions + dialog_diff.diff.deletions }} changes
+					(<span class="success--text">{{ dialog_diff.diff.insertions }}</span> /
+					<span class="error--text">{{ dialog_diff.diff.deletions }}</span>)
 					<v-spacer></v-spacer>
 					<v-btn color="primary" flat @click.stop='diffClose'>Close</v-btn>
 				</v-card-actions>
@@ -118,10 +126,10 @@
 	import git from 'simple-git/promise';
 	import tmp from 'tmp';
 	import moment from 'moment';
-	import Avatar from './Avatar';
+	import TileAvatar from './TileAvatar';
 
 	export default {
-		components: { Avatar },
+		components: { TileAvatar },
 		props: {
 			url: {
 				type: String,
@@ -198,15 +206,13 @@
 			diff (commit) {
 				const parent = this.parentOf(commit);
 				this.dialog_diff.commit = commit;
-				if (parent != null) {
-					this.git.diffSummary([parent.hash, commit.hash])
-						.then(diff => {
-							this.dialog_diff.diff = diff;
-						}).catch(console.log)
-				} else {
-					this.dialog_diff.diff = false;
-				}
-				this.dialog_diff.show = true;
+				this.git.diffSummary([parent.hash, commit.hash])
+					.then(diff => {
+						this.dialog_diff.diff = diff;
+						this.dialog_diff.show = true;
+					}).catch(err => {
+						this.error = err;
+					});
 			},
 			diffClose () {
 				this.dialog_diff.show = false;
@@ -228,7 +234,7 @@
 			}
 		},
 		computed: {
-			latestCommits () {
+			pageCommits () {
 				const start = (this.page - 1) * this.perPage;
 				return this.commits.slice(start, start + this.perPage);
 			},

@@ -57,10 +57,11 @@
     "electron-store": "^1.3.0",
     "moment": "^2.19.3",
     "simple-git": "^1.85.0",
+    "ssh-fingerprint": "0.0.1",
     "tmp": "0.0.33",
     "vue": "^2.3.3",
     "vue-router": "^2.5.3",
-    "vuetify": "^1.0.0-alpha.1",
+    "vuetify": "^1.0.0-alpha.2",
     "vuex": "^2.3.1"
   },
   "devDependencies": {

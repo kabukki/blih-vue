@@ -1,12 +1,10 @@
 <template>
 	<v-app :dark="dark">
-		<v-navigation-drawer app fixed clipped permanent>
+		<v-navigation-drawer app temporary v-model='drawer'>
 			<v-toolbar flat class='transparent'>
 				<v-list class='pa-0'>
 					<v-list-tile avatar>
-						<v-list-tile-avatar>
-							<img :src="picture" alt="user">
-						</v-list-tile-avatar>
+						<tile-avatar :name='login'></tile-avatar>
 						<v-list-tile-content>
 							<v-list-tile-title>{{ email }}</v-list-tile-title>
 							<v-list-tile-sub-title>{{ login }}</v-list-tile-sub-title>
@@ -16,22 +14,18 @@
 			</v-toolbar>
 			<v-divider></v-divider>
 			<v-list class='pt-0'>
-				<v-list-tile v-for='link in links' :key='link.title' :to="{name: link.to}">
+				<v-list-tile ripple v-for='link in links' :key='link.title' :to="{name: link.to}">
 					<v-list-tile-action><v-icon>{{ link.icon }}</v-icon></v-list-tile-action>
 					<v-list-tile-content><v-list-tile-title>{{ link.title }}</v-list-tile-title></v-list-tile-content>
 				</v-list-tile>
 				<v-divider></v-divider>
-				<v-list-tile v-for='link in otherLinks' :key='link.title' :to="{name: link.to}">
+				<v-list-tile ripple v-for='link in otherLinks' :key='link.title' :to="{name: link.to}">
 					<v-list-tile-action><v-icon>{{ link.icon }}</v-icon></v-list-tile-action>
 					<v-list-tile-content><v-list-tile-title>{{ link.title }}</v-list-tile-title></v-list-tile-content>
 				</v-list-tile>
-				<v-list-tile :to="{name: 'login'}">
-					<v-list-tile-action><v-icon>exit_to_app</v-icon></v-list-tile-action>
-					<v-list-tile-content><v-list-tile-title>Log out</v-list-tile-title></v-list-tile-content>
-				</v-list-tile>
 			</v-list>
 		</v-navigation-drawer>
-		<v-toolbar app fixed dark clipped-left>
+		<v-toolbar app dark>
 			<v-btn icon @click='drawer = !drawer' v-if="navicon == 'drawer'">
 				<v-icon>menu</v-icon>
 			</v-btn>
@@ -49,17 +43,20 @@
 
 <script>
 	import { mapGetters } from 'vuex';
+	import TileAvatar from './TileAvatar';
 
 	export default {
+		components: { TileAvatar },
 		data () {
 			return {
-				drawer: true,
+				drawer: false,
 				links: [
 					{ icon: 'cloud', title: 'Repositories', to: 'blih.repositories', nav: 'drawer' },
 					{ icon: 'vpn_key', title: 'SSH keys', to: 'blih.ssh-keys', nav: 'drawer' }
 				],
 				otherLinks: [
-					{ icon: 'settings', title: 'Settings', to: 'blih.settings', nav: 'drawer' }
+					{ icon: 'settings', title: 'Settings', to: 'blih.settings', nav: 'drawer' },
+					{ icon: 'exit_to_app', title: 'Log out', to: 'login', nav: 'drawer' }
 				],
 				noLinks: [
 					{ title: 'Repository', to: 'blih.repository', nav: 'back' },
@@ -69,9 +66,6 @@
 		},
 		computed: {
 			...mapGetters(['email', 'login', 'theme']),
-			picture () {
-				return 'https://cdn.local.epitech.eu/userprofil/profilview/' + this.email.split('@')[0] + '.jpg';
-			},
 			dark () {
 				return this.theme == 'dark';
 			},
