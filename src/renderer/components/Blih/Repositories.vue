@@ -1,5 +1,5 @@
 <template>
-	<page v-on:init='_init_' :snackbar='snackbar'>
+	<page @init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
 		<v-layout row wrap>
 			<!-- Title -->
@@ -114,7 +114,7 @@
 			};
 		},
 		computed: {
-			...mapGetters(['repositories']),
+			...mapGetters(['api', 'repositories']),
 			filtered () {
 				// TODO: maybe create specific getter to filter ? (might optimize)
 				return this.repositories.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
@@ -127,7 +127,6 @@
 					.then(_ => {
 						callback();
 					}).catch(err => {
-						console.log('ko could not update repositories');
 						callback(err);
 					});
 			},
@@ -140,8 +139,13 @@
 			createCreate () {
 				this.dialog_create.loading = true;
 				this.createRepository(this.dialog_create.name, this.dialog_create.description)
-					.then(data => {
-						console.log(data);
+					.then(_ => {
+						if (this.dialog_create.turnIn) {
+							return this.api.setACL(this.dialog_create.name, 'ramassage-tek', 'r')
+						} else {
+							return Promise.resolve();
+						}
+					}).then(data => {
 						this.$router.push({name: 'blih.repository', params: { name: this.dialog_create.name }});
 					}).catch(err => {
 						this.showSnackbar('error', err);

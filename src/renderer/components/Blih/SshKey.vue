@@ -1,5 +1,5 @@
 <template>
-	<page v-on:init='_init_' :snackbar='snackbar'>
+	<page @init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
 		<v-layout row wrap>
 			<!-- Name -->

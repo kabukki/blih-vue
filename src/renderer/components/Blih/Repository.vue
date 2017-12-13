@@ -1,5 +1,5 @@
 <template>
-	<page v-on:init='_init_' :snackbar='snackbar'>
+	<page @init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
 		<v-layout row wrap>
 			<!-- Name -->
@@ -74,7 +74,7 @@
 			<!-- Git -->
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
-					<git :url="gitUrl"></git>
+					<git :url="gitUrl" @snackbar='showSnackbar'></git>
 				</v-card>
 			</v-flex>
 			<!-- Danger zone -->
@@ -345,8 +345,6 @@
 				this.setACL(this.name, this.dialog_edit.name, this.dialog_edit.rights.join(''))
 					.then(_ => {
 						this.dialog_edit.show = false;
-						this.dialog_edit.name = '';
-						this.dialog_edit.rights = [];
 					}).catch(err => {
 						this.showSnackbar('error', err);
 					}).then(_ => {
@@ -358,7 +356,6 @@
 				return this.api.setACL(name, user, acl)
 					.then(_ => this.api.getACL(name))
 					.then(acl => {
-						console.log(acl);
 						// Register collaborator
 						this.addCollaborator(user);
 						this.acl = acl;

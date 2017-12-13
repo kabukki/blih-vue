@@ -1,7 +1,7 @@
 <template>
 	<v-app>
 		<v-content>
-			<page v-on:init='_init_' :snackbar='snackbar' fill-height>
+			<page @init='_init_' :snackbar='snackbar' fill-height>
 				<!-- Content -->
 				<v-layout row align-center justify-space-around>
 					<v-flex sm8 md6 lg4 class='text-xs-center'>

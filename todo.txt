@@ -1,1 +1,1 @@
-Revoir la liste des repositories
+Upload component (vuetify front-end pack, Q2 2018)

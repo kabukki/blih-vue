@@ -58,22 +58,22 @@
 
 		<!-- Dialog: Clone -->
 		<v-dialog persistent max-width='500px' v-model='dialog_clone.show'>
-			<v-card>
-				<v-card-title>
-					<span class="headline">Clone a repository</span>
-				</v-card-title>
-				<v-card-text>
-					<v-text-field label='Destination' prepend-icon='folder' v-model='dialog_clone.destination'
-						type="text" disabled>
-					</v-text-field>
-					<p class="mb-0 error--text">Note: this feature is currently unavailable.</p>
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn color="primary" flat :disabled='dialog_clone.loading' @click.stop='cloneCancel'>Cancel</v-btn>
-					<v-btn color="primary" flat :disabled='true' :loading='dialog_clone.loading' @click.stop='cloneClone'>Clone</v-btn>
-				</v-card-actions>
-			</v-card>
+			<v-form v-model='dialog_clone.valid' @submit.prevent='cloneClone'>
+				<v-card>
+					<v-card-title>
+						<span class="headline">Clone a repository</span>
+					</v-card-title>
+					<v-card-text>
+						<v-text-field label='Destination' prepend-icon='folder' readonly v-model='dialog_clone.destination' :rules='dialog_clone.rules'></v-text-field>
+						<input label='Destination' type="file" @change='cloneChange' webkitdirectory>
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" flat :disabled='dialog_clone.loading' @click.stop='cloneCancel'>Cancel</v-btn>
+						<v-btn color="primary" flat :disabled='dialog_clone.loading || !dialog_clone.valid' :loading='dialog_clone.loading' @click.stop='cloneClone'>Clone</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-form>
 		</v-dialog>
 
 		<!-- Dialog: Diff -->
@@ -105,7 +105,7 @@
 							</v-list-tile>
 						</template>
 					</v-list>
-					<p class='text-xs-center' v-else>
+					<p class='text-xs-center mb-0' v-else>
 						Nothing to show.
 					</p>
 				</v-card-text>
@@ -126,6 +126,7 @@
 	import git from 'simple-git/promise';
 	import tmp from 'tmp';
 	import moment from 'moment';
+	import fs from 'fs-extra';
 	import TileAvatar from './TileAvatar';
 
 	export default {
@@ -144,6 +145,12 @@
 				/* Dialogs */
 				dialog_clone: {
 					show: false,
+					loading: false,
+					rules: [
+						path => !!path || 'Required'
+					],
+					valid: true,
+					destination: null
 				},
 				dialog_diff: {
 					show: false,
@@ -190,9 +197,8 @@
 				return this.git.log()
 					.then(log => {
 						this.commits = log.all;
-					}).catch(err => {
+					}).catch(_ => {
 						this.commits = [];
-						//this.error = err.message;
 					});
 			},
 			/* Dialog: Clone */
@@ -200,7 +206,21 @@
 				this.dialog_clone.show = false;
 			},
 			cloneClone () {
-				this.dialog_clone.show = false;
+				this.dialog_clone.loading = true;
+				fs.copy(this.local, this.dialog_clone.destination, err => {
+					if (err) {
+						this.$emit('snackbar', 'error', err);
+					} else {
+						this.$emit('snackbar', 'success', 'Successfully cloned repository into ' + this.dialog_clone.destination);
+						this.dialog_clone.show = false;
+					}
+					this.dialog_clone.loading = false;
+				});
+			},
+			cloneChange (destination) {
+				if (destination.target.files[0]) {
+					this.dialog_clone.destination = destination.target.files[0].path;
+				}
 			},
 			/* Dialog: Diff */
 			diff (commit) {
@@ -231,6 +251,13 @@
 			parentOf (commit) {
 				const index = this.commits.findIndex(c => c.hash == commit.hash);
 				return (index != this.commits.length - 1 ? this.commits[index + 1] : { hash: '4b825dc642cb6eb9a060e54bf8d69288fbee4904' });
+			},
+			showSnackbar (color, message) {
+				this.snackbar = {
+					show: true,
+					color,
+					message
+				};
 			}
 		},
 		computed: {

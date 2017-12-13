@@ -53,19 +53,19 @@ const defaultRepositories = {
         name: 'CPE',
         icon: 'code',
         color: 'cyan',
-        regexp: "^CPE_"
+        regexp: '^CPE_'
     },
     psu: {
         name: 'PSU',
         icon: 'code',
         color: 'red',
-        regexp: "^PSU_"
+        regexp: '^PSU_'
     },
     cPool: {
         name: 'C Pool',
         icon: 'pool',
         color: 'blue-grey',
-        regexp: "^Piscine_C"
+        regexp: '^Piscine_C'
     },
     cppPool: {
         name: 'C++ Pool',
@@ -81,25 +81,25 @@ const defaultRepositories = {
         name: '.NET',
         icon: 'code',
         color: 'teal',
-        regexp: "^DOT_"
+        regexp: '^DOT_'
     },
     ocaml: {
         name: 'OCaml',
         icon: 'code',
         color: 'amber',
-        regexp: "^OCAML_"
+        regexp: '^OCAML_'
     },
     shell: {
         name: 'Shell',
         icon: 'code',
         color: 'red',
-        regexp: "^SHL_"
+        regexp: '^SHL_'
     },
     internship: {
         name: 'Internship',
         icon: 'work',
         color: 'pink',
-        regexp: "^stageTEK"
+        regexp: '^stageTEK'
     }
 };
 
@@ -239,10 +239,20 @@ const actions = {
             });
     },
     createRepository (context, name) {
-        return context.getters.api.createRepository(name);
+        return context.getters.api.createRepository(name)
+            .then(_ => {
+                context.commit('ADD_REPOSITORY', {
+                    name
+                });
+            });
     },
     deleteRepository (context, name) {
-        return context.getters.api.deleteRepository(name);
+        return context.getters.api.deleteRepository(name)
+            .then(_ => {
+                context.commit('REMOVE_REPOSITORY', {
+                    name
+                });
+            });
     },
     updateKeys (context) {
         return context.getters.api.listKeys()

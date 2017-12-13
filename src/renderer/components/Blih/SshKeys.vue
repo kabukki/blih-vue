@@ -1,5 +1,5 @@
 <template>
-	<page v-on:init='_init_' :snackbar='snackbar'>
+	<page @init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
 		<v-layout row wrap>
 			<!-- Title -->
@@ -70,17 +70,6 @@
 		<v-btn v-model='fab' color='primary' fixed bottom right fab @click.stop='dialog_upload.show = true'>
 			<v-icon>file_upload</v-icon>
 		</v-btn>
-
-		<!-- Add modal --
-            <div class='file-field input-field' ng-hide='loading == true'>
-                <div class='btn'>
-                    <i class='material-icons'>attach_file</i>
-                    <input type='file' required>
-                </div>
-                <div class='file-path-wrapper'>
-                    <input class='file-path validate' type='text' ng-model='keyPath'>
-                </div>
-            </div>-->
 	</page>
 </template>
 
@@ -123,10 +112,8 @@
 			_init_ (callback) {
 				this.updateKeys()
 					.then(keys => {
-						console.log(this.keys);
 						callback();
 					}).catch(err => {
-						console.log('ko could not update keys');
 						callback(err);
 					});
 			},
