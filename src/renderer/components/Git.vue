@@ -70,7 +70,7 @@
 					<v-card-actions>
 						<v-spacer></v-spacer>
 						<v-btn color="primary" flat :disabled='dialog_clone.loading' @click.stop='cloneCancel'>Cancel</v-btn>
-						<v-btn color="primary" flat :disabled='dialog_clone.loading || !dialog_clone.valid' :loading='dialog_clone.loading' @click.stop='cloneClone'>Clone</v-btn>
+						<v-btn color="primary" type='submit' flat :disabled='dialog_clone.loading || !dialog_clone.valid' :loading='dialog_clone.loading' @click.stop='cloneClone'>Clone</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-form>
@@ -175,7 +175,7 @@
 						.then(this.getStatus)
 						.then(this.getLog)
 						.catch(err => {
-							this.error = err.message;
+							this.error = err.toString();
 						}).then(_ => {
 							this.init = false
 						});

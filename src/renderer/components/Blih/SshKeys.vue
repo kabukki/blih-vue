@@ -44,23 +44,21 @@
 
 		<!-- Dialog: Upload -->
 		<v-dialog persistent max-width='500px' v-model='dialog_upload.show'>
-			<v-form @submit.prevent='uploadUpload'>
+			<v-form v-model='dialog_upload.valid' @submit.prevent='uploadUpload'>
 				<v-card>
 					<v-card-title>
 						<span class="headline">Upload a key</span>
 					</v-card-title>
 					<v-card-text>
 						<v-container>
-							<v-text-field label='File' prepend-icon='folder' v-model='dialog_upload.file'
-								type="text" disabled>
-							</v-text-field>
-							<p class="mb-0 error--text">Note: this feature is currently unavailable.</p>
+							<v-text-field label='File' prepend-icon='vpn_key' readonly v-model='dialog_upload.file' :rules='dialog_upload.rules'></v-text-field>
+							<input label='File' type="file" @change='uploadChange'>
 						</v-container>
 					</v-card-text>
 					<v-card-actions>
 						<v-spacer></v-spacer>
 						<v-btn color="primary" flat :disabled='dialog_upload.loading' @click.stop='uploadCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat :disabled='true' :loading='dialog_upload.loading'>Upload</v-btn>
+						<v-btn color="primary" type='submit' flat :disabled='dialog_upload.loading || !dialog_upload.valid' :loading='dialog_upload.loading'>Upload</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-form>
@@ -74,6 +72,7 @@
 </template>
 
 <script>
+	import fs from 'fs-extra';
 	import { mapGetters, mapActions } from 'vuex';
 	import Page from './Page';
 	import TileAvatar from '../TileAvatar';
@@ -95,7 +94,11 @@
 					show: false,
 					loading: false,
 					error: false,
-					file: ''
+					rules: [
+						path => !!path || 'Required'
+					],
+					valid: true,
+					file: null
 				},
 				/* Data */
 				filter: ''
@@ -108,7 +111,7 @@
 			}
 		},
 		methods: {
-			...mapActions(['updateKeys']),
+			...mapActions(['updateKeys', 'uploadKey']),
 			_init_ (callback) {
 				this.updateKeys()
 					.then(keys => {
@@ -122,7 +125,35 @@
 				this.dialog_upload.show = false;
 			},
 			uploadUpload () {
-				this.dialog_upload.show = false;
+				this.dialog_upload.loading = true;
+				fs.readFile(this.dialog_upload.file, 'utf8', (err, data) => {
+					if (err) {
+						this.showSnackbar('error', err);
+						this.dialog_upload.loading = false;
+					} else {
+						this.uploadKey(data)
+							.then(key => {
+								this.$router.push({name: 'blih.ssh-key', params: { name: key.name }});
+							}).catch(err => {
+								this.showSnackbar('error', err);
+							}).then(_ => {
+								this.dialog_upload.loading = false;
+							});
+					}
+				});
+			},
+			uploadChange (file) {
+				if (file.target.files[0]) {
+					this.dialog_upload.file = file.target.files[0].path;
+				}
+			},
+			/* Helpers */
+			showSnackbar (color, message) {
+				this.snackbar = {
+					show: true,
+					color,
+					message
+				};
 			}
 		}
 	}

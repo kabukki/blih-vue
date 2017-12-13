@@ -125,6 +125,7 @@ let data = new Store({
  * Vuex
  */
 
+// TODO: one object for all config and data
 const state = {
     api: null,
     email: null,
@@ -132,8 +133,8 @@ const state = {
     repositories: [],
     keys: [],
     /* Config */
-    theme: config.get('theme', 'light'),
-    welcome: config.get('welcome', true),
+    theme: config.get('theme'),
+    welcome: config.get('welcome'),
     /* Data */
     collaborators: data.get('collaborators'),
     colorMap: data.get('colorMap'),
@@ -192,6 +193,13 @@ const mutations = {
     },
     UPDATE_KEYS (state, payload) {
         state.keys = payload.keys;
+    },
+    ADD_KEY (state, payload) {
+        state.keys.push(payload);
+        state.keys = state.keys.sort(ignoreCaseSort);
+    },
+    REMOVE_KEY (state, payload) {
+        state.keys = state.keys.filter(k => k.name != payload.name);
     },
     /* Config */
     SET_THEME (state, payload) {
@@ -258,6 +266,29 @@ const actions = {
         return context.getters.api.listKeys()
             .then(data => {
                 context.commit('UPDATE_KEYS', { keys: data });
+            });
+    },
+    uploadKey (context, key) {
+        const oldKeys = context.getters.keys;
+        return context.getters.api.uploadKey(key)
+            .then(_ => context.dispatch('updateKeys'))
+            // Return the new key
+            .then(_ => context.getters.keys.filter(k => !oldKeys.find(ok => ok.name == k.name))[0])
+            /*
+                const ar = key.split(' ');
+                context.commit('ADD_KEY', {
+                    name: ar[2],
+                    data: ar[0].concat(' ', ar[1])
+                });
+            });
+            */
+    },
+    deleteKey (context, key) {
+        return context.getters.api.deleteKey(key)
+            .then(_ => {
+                context.commit('REMOVE_KEY', {
+                    name: key
+                });
             });
     },
     /* Config */
