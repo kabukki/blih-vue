@@ -4,19 +4,23 @@
 			<page @init='_init_' :snackbar='snackbar' fill-height>
 				<!-- Content -->
 				<v-layout row align-center justify-space-around>
-					<v-flex sm8 md6 lg4 class='text-xs-center'>
-						<div class='display-2 primary--text '>Log in</div>
-						<v-form @submit.prevent='logIn'>
+					<v-flex sm8 md6 lg4>
+						<div class='text-xs-center display-2 primary--text '>Log in</div>
+						<v-form v-model='valid' @submit.prevent='logIn'>
 							<v-text-field label='Email' prepend-icon='person' v-model='email' required
 								suffix="@epitech.eu"
 								type="email"
+								:rules='rules'
 								:disabled='loading'/>
 							<v-text-field label='Password' prepend-icon='lock' v-model='password' required
 								:append-icon="visible ? 'visibility' : 'visibility_off'"
 								:append-icon-cb="_ => { visible = !visible }"
 								:type="visible ? 'text' : 'password'"
+								:rules='rules'
 								:disabled='loading'/>
-							<v-btn type="submit" color='primary' :loading='loading'>OK</v-btn>
+								<div class="text-xs-center">
+									<v-btn type="submit" color='primary' :disabled='loading || !valid' :loading='loading'>OK</v-btn>
+								</div>
 						</v-form>
 					</v-flex>
 				</v-layout>
@@ -36,6 +40,10 @@
 			return {
 				/* Page state */
 				loading: false,
+				rules: [
+					field => !!field || 'Required'
+				],
+				valid: true,
 				/* Snackbar */
 				snackbar: {
 					show: false,
@@ -49,7 +57,7 @@
 			};
 		},
 		methods: {
-			...mapActions(['authenticate', 'addCollaborator']),
+			...mapActions(['authenticate', 'addCollaborator', 'setLastEmail']),
 			_init_ (callback) {
 				Blih.ping()
 					.then(_ => {
@@ -66,6 +74,8 @@
 					email: this.email.includes('@') ? this.email : this.email + '@epitech.eu',
 					password: this.password
 				}).then((data) => {
+					// Remember login for next time
+					this.setLastEmail(this.email);
 					// Register yourself
 					this.addCollaborator(this.login);
 					this.$router.push({ name: 'blih.repositories' });
@@ -85,7 +95,10 @@
 			}
 		},
 		computed: {
-			...mapGetters(['login'])
+			...mapGetters(['login', 'lastEmail'])
+		},
+		created () {
+			this.email = this.lastEmail;
 		}
 	};
 </script>

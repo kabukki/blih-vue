@@ -65,10 +65,7 @@
 			};
 		},
 		computed: {
-			...mapGetters(['email', 'login', 'theme']),
-			dark () {
-				return this.theme == 'dark';
-			},
+			...mapGetters(['email', 'login', 'dark']),
 			title () {
 				let page = this.getCurrentPage();
 				return (page ? page.title : '[untitled]');

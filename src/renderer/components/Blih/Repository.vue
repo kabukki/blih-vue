@@ -126,9 +126,7 @@
 									combobox clearable :items="collaborators"
 								>
 									<template slot='item' slot-scope='data'>
-										<!--<avatar :name='data.item' class='mr-3'></avatar>-->
 										<tile-avatar :name='data.item'></tile-avatar>
-										<!--<v-avatar>A</v-avatar>-->
 										<v-list-tile-content>
 											<v-list-tile-title>{{ data.item }}</v-list-tile-title>
 										</v-list-tile-content>

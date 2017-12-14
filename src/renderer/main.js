@@ -10,7 +10,10 @@ import 'vuetify/dist/vuetify.min.css'
 import './assets/css/fonts/icon.css'
 import './assets/css/custom.css'
 
-Vue.use(Vuetify);
+const theme = store.getters.themes.find(t => t.name == store.getters.theme);
+Vue.use(Vuetify, {
+    theme: theme.colors
+});
 
 Vue.config.productionTip = false
 

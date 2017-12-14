@@ -103,11 +103,39 @@ const defaultRepositories = {
     }
 };
 
+const defaultThemes = [
+    {
+        name: 'Default',
+        colors: {
+            "primary": "#1976D2",
+            "secondary": "#424242",
+            "accent": "#82B1FF",
+            "error": "#FF5252",
+            "warning": "#FFC107",
+            "info": "#2196F3",
+            "success": "#4CAF50"
+        },
+    }, {
+        name: 'test',
+        colors: {
+            "primary": "#FB8C00",
+            "secondary": "#000000",
+            "accent": "#FFD180",
+            "error": "#F44336",
+            "warning": "#FFC107",
+            "info": "#80D8FF",
+            "success": "#03A9F4"
+        }
+    }
+];
+
 /* Persistent data */
 
 let config = new Store({
     defaults: {
+        lastEmail: '',
         theme: 'light',
+        dark: false,
         welcome: true,
     }
 });
@@ -117,7 +145,8 @@ let data = new Store({
     defaults: {
         collaborators: [],
         colorMap: defaultColorMap,
-        knownRepositories: defaultRepositories
+        knownRepositories: defaultRepositories,
+        themes: defaultThemes
     }
 });
 
@@ -133,12 +162,15 @@ const state = {
     repositories: [],
     keys: [],
     /* Config */
+    lastEmail: config.get('lastEmail'),
     theme: config.get('theme'),
+    dark: config.get('dark'),
     welcome: config.get('welcome'),
     /* Data */
     collaborators: data.get('collaborators'),
     colorMap: data.get('colorMap'),
-    knownRepositories: data.get('knownRepositories')
+    knownRepositories: data.get('knownRepositories'),
+    themes: data.get('themes')
 };
 
 const getters = {
@@ -148,7 +180,9 @@ const getters = {
     repositories: state => state.repositories,
     keys: state => state.keys,
     /* Config */
+    lastEmail: state => state.lastEmail,
     theme: state => state.theme,
+    dark: state => state.dark,
     welcome: state => state.welcome,
     /* Data */
     knownCollaborators: state => state.collaborators,// TODO: rename to 'collaborators'
@@ -172,7 +206,8 @@ const getters = {
             }
         }
         return labels;
-    }
+    },
+    themes: state => state.themes
 };
 
 const mutations = {
@@ -202,9 +237,17 @@ const mutations = {
         state.keys = state.keys.filter(k => k.name != payload.name);
     },
     /* Config */
+    SET_LAST_EMAIL (state, payload) {
+        state.lastEmail = payload.email;
+        config.set('lastEmail', state.lastEmail);
+    },
     SET_THEME (state, payload) {
         state.theme = payload.theme;
         config.set('theme', state.theme);
+    },
+    SET_DARK (state, payload) {
+        state.dark = payload.value;
+        config.set('dark', state.value);
     },
     SET_WELCOME (state, payload) {
         state.welcome = payload.value;
@@ -274,14 +317,6 @@ const actions = {
             .then(_ => context.dispatch('updateKeys'))
             // Return the new key
             .then(_ => context.getters.keys.filter(k => !oldKeys.find(ok => ok.name == k.name))[0])
-            /*
-                const ar = key.split(' ');
-                context.commit('ADD_KEY', {
-                    name: ar[2],
-                    data: ar[0].concat(' ', ar[1])
-                });
-            });
-            */
     },
     deleteKey (context, key) {
         return context.getters.api.deleteKey(key)
@@ -292,10 +327,16 @@ const actions = {
             });
     },
     /* Config */
+    setLastEmail (context, email) {
+        context.commit('SET_LAST_EMAIL', { email });
+    },
     setTheme (context, theme) {
         context.commit('SET_THEME', { theme });
     },
-    setWelcome (context, value ) {
+    setDark (context, value) {
+        context.commit('SET_DARK', { value });
+    },
+    setWelcome (context, value) {
         context.commit('SET_WELCOME', { value });
     },
     /* Data */
