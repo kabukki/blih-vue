@@ -116,15 +116,26 @@ const defaultThemes = [
             "success": "#4CAF50"
         },
     }, {
-        name: 'test',
+        name: 'Halloween',
         colors: {
             "primary": "#FB8C00",
             "secondary": "#000000",
             "accent": "#FFD180",
             "error": "#F44336",
             "warning": "#FFC107",
-            "info": "#80D8FF",
-            "success": "#03A9F4"
+            "info": "#2196F3",
+            "success": "#4CAF50"
+        }
+    }, {
+        name: 'Christmas',
+        colors: {
+            "primary": "#F44336",
+            "secondary": "#2E7D32",
+            "accent": "#795548",
+            "error": "#F44336",
+            "warning": "#FFC107",
+            "info": "#2196F3",
+            "success": "#4CAF50"
         }
     }
 ];

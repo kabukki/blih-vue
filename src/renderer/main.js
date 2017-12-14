@@ -11,7 +11,7 @@ import './assets/css/fonts/icon.css'
 import './assets/css/custom.css'
 
 const theme = store.getters.themes.find(t => t.name == store.getters.theme);
-Vue.use(Vuetify, {
+Vue.use(Vuetify, theme && {
     theme: theme.colors
 });
 

@@ -25,7 +25,7 @@
 				</v-list-tile>
 			</v-list>
 		</v-navigation-drawer>
-		<v-toolbar app dark>
+		<v-toolbar app dark color='secondary'>
 			<v-btn icon @click='drawer = !drawer' v-if="navicon == 'drawer'">
 				<v-icon>menu</v-icon>
 			</v-btn>
