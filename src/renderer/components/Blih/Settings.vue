@@ -13,10 +13,14 @@
 			<!-- Welcome page -->
 			<v-flex xs12>
 				<v-card tile>
-					<v-card-text>
+					<v-container>
 						<p class="text-xs-center subheading grey--text mb-0">Welcome page</p>
-						<v-switch label='Show welcome page on startup' v-model='welcome'></v-switch>
-					</v-card-text>
+						<v-layout row wrap>
+							<v-flex xs12>
+								<v-switch label='Show welcome page on startup' v-model='welcome'></v-switch>
+							</v-flex>
+						</v-layout>
+					</v-container>
 				</v-card>
 			</v-flex>
 			<!-- Appearance -->

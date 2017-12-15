@@ -65,7 +65,7 @@ const defaultRepositories = {
         name: 'C Pool',
         icon: 'pool',
         color: 'blue-grey',
-        regexp: '^Piscine_C'
+        regexp: '^Piscine_C|^CPool_'
     },
     cppPool: {
         name: 'C++ Pool',
@@ -258,7 +258,7 @@ const mutations = {
     },
     SET_DARK (state, payload) {
         state.dark = payload.value;
-        config.set('dark', state.value);
+        config.set('dark', state.dark);
     },
     SET_WELCOME (state, payload) {
         state.welcome = payload.value;
