@@ -368,7 +368,7 @@
 			}
 		},
 		computed: {
-			...mapGetters(['api', 'login', 'knownRepositories', 'knownCollaborators', 'colorOf', 'labelsOf']),
+			...mapGetters(['api', 'login', 'knownCollaborators', 'colorOf', 'getModule']),
 			collaborators () {
 				return this.knownCollaborators.map(c => c.name);
 			},
@@ -376,7 +376,13 @@
 				return this.colorOf(this.name);
 			},
 			labels () {
-				let labels = this.labelsOf(this.name);
+				let labels = [];
+
+				/* Module */
+				const module = this.getModule(this.name);
+				if (module) {
+					labels.push(module);
+				}
 
 				/* Turn-in check status */
 				if (this.acl.find(acl => acl.name == 'ramassage-tek' && acl.rights.includes('r'))) {
@@ -384,6 +390,7 @@
 				} else {
 					labels.push({ name: 'Not ready for turn-in', icon: 'warning', color: 'orange' });
 				}
+
 				/* Anniversaries */
 				let diff = moment().diff(moment.unix(this.info.creation_time), 'years')
 				if (diff >= 1) {

@@ -14,29 +14,45 @@
 			<v-flex xs12>
 				<v-card tile>
 					<v-container>
-						<v-text-field label='Search' prepend-icon='search' v-model='filter' />
-						<v-list one-line v-show='repositories.length > 0 && filtered.length > 0'>
-							<template v-for='(repo, index) in filtered'>
-								<v-divider v-if='index > 0'></v-divider>
-								<v-list-tile avatar :key="repo.name"
-									:to="{ name: 'blih.repository', params: { name: repo.name } }"
-								>
-									<tile-avatar :name='repo.name' class='mr-3'></tile-avatar>
-									<v-list-tile-content>
-										<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
-									</v-list-tile-content>
-								</v-list-tile>
-							</template>
-							<p class='text-xs-center mb-0'>
-								<v-icon>cloud</v-icon> Showing {{ filtered.length }} of {{ repositories.length }} repositories
-							</p>
-						</v-list>
-						<div class='text-xs-center' v-show='repositories.length > 0 && filtered.length == 0'>
-							No repository matches your query.
-						</div>
-						<div class='text-xs-center' v-show='repositories.length == 0'>
-							No repository was found.
-						</div>
+						<v-layout row wrap>
+							<!-- Search fields -->
+							<v-flex xs10>
+								<v-text-field label='Search' prepend-icon='search' v-model='filter'></v-text-field>
+							</v-flex>
+							<v-flex xs2>
+								<v-select label='Order by' prepend-icon='filter_list' :items='orderByItems' v-model='orderBy' ></v-select>
+							</v-flex>
+							<!-- Search results -->
+							<v-flex x12 v-show='repositories.length > 0 && filtered.length > 0'>
+								<v-list one-line subheader v-for='category in ordered' :key='category.name'>
+									<v-subheader>{{ category.name }}</v-subheader>
+									<template v-for='(repo, index) in category.repositories'>
+										<v-divider v-if='index > 0'></v-divider>
+										<v-list-tile avatar :key="repo.name"
+											:to="{ name: 'blih.repository', params: { name: repo.name } }"
+										>
+											<tile-avatar :name='repo.name' class='mr-3'></tile-avatar>
+											<v-list-tile-content>
+												<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
+											</v-list-tile-content>
+										</v-list-tile>
+									</template>
+								</v-list>
+								<p class='text-xs-center mb-0'>
+									<v-icon>cloud</v-icon> Showing {{ filtered.length }} of {{ repositories.length }} repositories
+								</p>
+							</v-flex>
+							<v-flex xs12 v-show='repositories.length > 0 && filtered.length == 0'>
+								<div class='text-xs-center' >
+									No repository matches your query.
+								</div>
+							</v-flex>
+							<v-flex xs12 v-show='repositories.length == 0'>
+								<div class='text-xs-center' >
+									No repository was found.
+								</div>
+							</v-flex>
+						</v-layout>
 					</v-container>
 				</v-card>
 			</v-flex>
@@ -110,7 +126,9 @@
 					turnIn: false
 				},
 				/* Data */
-				filter: ''
+				filter: '',
+				orderByItems: ['name', 'year', 'module'],
+				orderBy: 'name'
 			};
 		},
 		computed: {
@@ -118,6 +136,63 @@
 			filtered () {
 				// TODO: maybe create specific getter to filter ? (might optimize)
 				return this.repositories.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
+			},
+			ordered () {
+				if (this.orderBy == 'name') {
+					let res = {};
+					for (const elem of this.filtered) {
+						const category = elem.name[0].toUpperCase();
+
+						if (!res.hasOwnProperty(category)) {
+							res[category] = [];
+						}
+						res[category].push(elem);
+					}
+					return Object.keys(res).map(m => ({
+						name: m,
+						repositories: res[m]
+					})).sort((a, b) => {
+						if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+						else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+						else return 0;
+					});
+				} else if (this.orderBy == 'year') {
+					let res = {};
+					for (const elem of this.filtered) {
+						const match = elem.name.match(/20\d{2}/);
+						const category = match ? match : 'other';
+
+						if (!res.hasOwnProperty(category)) {
+							res[category] = [];
+						}
+						res[category].push(elem);
+					}
+					return Object.keys(res).map(m => ({
+						name: m,
+						repositories: res[m]
+					})).sort((a, b) => {
+						if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+						else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+						else return 0;
+					});
+				} else if (this.orderBy == 'module') {
+					let res = {};
+					for (const elem of this.filtered) {
+						const module = elem.module ? elem.module.name : 'other';
+						if (!res.hasOwnProperty(module)) {
+							res[module] = [];
+						}
+						res[module].push(elem);
+					}
+					return Object.keys(res).map(m => ({
+						name: m,
+						repositories: res[m]
+					})).sort((a, b) => {
+						if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+						else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+						else return 0;
+					});
+				}
 			}
 		},
 		methods: {

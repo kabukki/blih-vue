@@ -194,7 +194,7 @@
 					});
 			},
 			getLog () {
-				return this.git.log()
+				return this.git.log({ splitter: '\\' })
 					.then(log => {
 						this.commits = log.all;
 					}).catch(_ => {

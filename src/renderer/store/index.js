@@ -156,7 +156,7 @@ let data = new Store({
     defaults: {
         collaborators: [],
         colorMap: defaultColorMap,
-        knownRepositories: defaultRepositories,
+        modules: defaultRepositories,
         themes: defaultThemes
     }
 });
@@ -180,7 +180,7 @@ const state = {
     /* Data */
     collaborators: data.get('collaborators'),
     colorMap: data.get('colorMap'),
-    knownRepositories: data.get('knownRepositories'),
+    modules: data.get('modules'),
     themes: data.get('themes')
 };
 
@@ -202,21 +202,20 @@ const getters = {
         const letter = (text && text.length) && text[0].toLowerCase() || '?';
         return defaultColorMap[letter] || 'black';
     },
-    knownRepositories: state => state.knownRepositories,
-    labelsOf: state => repo => {
-        let labels = [];
-        for (const r in state.knownRepositories) {
-            const type = state.knownRepositories[r];
+    modules: state => state.modules,
+    getModule: state => repo => {
+        for (const r in state.modules) {
+            const type = state.modules[r];
             if ((type.list && type.list.includes(repo)) ||
                 (type.regexp && repo.match(type.regexp))) {
-                labels.push({
+                return {
                     name: type.name,
                     icon: type.icon,
                     color: type.color,
-                });
+                };
             }
         }
-        return labels;
+        return null;
     },
     themes: state => state.themes
 };
@@ -297,6 +296,10 @@ const actions = {
             .then(data => {
                 context.commit('UPDATE_REPOSITORIES', {
                   repositories: data.sort(ignoreCaseSort)
+                    .map(r => ({
+                        ...r,
+                        module: context.getters.getModule(r.name)
+                    }))
                 });
             });
     },
@@ -304,7 +307,8 @@ const actions = {
         return context.getters.api.createRepository(name)
             .then(_ => {
                 context.commit('ADD_REPOSITORY', {
-                    name
+                    name,
+                    label: context.getters.getModule(name)
                 });
             });
     },
