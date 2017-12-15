@@ -56,10 +56,10 @@
 				<v-card tile class='text-xs-center'>
 					<v-container>
 						<p class="subheading grey--text mb-0">Collaborators</p>
-						<v-list one-line v-if='knownCollaborators.length > 0'>
+						<v-list one-line v-if='collaborators.length > 0'>
 							<template v-for='(collaborator, index) in pageCollaborators'>
 								<v-divider v-if='index > 0'></v-divider>
-								<v-list-tile avatar :key='collaborator.name' @click.stop='edit(collaborator)'>
+								<v-list-tile avatar :key='collaborator.name' @click.stop='editCollaborator(collaborator)'>
 									<tile-avatar :name='collaborator.name'></tile-avatar>
 									<v-list-tile-content>
 										<v-list-tile-title>{{ collaborator.name }}</v-list-tile-title>
@@ -70,9 +70,9 @@
 								</v-list-tile>
 							</template>
 							<p class='mb-0'>
-								<v-icon>people</v-icon> {{ knownCollaborators.length }} collaborators
+								<v-icon>people</v-icon> {{ collaborators.length }} collaborators
 							</p>
-							<v-pagination :length='nbPages' v-model='page'></v-pagination>
+							<v-pagination :length='nbPagesCollaborators' v-model='pageCollaborator'></v-pagination>
 						</v-list>
 						<p class='mb-0' v-else>
 							No known collaborators. Try to browse your repositories first.
@@ -80,11 +80,42 @@
 					</v-container>
 				</v-card>
 			</v-flex>
+			<!-- Modules -->
+			<v-flex xs12>
+				<v-card tile class='text-xs-center'>
+					<v-container>
+						<p class="subheading grey--text mb-0">Modules</p>
+						<v-list one-line v-if='modules.length > 0'>
+							<template v-for='(module, index) in pageModules'>
+								<v-divider v-if='index > 0'></v-divider>
+								<v-list-tile avatar :key='module.name' @click.stop='editModule(module)'>
+									<v-list-tile-avatar :color='module.color'>
+										<span><v-icon>{{ module.icon }}</v-icon></span>
+									</v-list-tile-avatar>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ module.name }}</v-list-tile-title>
+									</v-list-tile-content>
+									<v-list-tile-action>
+										<v-btn icon><v-icon>edit</v-icon></v-btn>
+									</v-list-tile-action>
+								</v-list-tile>
+							</template>
+							<p class='mb-0'>
+								<v-icon>extension</v-icon> {{ modules.length }} modules
+							</p>
+							<v-pagination :length='nbPagesModules' v-model='pageModule'></v-pagination>
+						</v-list>
+						<p class='mb-0' v-else>
+							No known modules.
+						</p>
+					</v-container>
+				</v-card>
+			</v-flex>
 		</v-layout>
 
-		<!-- Dialog: Edit -->
-		<v-dialog persistent max-width='500px' v-model='dialog_edit.show'>
-			<v-form @submit.prevent='editEdit'>
+		<!-- Dialog: Edit collaborator -->
+		<v-dialog persistent max-width='500px' v-model='dialog_editCollaborator.show'>
+			<v-form @submit.prevent='editCollaboratorEdit'>
 				<v-card>
 					<v-card-title>
 						<span class="headline">Edit a collaborator's details</span>
@@ -92,21 +123,60 @@
 					<v-container grid-list-md text-xs-center>
 						<v-layout row wrap>
 							<v-flex xs12 sm6>
-								<tile-avatar :name='dialog_edit.name'></tile-avatar>
+								<tile-avatar :name='dialog_editCollaborator.collaborator.name'></tile-avatar>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<p>{{ dialog_edit.name }}</p>
+								<p>{{ dialog_editCollaborator.collaborator.name }}</p>
 							</v-flex>
 						</v-layout>
 					</v-container>
 					<v-card-actions>
 						<v-spacer></v-spacer>
-						<v-btn color="primary" flat :disabled='dialog_edit.loading' @click.stop='editCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat :disabled='dialog_edit.loading' :loading='dialog_edit.loading'>Edit</v-btn>
+						<v-btn color="primary" flat :disabled='dialog_editCollaborator.loading' @click.stop='editCollaboratorCancel'>Cancel</v-btn>
+						<v-btn color="primary" type='submit' flat :disabled='dialog_editCollaborator.loading' :loading='dialog_editCollaborator.loading'>Edit</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-form>
 		</v-dialog>
+
+		<!-- Dialog: Edit module -->
+		<v-dialog persistent scrollable max-width='500px' v-model='dialog_editModule.show'>
+				<v-card>
+					<v-card-title>
+						<span class="headline">Edit a module</span>
+					</v-card-title>
+					<v-card-text>
+						<v-list teo>
+							<v-list-tile avatar>
+								<v-list-tile-avatar :color='dialog_editModule.module.color'>
+									<span><v-icon>{{ dialog_editModule.module.icon }}</v-icon></span>
+								</v-list-tile-avatar>
+								<v-list-tile-content>
+									<v-list-tile-title>{{ dialog_editModule.module.name }}</v-list-tile-title>
+									<v-list-tile-sub-title>Icon: {{ dialog_editModule.module.icon }}, color: {{ dialog_editModule.module.color }}</v-list-tile-sub-title>
+								</v-list-tile-content>
+							</v-list-tile>
+						</v-list>
+						<v-list one-line subheader class='text-xs-center'>
+							<v-subheader>Matches</v-subheader>
+							<template v-for='(regexp, index) in dialog_editModule.module.regexp'>
+								<v-divider v-if='index > 0'></v-divider>
+								<v-list-tile :key='regexp'>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ regexp }}</v-list-tile-title>
+									</v-list-tile-content>
+								</v-list-tile>
+							</template>
+							<v-btn>Add a regexp</v-btn>
+						</v-list>
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" flat @click.stop='editModuleCancel'>Close</v-btn>
+					</v-card-actions>
+				</v-card>
+		</v-dialog>
+
 	</v-container>
 </template>
 
@@ -122,17 +192,22 @@
 			return {
 				/* Appearance */
 				/* Collaborators */
-				page: 1,
+				pageCollaborator: 1,
+				pageModule: 1,
 				perPage: 5,
 				/* Dialogs */
-				dialog_edit: {
+				dialog_editCollaborator: {
 					show: false,
-					name: ''
+					collaborator: {}
+				},
+				dialog_editModule: {
+					show: false,
+					module: {}
 				}
 			};
 		},
 		computed: {
-			...mapGetters(['knownCollaborators']),
+			...mapGetters(['collaborators', 'modules']),
 			welcome: {
 				get () {
 					return this.$store.state.welcome;
@@ -164,24 +239,42 @@
 				return this.$store.getters.themes.map(t => t.name);
 			},
 			pageCollaborators () {
-				const start = (this.page - 1) * this.perPage;
-				return this.knownCollaborators.slice(start, start + this.perPage);
+				const start = (this.pageCollaborator - 1) * this.perPage;
+				return this.collaborators.slice(start, start + this.perPage);
 			},
-			nbPages () {
-				return Math.ceil(this.knownCollaborators.length / this.perPage);
+			pageModules () {
+				const start = (this.pageModule - 1) * this.perPage;
+				return this.modules.slice(start, start + this.perPage);
+			},
+			nbPagesCollaborators () {
+				return Math.ceil(this.collaborators.length / this.perPage);
+			},
+			nbPagesModules () {
+				return Math.ceil(this.modules.length / this.perPage);
 			}
 		},
 		methods: {
-			/* Dialog: Edit */
-			edit (collaborator) {
-				this.dialog_edit.name = collaborator.name;
-				this.dialog_edit.show = true;
+			/* Dialog: Edit collaborator */
+			editCollaborator (collaborator) {
+				this.dialog_editCollaborator.collaborator = collaborator;
+				this.dialog_editCollaborator.show = true;
 			},
-			editCancel () {
-				this.dialog_edit.show = false;
+			editCollaboratorCancel () {
+				this.dialog_editCollaborator.show = false;
 			},
-			editEdit () {
-				this.dialog_edit.show = false;
+			editCollaboratorEdit () {
+				this.dialog_editCollaborator.show = false;
+			},
+			/* Dialog: Edit collaborator */
+			editModule (module) {
+				this.dialog_editModule.module = module;
+				this.dialog_editModule.show = true;
+			},
+			editModuleCancel () {
+				this.dialog_editModule.show = false;
+			},
+			editModuleEdit () {
+				this.dialog_editModule.show = false;
 			}
 		}
 	}

@@ -91,8 +91,8 @@
 						<template v-for='(file, index) in dialog_diff.diff.files'>
 							<v-divider v-if='index > 0'></v-divider>
 							<v-list-tile avatar :key='file.file'>
-								<v-list-tile-avatar color='grey lighten-2'>
-									<v-icon>insert_drive_file</v-icon>
+								<v-list-tile-avatar color='grey lighten-1'>
+									<span><v-icon>insert_drive_file</v-icon></span>
 								</v-list-tile-avatar>
 								<v-list-tile-content>
 									<v-list-tile-title>{{ file.file }}</v-list-tile-title>

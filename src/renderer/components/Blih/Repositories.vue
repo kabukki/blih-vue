@@ -16,11 +16,11 @@
 					<v-container>
 						<v-layout row wrap>
 							<!-- Search fields -->
-							<v-flex xs10>
+							<v-flex xs6 sm8 md10>
 								<v-text-field label='Search' prepend-icon='search' v-model='filter'></v-text-field>
 							</v-flex>
-							<v-flex xs2>
-								<v-select label='Order by' prepend-icon='filter_list' :items='orderByItems' v-model='orderBy' ></v-select>
+							<v-flex xs6 sm4 md2>
+								<v-select label='Order by' prepend-icon='swap_vert' :items='orderByItems' v-model='orderBy' ></v-select>
 							</v-flex>
 							<!-- Search results -->
 							<v-flex x12 v-show='repositories.length > 0 && filtered.length > 0'>
@@ -31,7 +31,10 @@
 										<v-list-tile avatar :key="repo.name"
 											:to="{ name: 'blih.repository', params: { name: repo.name } }"
 										>
-											<tile-avatar :name='repo.name' class='mr-3'></tile-avatar>
+											<v-list-tile-avatar :color='repo.module.color' v-if='repo.module'>
+												<span><v-icon>{{ repo.module.icon }}</v-icon></span>
+											</v-list-tile-avatar>
+											<tile-avatar :name='repo.name' v-else></tile-avatar>
 											<v-list-tile-content>
 												<v-list-tile-title>{{ repo.name }}</v-list-tile-title>
 											</v-list-tile-content>
@@ -138,6 +141,7 @@
 				return this.repositories.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
 			},
 			ordered () {
+				// TODO: DRY here
 				if (this.orderBy == 'name') {
 					let res = {};
 					for (const elem of this.filtered) {

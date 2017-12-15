@@ -26,82 +26,137 @@ const defaultColorMap = {
     '6': 'amber lighten-2', '7': 'orange lighten-2', '8': 'deep-orange lighten-2', '9': 'brown lighten-2',
 };
 
-// Store regexp as string for json conversion
-const defaultRepositories = {
-    maths: {
+const defaultModules = [
+    {
+        name: 'Artificial Intelligence',
+        icon: 'bubble_chart',
+        color: 'green',
+        regexp: [
+            '^dante$', '^gomoku$'
+        ]
+    }, {
+        name: 'Assembly',
+        icon: 'code',
+        color: 'brown',
+        regexp: [
+            '^asm_bootstrap$'
+        ]
+    }, {
         name: 'Mathematics',
         icon: 'functions',
         color: 'indigo',
-        list: [
-            '101pong', '102cipher', '103architect', '104interville', '106bombyx', '107transfer', '108', '109titration', '110borwein',
-            '201', '202', '203hotline', '204', '205', '206', '207', '209', '210',
-            '301dannon', '302', '303', '304', '305', '306', '307', '309', '310',
+        regexp: [
+            '101pong', '102cipher', '103architect', '104interville', '106bombyx', '107transfer', '109titration', '110borwein',
+            '203hotline',
+            '301dannon'
         ]
-    },
-    french: {
+    }, {
         name: 'French',
-        icon: 'font_download',
+        icon: 'edit',
         color: 'red',
-        list: [
+        regexp: [
             'B1Lettre', 'B1Mailpro', 'B1Rush',
             'B2EMPLOI', 'B2PRECISER',
             'B4BILAN', 'B4DIAPO', 'B4RECADRER',
-            'B53EMAILS', 'B5AVOCAT', 'B5MEMO', 'FICTION1'
+            'B53EMAILS', 'B5AVOCAT', 'B5MEMO', 'FICTION1',
+            '^Disparition20\\d{2}'
         ]
-    },
-    cpe: {
+    }, {
         name: 'CPE',
         icon: 'code',
         color: 'cyan',
-        regexp: '^CPE_'
-    },
-    psu: {
+        regexp: [
+            '^CPE_'
+        ]
+    }, {
         name: 'PSU',
         icon: 'code',
         color: 'red',
-        regexp: '^PSU_'
-    },
-    cPool: {
+        regexp: [
+            '^PSU_'
+        ]
+    }, {
+        name: 'C++',
+        icon: 'code',
+        color: 'orange',
+        regexp: [
+            '^cpp_nanotekspice$', '^cpp_arcade$'
+        ]
+    }, {
+        name: 'Computer graphics',
+        icon: 'desktop_windows',
+        color: 'light-green',
+        regexp: [
+            '^binarizer_20\\d{2}$', '^chatty_20\\d{2}$', '^chromatic_20\\d{2}$', '^flip_part_20\\d{2}$',
+            '^iconofsin_20\\d{2}$', '^lightning_20\\d{2}$', '^mystic_20\\d{2}$', '^mystify_20\\d{2}$',
+            '^nocss_20\\d{2}$', '^noise_20\\d{2}$', '^starfield_20\\d{2}$', '^stretcher_20\\d{2}$',
+            '^text_foot_20\\d{2}$', '^whirlpool_20\\d{2}$', '^xorshape_20\\d{2}$', '^gfx_'
+        ]
+    }, {
         name: 'C Pool',
         icon: 'pool',
         color: 'blue-grey',
-        regexp: '^Piscine_C|^CPool_'
-    },
-    cppPool: {
+        regexp: [
+            '^Piscine_C', '^CPool_'
+        ]
+    }, {
         name: 'C++ Pool',
         icon: 'pool',
         color: 'blue',
-        list: [
-            'cpp_d01', 'cpp_d02m', 'cpp_d02a', 'cpp_d03', // TODO: add rush repos
-            'cpp_d06', 'cpp_d07m', 'cpp_d07a', 'cpp_d08', 'cpp_d09', 'cpp_d10',
-            'cpp_d13', 'cpp_d14m', 'cpp_d14a', 'cpp_d15', 'cpp_d16', 'cpp_d17'
+        regexp: [
+            '^cpp_d[01]\\d[am]*', '^cpp_gkrellm$'// TODO: add rush repos
         ]
-    },
-    dotNet: {
+    }, {
         name: '.NET',
         icon: 'code',
         color: 'teal',
-        regexp: '^DOT_'
-    },
-    ocaml: {
+        regexp: [
+            '^DOT_'
+        ]
+    }, {
         name: 'OCaml',
         icon: 'code',
         color: 'amber',
-        regexp: '^OCAML_'
-    },
-    shell: {
+        regexp: [
+            '^OCAML_'
+        ]
+    }, {
         name: 'Shell',
         icon: 'code',
         color: 'red',
-        regexp: '^SHL_'
-    },
-    internship: {
+        regexp: [
+            '^SHL_'
+        ]
+    }, {
+        name: 'Java',
+        icon: 'code',
+        color: 'amber',
+        regexp: [
+            '^Java_\\w+_20\\d{2}'
+        ]
+    }, {
         name: 'Internship',
         icon: 'work',
         color: 'pink',
-        regexp: '^stageTEK'
+        regexp: [
+            '^stageTEK'
+        ]
+    }, {
+        name: 'Security',
+        icon: 'lock',
+        color: 'purple',
+        regexp: [
+            '^binary_seminar$'
+        ]
+    }, {
+        name: 'Synthesis pool',
+        icon: 'pool',
+        color: 'blue',
+        regexp: [
+            '^ADM_', 'automakefile', 'calendar', 'FASTAtools', 'palindrome', 'projTester', 'SBMLparser'
+        ]
     }
-};
+];
 
 const defaultThemes = [
     {
@@ -156,7 +211,7 @@ let data = new Store({
     defaults: {
         collaborators: [],
         colorMap: defaultColorMap,
-        modules: defaultRepositories,
+        modules: defaultModules,
         themes: defaultThemes
     }
 });
@@ -178,10 +233,10 @@ const state = {
     dark: config.get('dark'),
     welcome: config.get('welcome'),
     /* Data */
-    collaborators: data.get('collaborators'),
+    collaborators: data.get('collaborators').sort(ignoreCaseSort),
     colorMap: data.get('colorMap'),
-    modules: data.get('modules'),
-    themes: data.get('themes')
+    modules: data.get('modules').sort(ignoreCaseSort),
+    themes: data.get('themes').sort(ignoreCaseSort)
 };
 
 const getters = {
@@ -196,7 +251,7 @@ const getters = {
     dark: state => state.dark,
     welcome: state => state.welcome,
     /* Data */
-    knownCollaborators: state => state.collaborators,// TODO: rename to 'collaborators'
+    collaborators: state => state.collaborators,
     colorMap: state => state.colorMap,
     colorOf: state => text => {
         const letter = (text && text.length) && text[0].toLowerCase() || '?';
@@ -204,15 +259,15 @@ const getters = {
     },
     modules: state => state.modules,
     getModule: state => repo => {
-        for (const r in state.modules) {
-            const type = state.modules[r];
-            if ((type.list && type.list.includes(repo)) ||
-                (type.regexp && repo.match(type.regexp))) {
-                return {
-                    name: type.name,
-                    icon: type.icon,
-                    color: type.color,
-                };
+        for (const module of state.modules) {
+            for (const regexp of module.regexp) {
+                if (repo.match(regexp)) {
+                    return {
+                        name: module.name,
+                        icon: module.icon,
+                        color: module.color,
+                    };
+                }
             }
         }
         return null;
@@ -356,7 +411,7 @@ const actions = {
     },
     /* Data */
     addCollaborator (context, name) {
-        if (!context.getters.knownCollaborators.find(c => c.name == name)) {
+        if (!context.getters.collaborators.find(c => c.name == name)) {
             context.commit('ADD_COLLABORATOR', {
                 name,
                 picture: (name.includes('@epitech.eu'))

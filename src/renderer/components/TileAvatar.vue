@@ -11,7 +11,7 @@
 	export default {
 		props: ['name'],
 		computed: {
-			...mapGetters(['knownCollaborators', 'colorOf']),
+			...mapGetters(['collaborators', 'colorOf']),
 			letter () {
 				return (this.name && this.name.length) && this.name[0].toUpperCase() || '?';
 			},
@@ -19,7 +19,7 @@
 				return this.colorOf(this.name);
 			},
 			src () {
-				const c = this.knownCollaborators.find(c => c.name == this.name);
+				const c = this.collaborators.find(c => c.name == this.name);
 				return c && c.picture || false;
 				//return (this.name.includes('@') && 'https://cdn.local.epitech.eu/userprofil/profilview/' + this.name.split('@')[0] + '.jpg' || false);
 			}

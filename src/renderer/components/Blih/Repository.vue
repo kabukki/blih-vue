@@ -123,7 +123,7 @@
 								<v-select label='Name' prepend-icon='person' v-model='dialog_add.name' required
 									:rules='dialog_add.rules'
 									:disabled="dialog_add.loading"
-									combobox clearable :items="collaborators"
+									combobox clearable :items="collaboratorNames"
 								>
 									<template slot='item' slot-scope='data'>
 										<tile-avatar :name='data.item'></tile-avatar>
@@ -368,9 +368,9 @@
 			}
 		},
 		computed: {
-			...mapGetters(['api', 'login', 'knownCollaborators', 'colorOf', 'getModule']),
-			collaborators () {
-				return this.knownCollaborators.map(c => c.name);
+			...mapGetters(['api', 'login', 'repositories', 'collaborators', 'colorOf', 'getModule']),
+			collaboratorNames () {
+				return this.collaborators.map(c => c.name);
 			},
 			color () {
 				return this.colorOf(this.name);
@@ -379,7 +379,7 @@
 				let labels = [];
 
 				/* Module */
-				const module = this.getModule(this.name);
+				const module = this.repositories.find(r => r.name == this.name).module;
 				if (module) {
 					labels.push(module);
 				}
