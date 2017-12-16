@@ -46,7 +46,7 @@ const defaultModules = [
         icon: 'functions',
         color: 'indigo',
         regexp: [
-            '101pong', '102cipher', '103architect', '104intersection', '105torus', '106bombyx', '107transfer', '109titration', '110borwein',
+            '101pong', '102cipher', '103architect', '104intersection', '105torus', '106bombyx', '107transfer', '108trigo', '109titration', '110borwein',
             '201yams', '202unsold', '203hotline', '207demography', '208dowels', '209poll',
             '301dannon'
         ]
@@ -91,7 +91,7 @@ const defaultModules = [
             '^flip_part_20\\d{2}$', '^flashlight_20\\d{2}$', '^iconofsin_20\\d{2}$', '^lightning_20\\d{2}$',
             '^mystic_20\\d{2}$', '^mystify_20\\d{2}$', '^nocss_20\\d{2}$', '^noise_20\\d{2}$', '^starfield_20\\d{2}$',
             '^stretcher_20\\d{2}$', '^text_foot_20\\d{2}$', '^whirlpool_20\\d{2}$', '^xorshape_20\\d{2}$',
-            '^gfx_'
+            '^gfx_', '^tekadventure$', '^bsraytracer1$', '^raytracer1$', '^wireframe$', '^wolf3d$'
         ]
     }, {
         name: 'C Pool',
