@@ -56,13 +56,14 @@
 				<v-card tile class='text-xs-center'>
 					<v-container>
 						<p class="subheading grey--text mb-0">Collaborators</p>
-						<v-list one-line v-if='collaborators.length > 0'>
+						<v-list two-line v-if='collaborators.length > 0'>
 							<template v-for='(collaborator, index) in pageCollaborators'>
 								<v-divider v-if='index > 0'></v-divider>
 								<v-list-tile avatar :key='collaborator.name' @click.stop='editCollaborator(collaborator)'>
 									<tile-avatar :name='collaborator.name'></tile-avatar>
 									<v-list-tile-content>
 										<v-list-tile-title>{{ collaborator.name }}</v-list-tile-title>
+										<v-list-tile-sub-title v-show='collaborator.aliases.length'>aka {{ collaborator.aliases.join(', ') }}</v-list-tile-sub-title>
 									</v-list-tile-content>
 									<v-list-tile-action>
 										<v-btn icon><v-icon>edit</v-icon></v-btn>
@@ -114,26 +115,65 @@
 		</v-layout>
 
 		<!-- Dialog: Edit collaborator -->
-		<v-dialog persistent max-width='500px' v-model='dialog_editCollaborator.show'>
-			<v-form @submit.prevent='editCollaboratorEdit'>
-				<v-card>
-					<v-card-title>
-						<span class="headline">Edit a collaborator's details</span>
-					</v-card-title>
-					<v-container grid-list-md text-xs-center>
+		<v-dialog scrollable persistent max-width='500px' v-model='dialog_editCollaborator.show'>
+			<v-card>
+				<v-card-title>
+					<span class="headline">Edit a collaborator's details</span>
+				</v-card-title>
+				<v-card-text>
+					<v-container grid-list-md>
 						<v-layout row wrap>
-							<v-flex xs12 sm6>
-								<tile-avatar :name='dialog_editCollaborator.collaborator.name'></tile-avatar>
+							<v-flex xs12 class='text-xs-center'>
+								<avatar :name='dialog_editCollaborator.collaborator.name' size='80px'></avatar>
+								<p class='headline ellipsis mb-0'>{{ dialog_editCollaborator.collaborator.name }}</p>
 							</v-flex>
-							<v-flex xs12 sm6>
-								<p>{{ dialog_editCollaborator.collaborator.name }}</p>
+							<v-flex xs12 class='my-3'>
+								<v-divider></v-divider>
+							</v-flex>
+							<v-flex xs12>
+								<v-text-field label='Picture' hint='Optimal size: 100x100' v-model='dialog_editCollaborator.collaborator.picture'></v-text-field>
+								<v-list one-line subheader class='text-xs-center'>
+									<v-subheader>Aliases</v-subheader>
+									<template v-for='(alias, index) in dialog_editCollaborator.collaborator.aliases'>
+										<v-divider v-if='index > 0'></v-divider>
+										<v-list-tile :key='alias'>
+											<v-list-tile-content>
+												<v-list-tile-title>{{ alias }}</v-list-tile-title>
+											</v-list-tile-content>
+											<v-list-tile-action @click.stop='dialog_editCollaborator.collaborator.aliases.splice(index, 1)'>
+												<v-btn icon><v-icon>delete</v-icon></v-btn>
+											</v-list-tile-action>
+										</v-list-tile>
+									</template>
+									<v-btn @click.stop='dialog_addAlias.show = true'><v-icon left>add</v-icon>Add an alias</v-btn>
+								</v-list>
+								<p class='mb-0'><v-icon>info</v-icon> Aliases are used to identify collaborators through commit author names, if they are not the same as their login.</p>
 							</v-flex>
 						</v-layout>
 					</v-container>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="primary" flat @click.stop='editCollaboratorCancel'>Cancel</v-btn>
+					<v-btn color="primary" flat @click.stop='editCollaboratorEdit'>Edit</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<!-- Dialog: Add alias -->
+		<v-dialog persistent max-width='500px' v-model='dialog_addAlias.show'>
+			<v-form @submit.prevent='addAliasAdd'>
+				<v-card>
+					<v-card-title>
+						<span class="headline">Add an alias</span>
+					</v-card-title>
+					<v-card-text>
+						<v-text-field label='Alias' prepend-icon='label' v-model='dialog_addAlias.alias'></v-text-field>
+					</v-card-text>
 					<v-card-actions>
 						<v-spacer></v-spacer>
-						<v-btn color="primary" flat :disabled='dialog_editCollaborator.loading' @click.stop='editCollaboratorCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat :disabled='dialog_editCollaborator.loading' :loading='dialog_editCollaborator.loading'>Edit</v-btn>
+						<v-btn color="primary" flat @click.stop='addAliasCancel'>Cancel</v-btn>
+						<v-btn color="primary" type='submit' flat >Add</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-form>
@@ -182,7 +222,7 @@
 
 <script>
 	import colors from 'vuetify/es5/util/colors';
-	import { mapGetters } from 'vuex';
+	import { mapGetters, mapActions } from 'vuex';
 	import TileAvatar from '../TileAvatar';
 	import Avatar from '../Avatar';
 
@@ -200,6 +240,10 @@
 					show: false,
 					collaborator: {}
 				},
+				dialog_addAlias: {
+					show: false,
+					alias: ''
+				},
 				dialog_editModule: {
 					show: false,
 					module: {}
@@ -207,7 +251,7 @@
 			};
 		},
 		computed: {
-			...mapGetters(['collaborators', 'modules']),
+			...mapGetters(['collaborators', 'modules', 'colorOf']),
 			welcome: {
 				get () {
 					return this.$store.state.welcome;
@@ -254,16 +298,32 @@
 			}
 		},
 		methods: {
+			...mapActions(['updateCollaborator']),
 			/* Dialog: Edit collaborator */
 			editCollaborator (collaborator) {
-				this.dialog_editCollaborator.collaborator = collaborator;
+				// Create a copy and mutate later
+				this.dialog_editCollaborator.collaborator = {
+					name: collaborator.name,
+					picture: collaborator.picture,
+					aliases: Array.from(collaborator.aliases)
+				};
 				this.dialog_editCollaborator.show = true;
 			},
 			editCollaboratorCancel () {
 				this.dialog_editCollaborator.show = false;
 			},
 			editCollaboratorEdit () {
+				this.updateCollaborator(this.dialog_editCollaborator.collaborator);
 				this.dialog_editCollaborator.show = false;
+			},
+			/* Dialog: Add alias */
+			addAliasCancel () {
+				this.dialog_addAlias.show = false;
+			},
+			addAliasAdd () {
+				this.dialog_editCollaborator.collaborator.aliases.push(this.dialog_addAlias.alias);
+				this.dialog_addAlias.alias = '';
+				this.dialog_addAlias.show = false;
 			},
 			/* Dialog: Edit collaborator */
 			editModule (module) {

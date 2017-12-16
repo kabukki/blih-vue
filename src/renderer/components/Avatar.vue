@@ -1,7 +1,7 @@
 <template>
-	<v-avatar :color='color' :tile='tile'>
+	<v-avatar :color='color' :tile='tile' :size='size'>
 		<img :src="src" v-if='src'>
-		<span class='white--text headline' v-else>{{ letter }}</span>
+		<span class='white--text display-3' v-else>{{ letter }}</span>
 	</v-avatar>
 </template>
 
@@ -9,9 +9,9 @@
 	import { mapGetters } from 'vuex';
 
 	export default {
-		props: ['name', 'tile'],
+		props: ['name', 'tile', 'size'],
 		computed: {
-			...mapGetters(['colorOf']),
+			...mapGetters(['collaborators', 'colorOf']),
 			letter () {
 				return (this.name && this.name.length) && this.name[0].toUpperCase() || '?';
 			},
@@ -19,8 +19,8 @@
 				return this.colorOf(this.name);
 			},
 			src () {
-				return false;
-				//return (this.name.includes('@') && 'https://cdn.local.epitech.eu/userprofil/profilview/' + this.name.split('@')[0] + '.jpg' || false);
+				const c = this.collaborators.find(c => c.name == this.name);
+				return c && c.picture || false;
 			}
 		}
 	}

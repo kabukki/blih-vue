@@ -19,9 +19,8 @@
 				return this.colorOf(this.name);
 			},
 			src () {
-				const c = this.collaborators.find(c => c.name == this.name);
+				const c = this.collaborators.find(c => c.name == this.name || c.aliases.includes(this.name));
 				return c && c.picture || false;
-				//return (this.name.includes('@') && 'https://cdn.local.epitech.eu/userprofil/profilview/' + this.name.split('@')[0] + '.jpg' || false);
 			}
 		}
 	}

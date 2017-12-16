@@ -186,6 +186,7 @@
 				}
 			},
 			getStatus () {
+				// TODO: Maybe do .branch instead ?
 				return this.git.status()
 					.then(status => {
 						this.branch = status.current;
@@ -277,7 +278,11 @@
 				} else {
 					this.local = path;
 					this.cleanup = cleanup;
-					this.git = git(path).silent(true);
+					this.git = git(path).outputHandler((cmd, stdout, stderr) => {
+						//console.log(cmd);
+						// FIXME: not working
+						//console.log(stdout);
+					}).silent(true);
 					this.clone();
 				}
 			});

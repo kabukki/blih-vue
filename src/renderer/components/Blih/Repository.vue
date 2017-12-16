@@ -175,11 +175,9 @@
 					</v-card-title>
 					<v-container grid-list-md text-xs-center>
 						<v-layout row wrap align-center>
-							<v-flex xs2>
-								<avatar :name='dialog_edit.name'></avatar>
-							</v-flex>
-							<v-flex xs10>
-								<div class="display-1 ellipsis">{{ dialog_edit.name }}</div>
+							<v-flex xs12>
+								<avatar :name='dialog_edit.name' size='80px'></avatar>
+								<p class="headline ellipsis mb-0">{{ dialog_edit.name }}</p>
 							</v-flex>
 							<v-flex xs12 class='my-3'>
 								<v-divider></v-divider>

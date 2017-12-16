@@ -14,6 +14,14 @@ function ignoreCaseSort (a, b) {
 
 /* Default data */
 
+const defaultCollaborators = [
+    {
+        name: 'ramassage-tek',
+        picture: false,
+        aliases: []
+    }
+];
+
 const defaultColorMap = {
     a: 'red', b: 'pink', c: 'purple', d: 'deep-purple',
     e: 'indigo', f: 'blue', g: 'light-blue', h: 'cyan',
@@ -80,7 +88,7 @@ const defaultModules = [
         icon: 'code',
         color: 'lime',
         regexp: [
-            '^cpp_nanotekspice$', '^cpp_arcade$'
+            '^cpp_nanotekspice$', '^cpp_arcade$', '^cpp_spider$'
         ]
     }, {
         name: 'Computer graphics',
@@ -105,7 +113,7 @@ const defaultModules = [
         icon: 'pool',
         color: 'cyan',
         regexp: [
-            '^cpp_d[01]\\d[am]*', '^cpp_gkrellm$', '^cpp_spider$'// TODO: add rush repos
+            '^cpp_d[01]\\d[am]*', '^cpp_gkrellm$'// TODO: add rush repos
         ]
     }, {
         name: '.NET',
@@ -224,7 +232,7 @@ let config = new Store({
 let data = new Store({
     name: 'data',
     defaults: {
-        collaborators: [],
+        collaborators: defaultCollaborators,
         colorMap: defaultColorMap,
         modules: defaultModules,
         themes: defaultThemes
@@ -335,13 +343,16 @@ const mutations = {
     },
     /* Data */
     ADD_COLLABORATOR (state, payload) {
-        console.log('adding ' + payload.name);
-        state.collaborators.push({
-            name: payload.name,
-            picture: payload.picture || false
-        });
+        state.collaborators.push(payload);
         data.set('collaborators', state.collaborators.sort(ignoreCaseSort));
     },
+    UPDATE_COLLABORATOR (state, payload) {
+        let index = state.collaborators.findIndex(c => c.name == payload.name);
+        if (index >= 0) {
+            state.collaborators[index] = payload;
+            data.set('collaborators', state.collaborators.sort(ignoreCaseSort))
+        }
+    }
 };
 
 const actions = {
@@ -430,11 +441,17 @@ const actions = {
             context.commit('ADD_COLLABORATOR', {
                 name,
                 picture: (name.includes('@epitech.eu'))
-                ? 'https://cdn.local.epitech.eu/userprofil/profilview/' + name.split('@epitech.eu')[0] + '.jpg'
-                : false
+                    ? 'https://cdn.local.epitech.eu/userprofil/profilview/' + name.split('@epitech.eu')[0] + '.jpg'
+                    : false,
+                aliases: []
             });
         }
     },
+    updateCollaborator (context, data) {
+        if (context.getters.collaborators.find(c => c.name == data.name)) {
+            context.commit('UPDATE_COLLABORATOR', data);
+        }
+    }
 };
 
 export default new Vuex.Store({
