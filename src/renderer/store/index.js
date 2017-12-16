@@ -39,15 +39,15 @@ const defaultModules = [
         icon: 'code',
         color: 'brown',
         regexp: [
-            '^asm_bootstrap$'
+            '^asm_'
         ]
     }, {
         name: 'Mathematics',
         icon: 'functions',
         color: 'indigo',
         regexp: [
-            '101pong', '102cipher', '103architect', '104interville', '106bombyx', '107transfer', '109titration', '110borwein',
-            '203hotline',
+            '101pong', '102cipher', '103architect', '104intersection', '105torus', '106bombyx', '107transfer', '109titration', '110borwein',
+            '201yams', '202unsold', '203hotline', '207demography', '208dowels', '209poll',
             '301dannon'
         ]
     }, {
@@ -56,7 +56,7 @@ const defaultModules = [
         color: 'red',
         regexp: [
             'B1Lettre', 'B1Mailpro', 'B1Rush',
-            'B2EMPLOI', 'B2PRECISER',
+            'B2EMPLOI', 'B2PRECISER', 'B2VENTE',
             'B4BILAN', 'B4DIAPO', 'B4RECADRER',
             'B53EMAILS', 'B5AVOCAT', 'B5MEMO', 'FICTION1',
             '^Disparition20\\d{2}'
@@ -64,47 +64,48 @@ const defaultModules = [
     }, {
         name: 'CPE',
         icon: 'code',
-        color: 'cyan',
+        color: 'grey',
         regexp: [
-            '^CPE_'
+            '^CPE_', '^marvin_', '^sudoki-bi$'
         ]
     }, {
         name: 'PSU',
         icon: 'code',
-        color: 'red',
+        color: 'amber',
         regexp: [
             '^PSU_'
         ]
     }, {
         name: 'C++',
         icon: 'code',
-        color: 'orange',
+        color: 'lime',
         regexp: [
             '^cpp_nanotekspice$', '^cpp_arcade$'
         ]
     }, {
         name: 'Computer graphics',
         icon: 'desktop_windows',
-        color: 'light-green',
+        color: 'deep-orange',
         regexp: [
-            '^binarizer_20\\d{2}$', '^chatty_20\\d{2}$', '^chromatic_20\\d{2}$', '^flip_part_20\\d{2}$',
-            '^iconofsin_20\\d{2}$', '^lightning_20\\d{2}$', '^mystic_20\\d{2}$', '^mystify_20\\d{2}$',
-            '^nocss_20\\d{2}$', '^noise_20\\d{2}$', '^starfield_20\\d{2}$', '^stretcher_20\\d{2}$',
-            '^text_foot_20\\d{2}$', '^whirlpool_20\\d{2}$', '^xorshape_20\\d{2}$', '^gfx_'
+            '^alphachannel_20\\d{2}$', '^binarizer_20\\d{2}$', '^chatty_20\\d{2}$', '^chromatic_20\\d{2}$',
+            '^flip_part_20\\d{2}$', '^flashlight_20\\d{2}$', '^iconofsin_20\\d{2}$', '^lightning_20\\d{2}$',
+            '^mystic_20\\d{2}$', '^mystify_20\\d{2}$', '^nocss_20\\d{2}$', '^noise_20\\d{2}$', '^starfield_20\\d{2}$',
+            '^stretcher_20\\d{2}$', '^text_foot_20\\d{2}$', '^whirlpool_20\\d{2}$', '^xorshape_20\\d{2}$',
+            '^gfx_'
         ]
     }, {
         name: 'C Pool',
         icon: 'pool',
-        color: 'blue-grey',
+        color: 'light-blue',
         regexp: [
             '^Piscine_C', '^CPool_'
         ]
     }, {
         name: 'C++ Pool',
         icon: 'pool',
-        color: 'blue',
+        color: 'cyan',
         regexp: [
-            '^cpp_d[01]\\d[am]*', '^cpp_gkrellm$'// TODO: add rush repos
+            '^cpp_d[01]\\d[am]*', '^cpp_gkrellm$', '^cpp_spider$'// TODO: add rush repos
         ]
     }, {
         name: '.NET',
@@ -116,21 +117,21 @@ const defaultModules = [
     }, {
         name: 'OCaml',
         icon: 'code',
-        color: 'amber',
+        color: 'yellow',
         regexp: [
             '^OCAML_'
         ]
     }, {
         name: 'Shell',
         icon: 'code',
-        color: 'red',
+        color: 'blue-grey',
         regexp: [
             '^SHL_'
         ]
     }, {
         name: 'Java',
         icon: 'code',
-        color: 'amber',
+        color: 'orange',
         regexp: [
             '^Java_\\w+_20\\d{2}'
         ]
@@ -144,9 +145,23 @@ const defaultModules = [
     }, {
         name: 'Security',
         icon: 'lock',
-        color: 'purple',
+        color: 'deep-orange',
         regexp: [
             '^binary_seminar$'
+        ]
+    }, {
+        name: 'Cryptography',
+        icon: 'lock',
+        color: 'deep-purple',
+        regexp: [
+            '^pamela$'
+        ]
+    }, {
+        name: 'Android',
+        icon: 'android',
+        color: 'light-green',
+        regexp: [
+
         ]
     }, {
         name: 'Synthesis pool',
@@ -351,7 +366,7 @@ const actions = {
             .then(data => {
                 context.commit('UPDATE_REPOSITORIES', {
                   repositories: data.sort(ignoreCaseSort)
-                    .map(r => ({
+                    .map(r => Object.freeze({
                         ...r,
                         module: context.getters.getModule(r.name)
                     }))

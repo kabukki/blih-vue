@@ -24,9 +24,9 @@
 							</v-flex>
 							<!-- Search results -->
 							<v-flex x12 v-show='repositories.length > 0 && filtered.length > 0'>
-								<v-list one-line subheader v-for='category in ordered' :key='category.name'>
+								<v-list one-line subheader v-for='category in filtered' :key='category.name'>
 									<v-subheader>{{ category.name }}</v-subheader>
-									<template v-for='(repo, index) in category.repositories'>
+									<template v-for='(repo, index) in category.repositories' v-once>
 										<v-divider v-if='index > 0'></v-divider>
 										<v-list-tile avatar :key="repo.name"
 											:to="{ name: 'blih.repository', params: { name: repo.name } }"
@@ -42,7 +42,7 @@
 									</template>
 								</v-list>
 								<p class='text-xs-center mb-0'>
-									<v-icon>cloud</v-icon> Showing {{ filtered.length }} of {{ repositories.length }} repositories
+									<v-icon>cloud</v-icon> Showing {{ nbFiltered }} of {{ repositories.length }} repositories
 								</p>
 							</v-flex>
 							<v-flex xs12 v-show='repositories.length > 0 && filtered.length == 0'>
@@ -137,66 +137,28 @@
 		computed: {
 			...mapGetters(['api', 'repositories']),
 			filtered () {
-				// TODO: maybe create specific getter to filter ? (might optimize)
-				return this.repositories.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
+				return this.ordered.map(c => ({
+					name: c.name,
+					repositories: c.repositories
+						.filter(r => r.name.toLowerCase()
+							.includes(this.filter.toLowerCase())
+						)
+				})).filter(c => c.repositories.length);
 			},
 			ordered () {
-				// TODO: DRY here
-				if (this.orderBy == 'name') {
-					let res = {};
-					for (const elem of this.filtered) {
-						const category = elem.name[0].toUpperCase();
+				const func = {
+					name: r => r.name[0].toUpperCase(),
+					year: r => {
+						const match = r.name.match(/20\d{2}/);
+						return match || 'Other';
+					},
+					module: r => r.module ? r.module.name : 'Other'
+				};
 
-						if (!res.hasOwnProperty(category)) {
-							res[category] = [];
-						}
-						res[category].push(elem);
-					}
-					return Object.keys(res).map(m => ({
-						name: m,
-						repositories: res[m]
-					})).sort((a, b) => {
-						if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-						else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-						else return 0;
-					});
-				} else if (this.orderBy == 'year') {
-					let res = {};
-					for (const elem of this.filtered) {
-						const match = elem.name.match(/20\d{2}/);
-						const category = match ? match : 'other';
-
-						if (!res.hasOwnProperty(category)) {
-							res[category] = [];
-						}
-						res[category].push(elem);
-					}
-					return Object.keys(res).map(m => ({
-						name: m,
-						repositories: res[m]
-					})).sort((a, b) => {
-						if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-						else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-						else return 0;
-					});
-				} else if (this.orderBy == 'module') {
-					let res = {};
-					for (const elem of this.filtered) {
-						const module = elem.module ? elem.module.name : 'other';
-						if (!res.hasOwnProperty(module)) {
-							res[module] = [];
-						}
-						res[module].push(elem);
-					}
-					return Object.keys(res).map(m => ({
-						name: m,
-						repositories: res[m]
-					})).sort((a, b) => {
-						if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-						else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-						else return 0;
-					});
-				}
+				return this.categorizeRepositories(func[this.orderBy]);
+			},
+			nbFiltered () {
+				return this.filtered.reduce((total, c) => total + c.repositories.length, 0);
 			}
 		},
 		methods: {
@@ -233,6 +195,25 @@
 					});
 			},
 			/* Helpers */
+			categorizeRepositories (getCategoty) {
+				let res = {};
+				for (const elem of this.repositories) {
+					const category = getCategoty(elem);//elem.name[0].toUpperCase();
+
+					if (!res.hasOwnProperty(category)) {
+						res[category] = [];
+					}
+					res[category].push(elem);
+				}
+				return Object.keys(res).map(m => ({
+					name: m,
+					repositories: res[m]
+				})).sort((a, b) => {
+					if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+					else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+					else return 0;
+				});
+			},
 			showSnackbar (color, message) {
 				this.snackbar = {
 					show: true,

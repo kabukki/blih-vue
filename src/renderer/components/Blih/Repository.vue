@@ -379,9 +379,9 @@
 				let labels = [];
 
 				/* Module */
-				const module = this.repositories.find(r => r.name == this.name).module;
-				if (module) {
-					labels.push(module);
+				const repo = this.repositories.find(r => r.name == this.name);
+				if (repo && repo.module) {
+					labels.push(repo.module);
 				}
 
 				/* Turn-in check status */
@@ -390,7 +390,6 @@
 				} else {
 					labels.push({ name: 'Not ready for turn-in', icon: 'warning', color: 'orange' });
 				}
-
 				/* Anniversaries */
 				let diff = moment().diff(moment.unix(this.info.creation_time), 'years')
 				if (diff >= 1) {
