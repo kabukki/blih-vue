@@ -1,25 +1,33 @@
-# blih-vue
+# Blih Vue
 
-> An electron-vue project
+> Managing repositories has never been easier.
 
-#### Build Setup
+Blih Vue is an intuitive and easy-to-use app that helps you manage efficiently your Epitech repositories.
 
-``` bash
-# install dependencies
-npm install
+![]()
 
-# serve with hot reload at localhost:9080
-npm run dev
+## Easy to use
 
-# build electron application for production
-npm run build
+Sick of typing your password or to mess up the arguments order every time you use the Blih python script ?
 
+With Blih Vue, authenticate once and you're good to go ! Navigate seamlessly through the application and manage your keys and repositories with ease.
 
-# lint all JS/Vue component files in `src/`
-npm run lint
+## Repositories
 
-```
+Browse your repositories to manage them. You can:
+* create a repository
+* delete a repository
+* see a repository's details
+* see a repository's git history
+* clone a repository
+* add a collaborator
+* edit a collaborator's rights
+* delete a collaborator
 
----
+## SSH keys
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[142eea4](https://github.com/SimulatedGREG/electron-vue/tree/142eea44aa50fdead91a469daedfcff04308c3fc) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+Browse your ssh keys. You can :
+* upload a key
+* delete a key
+* see a key's details
+* download a key
