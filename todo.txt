@@ -1,1 +1,2 @@
 Upload component (vuetify front-end pack, Q2 2018)
+opti: Cache clone repository + bouton refresh? A etudier
