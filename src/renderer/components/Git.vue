@@ -32,7 +32,7 @@
 						<p class='mb-0'>
 							<v-icon>history</v-icon> {{ commits.length }} commits (on branch <span class='grey--text'>{{ branch }}</span>)
 						</p>
-						<v-pagination :length='nbPages' :total-visible='6' v-model='page'></v-pagination>
+						<v-pagination :length='nbPages' :total-visible='7' v-model='page'></v-pagination>
 					</v-list>
 					<p class='text-xs-center mb-0' v-show='commits.length == 0'>
 						No commits
