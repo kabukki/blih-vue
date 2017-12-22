@@ -62,7 +62,7 @@
 		</v-layout>
 
 		<!-- Dialog: Create -->
-		<v-dialog persistent max-width='500px' v-model='dialog_create.show'>
+		<v-dialog max-width='500px' v-model='dialog_create.show'>
 			<v-form v-model='dialog_create.valid' @submit.prevent='createCreate'>
 				<v-card>
 					<v-card-title>

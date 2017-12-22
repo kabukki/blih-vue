@@ -57,7 +57,7 @@
 		</v-container>
 
 		<!-- Dialog: Clone -->
-		<v-dialog persistent max-width='500px' v-model='dialog_clone.show'>
+		<v-dialog max-width='500px' v-model='dialog_clone.show'>
 			<v-form v-model='dialog_clone.valid' @submit.prevent='cloneClone'>
 				<v-card>
 					<v-card-title>
@@ -77,7 +77,7 @@
 		</v-dialog>
 
 		<!-- Dialog: Diff -->
-		<v-dialog persistent scrollable max-width='500px' v-model='dialog_diff.show'>
+		<v-dialog scrollable max-width='500px' v-model='dialog_diff.show'>
 			<v-card v-if='dialog_diff.show'>
 				<v-card-title>
 					<span class="headline">

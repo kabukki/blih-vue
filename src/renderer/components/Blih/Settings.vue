@@ -115,7 +115,7 @@
 		</v-layout>
 
 		<!-- Dialog: Edit collaborator -->
-		<v-dialog scrollable persistent max-width='500px' v-model='dialog_editCollaborator.show'>
+		<v-dialog scrollable max-width='500px' v-model='dialog_editCollaborator.show'>
 			<v-card>
 				<v-card-title>
 					<span class="headline">Edit a collaborator's details</span>
@@ -131,10 +131,13 @@
 								<v-divider></v-divider>
 							</v-flex>
 							<v-flex xs12>
-								<v-text-field label='Picture' hint='Optimal size: 100x100' v-model='dialog_editCollaborator.collaborator.picture'></v-text-field>
-								<v-list one-line subheader class='text-xs-center'>
-									<v-subheader>Aliases</v-subheader>
-									<template v-for='(alias, index) in dialog_editCollaborator.collaborator.aliases'>
+								<!-- Picture -->
+								<v-subheader>Picture</v-subheader>
+								<v-text-field label='URI' hint='Optimal size: 100x100' v-model='dialog_editCollaborator.collaborator.picture'></v-text-field>
+								<!-- Aliases -->
+								<v-subheader>Aliases</v-subheader>
+								<v-list one-line subheader dense class='text-xs-center'>
+									<template v-for='(alias, index) in dialog_editCollaborator.collaborator.aliases' v-show='dialog_editCollaborator.collaborator.aliases && dialog_editCollaborator.collaborator.aliases.length > 0'>
 										<v-divider v-if='index > 0'></v-divider>
 										<v-list-tile :key='alias'>
 											<v-list-tile-content>
@@ -145,9 +148,12 @@
 											</v-list-tile-action>
 										</v-list-tile>
 									</template>
+									<p class='mb-0' v-show='dialog_editCollaborator.collaborator.aliases && dialog_editCollaborator.collaborator.aliases.length == 0'>
+										No aliases
+									</p>
 									<v-btn @click.stop='dialog_addAlias.show = true'><v-icon left>add</v-icon>Add an alias</v-btn>
 								</v-list>
-								<p class='mb-0'><v-icon>info</v-icon> Aliases are used to identify collaborators through commit author names, if they are not the same as their login.</p>
+								<p class='caption mb-0'><v-icon small>info</v-icon> Aliases are used to identify collaborators through commit author name, if it is not the same as their login.</p>
 							</v-flex>
 						</v-layout>
 					</v-container>
@@ -161,7 +167,7 @@
 		</v-dialog>
 
 		<!-- Dialog: Add alias -->
-		<v-dialog persistent max-width='500px' v-model='dialog_addAlias.show'>
+		<v-dialog max-width='500px' v-model='dialog_addAlias.show'>
 			<v-form @submit.prevent='addAliasAdd'>
 				<v-card>
 					<v-card-title>
@@ -180,41 +186,56 @@
 		</v-dialog>
 
 		<!-- Dialog: Edit module -->
-		<v-dialog persistent scrollable max-width='500px' v-model='dialog_editModule.show'>
-				<v-card>
-					<v-card-title>
-						<span class="headline">Edit a module</span>
-					</v-card-title>
-					<v-card-text>
-						<v-list teo>
-							<v-list-tile avatar>
-								<v-list-tile-avatar :color='dialog_editModule.module.color'>
-									<span><v-icon>{{ dialog_editModule.module.icon }}</v-icon></span>
-								</v-list-tile-avatar>
-								<v-list-tile-content>
-									<v-list-tile-title>{{ dialog_editModule.module.name }}</v-list-tile-title>
-									<v-list-tile-sub-title>Icon: {{ dialog_editModule.module.icon }}, color: {{ dialog_editModule.module.color }}</v-list-tile-sub-title>
-								</v-list-tile-content>
-							</v-list-tile>
-						</v-list>
-						<v-list one-line subheader class='text-xs-center'>
-							<v-subheader>Matches</v-subheader>
-							<template v-for='(regexp, index) in dialog_editModule.module.regexp'>
-								<v-divider v-if='index > 0'></v-divider>
-								<v-list-tile :key='regexp'>
-									<v-list-tile-content>
-										<v-list-tile-title>{{ regexp }}</v-list-tile-title>
-									</v-list-tile-content>
-								</v-list-tile>
-							</template>
-							<v-btn>Add a regexp</v-btn>
-						</v-list>
-					</v-card-text>
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="primary" flat @click.stop='editModuleCancel'>Close</v-btn>
-					</v-card-actions>
-				</v-card>
+		<v-dialog scrollable max-width='500px' v-model='dialog_editModule.show'>
+			<v-card>
+				<v-card-title>
+					<span class="headline">Edit a module</span>
+				</v-card-title>
+				<v-card-text>
+					<v-container grid-list-md>
+						<v-layout row wrap>
+							<v-flex xs12 class='text-xs-center'>
+								<v-avatar :color='dialog_editModule.module.color' size='80px'>
+									<span><v-icon x-large>{{ dialog_editModule.module.icon }}</v-icon></span>
+								</v-avatar>
+								<p class='headline ellipsis mb-0'>{{ dialog_editModule.module.name }}</p>
+							</v-flex>
+							<v-flex xs12 class='my-3'>
+								<v-divider></v-divider>
+							</v-flex>
+							<v-flex xs12 sm6>
+								<!-- Icon -->
+								<v-subheader>Icon</v-subheader>
+								<v-text-field label='Icon' hint='Material icon name' :prepend-icon='dialog_editModule.module.icon || "add"' v-model='dialog_editModule.module.icon'></v-text-field>
+							</v-flex>
+							<v-flex xs12 sm6>
+								<!-- Color -->
+								<v-subheader>Color</v-subheader>
+								<v-text-field label='Color' hint='Material color' prepend-icon='palette' v-model='dialog_editModule.module.color'></v-text-field>
+							</v-flex>
+							<v-flex xs12>
+								<!-- Matches -->
+								<v-subheader>Matches</v-subheader>
+								<v-list one-line subheader dense class='text-xs-center'>
+									<template v-for='(regexp, index) in dialog_editModule.module.regexp'>
+										<v-divider v-if='index > 0'></v-divider>
+										<v-list-tile :key='regexp'>
+											<v-list-tile-content>
+												<v-list-tile-title>{{ regexp }}</v-list-tile-title>
+											</v-list-tile-content>
+										</v-list-tile>
+									</template>
+								</v-list>
+							</v-flex>
+						</v-layout>
+					</v-container>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="primary" flat @click.stop='editModuleCancel'>Close</v-btn>
+					<v-btn color="primary" flat @click.stop='editModuleEdit'>Edit</v-btn>
+				</v-card-actions>
+			</v-card>
 		</v-dialog>
 
 	</v-container>
@@ -298,7 +319,7 @@
 			}
 		},
 		methods: {
-			...mapActions(['updateCollaborator']),
+			...mapActions(['updateCollaborator', 'updateModule']),
 			/* Dialog: Edit collaborator */
 			editCollaborator (collaborator) {
 				// Create a copy and mutate later
@@ -327,13 +348,19 @@
 			},
 			/* Dialog: Edit collaborator */
 			editModule (module) {
-				this.dialog_editModule.module = module;
+				this.dialog_editModule.module = {
+					name: module.name,
+					icon: module.icon,
+					color: module.color,
+					regexp: Array.from(module.regexp)
+				};
 				this.dialog_editModule.show = true;
 			},
 			editModuleCancel () {
 				this.dialog_editModule.show = false;
 			},
 			editModuleEdit () {
+				this.updateModule(this.dialog_editModule.module);
 				this.dialog_editModule.show = false;
 			}
 		}

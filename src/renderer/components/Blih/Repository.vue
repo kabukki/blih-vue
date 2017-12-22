@@ -92,7 +92,7 @@
 		</v-layout>
 
 		<!-- Dialog: Delete -->
-		<v-dialog persistent max-width='500px' v-model='dialog_delete.show'>
+		<v-dialog max-width='500px' v-model='dialog_delete.show'>
 			<v-form @submit.prevent='deleteDelete'>
 				<v-card>
 					<v-card-title>
@@ -111,7 +111,7 @@
 		</v-dialog>
 
 		<!-- Dialog: Add -->
-		<v-dialog persistent max-width='500px' v-model='dialog_add.show'>
+		<v-dialog max-width='500px' v-model='dialog_add.show'>
 			<v-form v-model='dialog_add.valid' @submit.prevent='addAdd'>
 				<v-card>
 					<v-card-title>
@@ -167,7 +167,7 @@
 		</v-dialog>
 
 		<!-- Dialog: Edit -->
-		<v-dialog persistent max-width='500px' v-model='dialog_edit.show'>
+		<v-dialog max-width='500px' v-model='dialog_edit.show'>
 			<v-form @submit.prevent='editEdit'>
 				<v-card>
 					<v-card-title>

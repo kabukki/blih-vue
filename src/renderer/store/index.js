@@ -55,8 +55,8 @@ const defaultModules = [
         color: 'indigo',
         regexp: [
             '101pong', '102cipher', '103architect', '104intersection', '105torus', '106bombyx', '107transfer', '108trigo', '109titration', '110borwein',
-            '201yams', '202unsold', '203hotline', '207demography', '208dowels', '209poll',
-            '301dannon'
+            '201yams', '202unsold', '203hotline', '204ducks', '205IQ', '206neutrinos', '207demography', '208dowels', '208pegs', '209poll',
+            '301dannon', '302separation', '303make', '304pacman', '305construction', '306radiator', '307multigrains', '308reedpipes', '309pollution'
         ]
     }, {
         name: 'French',
@@ -88,17 +88,14 @@ const defaultModules = [
         icon: 'code',
         color: 'lime',
         regexp: [
-            '^cpp_nanotekspice$', '^cpp_arcade$', '^cpp_spider$'
+            '^cpp_(nanotekspice|arcade|spider)$'
         ]
     }, {
         name: 'Computer graphics',
         icon: 'desktop_windows',
         color: 'deep-orange',
         regexp: [
-            '^alphachannel_20\\d{2}$', '^binarizer_20\\d{2}$', '^chatty_20\\d{2}$', '^chromatic_20\\d{2}$',
-            '^flip_part_20\\d{2}$', '^flashlight_20\\d{2}$', '^iconofsin_20\\d{2}$', '^lightning_20\\d{2}$',
-            '^mystic_20\\d{2}$', '^mystify_20\\d{2}$', '^nocss_20\\d{2}$', '^noise_20\\d{2}$', '^starfield_20\\d{2}$',
-            '^stretcher_20\\d{2}$', '^text_foot_20\\d{2}$', '^whirlpool_20\\d{2}$', '^xorshape_20\\d{2}$',
+            '^(alphachannel|binarizer|chatty|chromatic|flip_part|flashlight|iconofsin|lightning|mystic|mystify|nocss|noise|starfield|stretcher|text_foot|whirlpool|xorshape)_20\\d{2}$',
             '^gfx_', '^tekadventure$', '^bsraytracer1$', '^raytracer1$', '^wireframe$', '^wolf3d$'
         ]
     }, {
@@ -113,7 +110,7 @@ const defaultModules = [
         icon: 'pool',
         color: 'cyan',
         regexp: [
-            '^cpp_d[01]\\d[am]*', '^cpp_gkrellm$'// TODO: add rush repos
+            '^cpp_d[01]\\d[am]*', '^cpp_(gkrellm|santa|SKL)$'
         ]
     }, {
         name: '.NET',
@@ -148,7 +145,7 @@ const defaultModules = [
         icon: 'work',
         color: 'pink',
         regexp: [
-            '^stageTEK'
+            '^stageTEK', '^internship_20\\d{2}$'
         ]
     }, {
         name: 'Security',
@@ -243,7 +240,7 @@ let data = new Store({
  * Vuex
  */
 
-// TODO: one object for all config and data
+// IDEA: one object for all config and data
 const state = {
     api: null,
     email: null,
@@ -257,9 +254,9 @@ const state = {
     welcome: config.get('welcome'),
     /* Data */
     collaborators: data.get('collaborators').sort(ignoreCaseSort),
-    colorMap: data.get('colorMap'),
-    modules: data.get('modules').sort(ignoreCaseSort),
-    themes: data.get('themes').sort(ignoreCaseSort)
+    colorMap: defaultColorMap,//data.get('colorMap'),
+    modules: defaultModules.sort(ignoreCaseSort),//data.get('modules').sort(ignoreCaseSort),
+    themes: defaultThemes.sort(ignoreCaseSort),//data.get('themes').sort(ignoreCaseSort)
 };
 
 const getters = {
@@ -351,6 +348,13 @@ const mutations = {
         if (index >= 0) {
             state.collaborators[index] = payload;
             data.set('collaborators', state.collaborators.sort(ignoreCaseSort))
+        }
+    },
+    UPDATE_MODULE (state, payload) {
+        let index = state.modules.findIndex(c => c.name == payload.name);
+        if (index >= 0) {
+            state.modules[index] = payload;
+            data.set('modules', state.modules.sort(ignoreCaseSort))
         }
     }
 };
@@ -450,6 +454,11 @@ const actions = {
     updateCollaborator (context, data) {
         if (context.getters.collaborators.find(c => c.name == data.name)) {
             context.commit('UPDATE_COLLABORATOR', data);
+        }
+    },
+    updateModule (context, data) {
+        if (context.getters.modules.find(c => c.name == data.name)) {
+            context.commit('UPDATE_MODULE', data);
         }
     }
 };
