@@ -62,36 +62,12 @@
 		</v-layout>
 
 		<!-- Dialog: Create -->
-		<v-dialog max-width='500px' v-model='dialog_create.show'>
-			<v-form v-model='dialog_create.valid' @submit.prevent='createCreate'>
-				<v-card>
-					<v-card-title>
-						<span class="headline">Create a new repository</span>
-					</v-card-title>
-					<v-card-text>
-						<v-container>
-							<v-text-field label='Name' prepend-icon='cloud' v-model='dialog_create.name' required
-								:rules='dialog_create.rules' type="text"
-								:disabled="dialog_create.loading">
-							</v-text-field>
-							<v-text-field label='Description' prepend-icon='description' v-model='dialog_create.description'
-								type="text"
-								:disabled="dialog_create.loading">
-							</v-text-field>
-							<v-checkbox label='Add read rights to ramassage-tek for turn-in' v-model='dialog_create.turnIn'></v-checkbox>
-						</v-container>
-					</v-card-text>
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="primary" flat :disabled='dialog_create.loading' @click.stop='createCancel'>Cancel</v-btn>
-						<v-btn color="primary" flat type='submit' :disabled='dialog_create.loading || !dialog_create.valid' :loading='dialog_create.loading'>Create</v-btn>
-					</v-card-actions>
-				</v-card>
-			</v-form>
-		</v-dialog>
+		<form-dialog :fields='dialogCreate.fields' action='Create' @submit='dialogCreate.submit' v-model='dialogCreate.show'>
+			<span slot="header" class="headline">Create a new repository</span>
+		</form-dialog>
 
 		<!-- FAB -->
-		<v-btn v-model='fab' color='primary' fixed bottom right fab @click.stop='dialog_create.show = true'>
+		<v-btn v-model='fab' color='primary' fixed bottom right fab @click.stop='dialogCreate.show = true'>
 			<v-icon>add</v-icon>
 		</v-btn>
 	</page>
@@ -99,34 +75,63 @@
 
 <script>
 	import { mapGetters, mapActions } from 'vuex';
+	import { snackbar } from '../../mixins';
 	import Page from './Page';
 	import TileAvatar from '../TileAvatar';
+	import FormDialog from '../Dialogs/FormDialog';
 
 	export default {
-		components: { Page, TileAvatar },
+		components: { Page, TileAvatar, FormDialog },
+		mixins: [snackbar],
 		data () {
 			return {
 				/* Page state */
 				fab: false,
-				/* Snackbar */
-				snackbar: {
-					show: false,
-					color: '',
-					message: ''
-				},
 				/* Dialogs */
-				dialog_create: {
+				dialogCreate: {
 					show: false,
-					loading: false,
-					error: false,
-					rules: [
-						name => !!name || 'Required',
-						name => !name.includes(' ') || 'No spaces allowed'
-					],
-					valid: true,
-					name: '',
-					description: '',
-					turnIn: false
+					fields: {
+						name: {
+							is: 'v-text-field',
+							label: 'Name',
+							icon: 'cloud',
+							required: true,
+							rules: [
+								name => !!name || 'Required',
+								name => !name.includes(' ') || 'No spaces allowed'
+							],
+							type: 'text',
+							default: ''
+						},
+						description: {
+							is: 'v-text-field',
+							label: 'Description',
+							icon: 'description',
+							type: 'text',
+							default: ''
+						},
+						turnIn: {
+							is: 'v-checkbox',
+							label: 'Add read rights to ramassage-tek for turn-in',
+							default: false
+						}
+					},
+					submit: (data, success, failure) => {
+						this.createRepository(data.name, data.description)
+							.then(_ => {
+								if (data.turnIn) {
+									return this.api.setACL(data.name, 'ramassage-tek', 'r');
+								} else {
+									return Promise.resolve();
+								}
+							}).then(_ => {
+								success();
+								this.$router.push({name: 'blih.repository', params: { name: data.name }});
+							}).catch(err => {
+								failure();
+								this.showSnackbar('error', err);
+							});
+					}
 				},
 				/* Data */
 				filter: '',
@@ -171,29 +176,6 @@
 						callback(err);
 					});
 			},
-			/* Dialog: Create */
-			createCancel () {
-				this.dialog_create.show = false;
-				this.dialog_create.name = '';
-				this.dialog_create.description = '';
-			},
-			createCreate () {
-				this.dialog_create.loading = true;
-				this.createRepository(this.dialog_create.name, this.dialog_create.description)
-					.then(_ => {
-						if (this.dialog_create.turnIn) {
-							return this.api.setACL(this.dialog_create.name, 'ramassage-tek', 'r');
-						} else {
-							return Promise.resolve();
-						}
-					}).then(_ => {
-						this.$router.push({name: 'blih.repository', params: { name: this.dialog_create.name }});
-					}).catch(err => {
-						this.showSnackbar('error', err);
-					}).then(_ => {
-						this.dialog_create.loading = false;
-					});
-			},
 			/* Helpers */
 			categorizeRepositories (getCategoty) {
 				let res = {};
@@ -213,13 +195,6 @@
 					else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
 					else return 0;
 				});
-			},
-			showSnackbar (color, message) {
-				this.snackbar = {
-					show: true,
-					color,
-					message
-				};
 			}
 		}
 	};

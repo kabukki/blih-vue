@@ -72,23 +72,19 @@
 </template>
 
 <script>
-	import fs from 'fs-extra';
 	import { mapGetters, mapActions } from 'vuex';
+	import { snackbar } from '../../mixins';
+	import fs from 'fs-extra';
 	import Page from './Page';
 	import TileAvatar from '../TileAvatar';
 
 	export default {
 		components: { Page, TileAvatar },
+		mixins: [snackbar],
 		data () {
 			return {
 				/* Page state */
 				fab: false,
-				/* Snackbar */
-				snackbar: {
-					show: false,
-					color: '',
-					message: ''
-				},
 				/* Dialogs */
 				dialog_upload: {
 					show: false,
@@ -146,14 +142,6 @@
 				if (file.target.files[0]) {
 					this.dialog_upload.file = file.target.files[0].path;
 				}
-			},
-			/* Helpers */
-			showSnackbar (color, message) {
-				this.snackbar = {
-					show: true,
-					color,
-					message
-				};
 			}
 		}
 	};

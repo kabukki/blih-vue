@@ -218,6 +218,7 @@
 
 <script>
 	import { mapGetters, mapActions } from 'vuex';
+	import { snackbar } from '../../mixins';
 	import moment from 'moment';
 	import Page from './Page';
 	import Avatar from '../Avatar';
@@ -226,15 +227,9 @@
 
 	export default {
 		components: { Page, Git, Avatar, TileAvatar },
+		mixins: [snackbar],
 		data () {
 			return {
-				/* Page state */
-				/* Snackbar */
-				snackbar: {
-					show: false,
-					color: '',
-					message: ''
-				},
 				/* Dialogs */
 				dialog_delete: {
 					show: false,
@@ -356,13 +351,6 @@
 						this.addCollaborator(user);
 						this.acl = acl;
 					});
-			},
-			showSnackbar (color, message) {
-				this.snackbar = {
-					show: true,
-					color,
-					message
-				};
 			}
 		},
 		computed: {

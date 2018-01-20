@@ -18,9 +18,9 @@
 								:type="visible ? 'text' : 'password'"
 								:rules='rules'
 								:disabled='loading'/>
-								<div class="text-xs-center">
-									<v-btn type="submit" color='primary' :disabled='loading || !valid' :loading='loading'>OK</v-btn>
-								</div>
+							<div class="text-xs-center">
+								<v-btn type="submit" color='primary' :disabled='loading || !valid' :loading='loading'>OK</v-btn>
+							</div>
 						</v-form>
 					</v-flex>
 				</v-layout>
@@ -31,11 +31,13 @@
 
 <script>
 	import { mapGetters, mapActions } from 'vuex';
+	import { snackbar } from '../mixins';
 	import Blih from 'blih';
 	import Page from './Blih/Page';
 
 	export default {
 		components: { Page },
+		mixins: [snackbar],
 		data () {
 			return {
 				/* Page state */
@@ -44,12 +46,6 @@
 					field => !!field || 'Required'
 				],
 				valid: true,
-				/* Snackbar */
-				snackbar: {
-					show: false,
-					color: '',
-					message: ''
-				},
 				/* Data */
 				email: '',
 				password: '',
@@ -85,13 +81,6 @@
 					this.password = '';
 					this.loading = false;
 				});
-			},
-			showSnackbar (color, message) {
-				this.snackbar = {
-					show: true,
-					color,
-					message
-				};
 			}
 		},
 		computed: {

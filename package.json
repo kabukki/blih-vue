@@ -61,7 +61,7 @@
     "tmp": "0.0.33",
     "vue": "^2.3.3",
     "vue-router": "^2.5.3",
-    "vuetify": "^1.0.0-alpha.2",
+    "vuetify": "^1.0.0-beta.4",
     "vuex": "^2.3.1"
   },
   "devDependencies": {

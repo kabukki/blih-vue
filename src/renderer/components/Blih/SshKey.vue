@@ -97,22 +97,18 @@
 </template>
 
 <script>
+	import { mapGetters } from 'vuex';
+	import { snackbar } from '../../mixins';
 	import fingerprint from 'ssh-fingerprint';
 	import fs from 'fs-extra';
 	import path from 'path';
-	import { mapGetters } from 'vuex';
 	import Page from './Page';
 
 	export default {
 		components: { Page },
+		mixins: [snackbar],
 		data () {
 			return {
-				/* Snackbar */
-				snackbar: {
-					show: false,
-					color: '',
-					message: ''
-				},
 				/* Dialogs */
 				dialog_delete: {
 					show: false,
@@ -176,14 +172,6 @@
 				} else {
 					this.dialog_download.destination = null;
 				}
-			},
-			/* Helpers */
-			showSnackbar (color, message) {
-				this.snackbar = {
-					show: true,
-					color,
-					message
-				};
 			}
 		},
 		computed: {
