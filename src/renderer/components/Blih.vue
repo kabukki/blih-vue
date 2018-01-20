@@ -78,13 +78,13 @@
 		methods: {
 			getCurrentPage () {
 				let links = this.links.concat(this.otherLinks, this.noLinks);
-				return links.filter(l => l.to == this.$route.name)[0];
+				return links.filter(l => l.to === this.$route.name)[0];
 			},
 			goBack () {
 				this.$router.go(-1);
 			}
 		}
-	}
+	};
 </script>
 
 <style lang="css">

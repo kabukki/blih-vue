@@ -182,11 +182,11 @@
 				this.createRepository(this.dialog_create.name, this.dialog_create.description)
 					.then(_ => {
 						if (this.dialog_create.turnIn) {
-							return this.api.setACL(this.dialog_create.name, 'ramassage-tek', 'r')
+							return this.api.setACL(this.dialog_create.name, 'ramassage-tek', 'r');
 						} else {
 							return Promise.resolve();
 						}
-					}).then(data => {
+					}).then(_ => {
 						this.$router.push({name: 'blih.repository', params: { name: this.dialog_create.name }});
 					}).catch(err => {
 						this.showSnackbar('error', err);
@@ -198,7 +198,7 @@
 			categorizeRepositories (getCategoty) {
 				let res = {};
 				for (const elem of this.repositories) {
-					const category = getCategoty(elem);//elem.name[0].toUpperCase();
+					const category = getCategoty(elem); // elem.name[0].toUpperCase();
 
 					if (!res.hasOwnProperty(category)) {
 						res[category] = [];
@@ -222,5 +222,5 @@
 				};
 			}
 		}
-	}
+	};
 </script>

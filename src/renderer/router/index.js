@@ -1,14 +1,16 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+/* eslint object-property-newline: 0 */
 
-import Welcome from '../components/Welcome'
-import Login from '../components/Login'
-import Blih from '../components/Blih'
-import Repositories from '../components/Blih/Repositories'
-import Repository from '../components/Blih/Repository'
-import SshKeys from '../components/Blih/SshKeys'
-import SshKey from '../components/Blih/SshKey'
-import Settings from '../components/Blih/Settings'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+
+import Welcome from '../components/Welcome';
+import Login from '../components/Login';
+import Blih from '../components/Blih';
+import Repositories from '../components/Blih/Repositories';
+import Repository from '../components/Blih/Repository';
+import SshKeys from '../components/Blih/SshKeys';
+import SshKey from '../components/Blih/SshKey';
+import Settings from '../components/Blih/Settings';
 
 Vue.use(VueRouter);
 

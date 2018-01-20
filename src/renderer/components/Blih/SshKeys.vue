@@ -114,7 +114,7 @@
 			...mapActions(['updateKeys', 'uploadKey']),
 			_init_ (callback) {
 				this.updateKeys()
-					.then(keys => {
+					.then(_keys => {
 						callback();
 					}).catch(err => {
 						callback(err);
@@ -156,7 +156,7 @@
 				};
 			}
 		}
-	}
+	};
 </script>
 
 <style lang="css">

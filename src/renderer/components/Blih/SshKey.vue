@@ -145,7 +145,7 @@
 			deleteDelete () {
 				this.dialog_delete.loading = true;
 				this.api.deleteKey(this.name)
-					.then(data => {
+					.then(_ => {
 						this.$router.push({name: 'blih.ssh-keys'});
 					}).catch(err => {
 						this.showSnackbar('error', err);
@@ -160,7 +160,7 @@
 			downloadDownload () {
 				const keyPath = path.join(this.dialog_download.destination, this.dialog_download.name);
 				this.dialog_download.loading = true;
-				fs.writeFile(keyPath, this.key.data.concat(' ', this.name), (err, data) => {
+				fs.writeFile(keyPath, this.key.data.concat(' ', this.name), (err) => {
 					if (err) {
 						this.showSnackbar('error', err);
 					} else {
@@ -196,14 +196,14 @@
 			},
 			fingerprint () {
 				return fingerprint(this.key.data);
-			},
+			}
 		},
 		created () {
 			this.name = this.$route.params.name;
-			this.key = this.keys().find(k => k.name == this.name);
+			this.key = this.keys().find(k => k.name === this.name);
 			this.dialog_download.name = this.name + '.pub';
 		}
-	}
+	};
 </script>
 
 <style lang="css">

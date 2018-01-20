@@ -222,7 +222,7 @@
 	import Page from './Page';
 	import Avatar from '../Avatar';
 	import TileAvatar from '../TileAvatar';
-	import Git from '../Git'
+	import Git from '../Git';
 
 	export default {
 		components: { Page, Git, Avatar, TileAvatar },
@@ -272,7 +272,7 @@
 					this.info = data[0];
 					this.acl = data[1];
 					// Register collaborators
-					this.acl.forEach(a => { this.addCollaborator(a.name) });
+					this.acl.forEach(a => { this.addCollaborator(a.name); });
 					callback();
 				}).catch(err => {
 					callback(err);
@@ -291,7 +291,7 @@
 				};
 				return rights.split('')
 					.reduce((string, r) =>
-						string += (string.length > 0 ? ', ' : '') + acl[r],
+						string + (string.length > 0 ? ', ' : '') + acl[r],
 					'') || 'None';
 			},
 			/* Dialog: Delete */
@@ -301,7 +301,7 @@
 			deleteDelete () {
 				this.dialog_delete.loading = true;
 				this.deleteRepository(this.name)
-					.then(data => {
+					.then(_ => {
 						this.$router.push({name: 'blih.repositories'});
 					}).catch(err => {
 						this.showSnackbar('error', err);
@@ -348,7 +348,7 @@
 					});
 			},
 			/* Helpers */
-			setACL(name, user, acl) {
+			setACL (name, user, acl) {
 				return this.api.setACL(name, user, acl)
 					.then(_ => this.api.getACL(name))
 					.then(acl => {
@@ -377,19 +377,19 @@
 				let labels = [];
 
 				/* Module */
-				const repo = this.repositories.find(r => r.name == this.name);
+				const repo = this.repositories.find(r => r.name === this.name);
 				if (repo && repo.module) {
 					labels.push(repo.module);
 				}
 
 				/* Turn-in check status */
-				if (this.acl.find(acl => acl.name == 'ramassage-tek' && acl.rights.includes('r'))) {
+				if (this.acl.find(acl => acl.name === 'ramassage-tek' && acl.rights.includes('r'))) {
 					labels.push({ name: 'Ready for turn-in', icon: 'check_circle', color: 'green' });
 				} else {
 					labels.push({ name: 'Not ready for turn-in', icon: 'warning', color: 'orange' });
 				}
 				/* Anniversaries */
-				let diff = moment().diff(moment.unix(this.info.creation_time), 'years')
+				let diff = moment().diff(moment.unix(this.info.creation_time), 'years');
 				if (diff >= 1) {
 					labels.push({ name: diff + ' year' + (diff > 1 ? 's' : ''), icon: 'cake', color: 'amber' });
 				}
@@ -403,7 +403,7 @@
 		created () {
 			this.name = this.$route.params.name;
 		}
-	}
+	};
 </script>
 
 <style lang="css">

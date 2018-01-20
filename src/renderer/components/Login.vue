@@ -53,7 +53,7 @@
 				/* Data */
 				email: '',
 				password: '',
-				visible: false,
+				visible: false
 			};
 		},
 		methods: {
@@ -64,7 +64,7 @@
 						this.showSnackbar('success', 'Blih is up');
 						callback();
 					}).catch(err => {
-						callback('Blih is unreachable', err);
+						callback(err, 'Blih is unreachable');
 					});
 			},
 			/* Helpers */
@@ -73,13 +73,13 @@
 				this.authenticate({
 					email: this.email.includes('@') ? this.email : this.email + '@epitech.eu',
 					password: this.password
-				}).then((data) => {
+				}).then(_ => {
 					// Remember login for next time
 					this.setLastEmail(this.email);
 					// Register yourself
 					this.addCollaborator(this.login);
 					this.$router.push({ name: 'blih.repositories' });
-				}).catch((err) => {
+				}).catch(err => {
 					this.showSnackbar('error', err);
 				}).then(_ => {
 					this.password = '';

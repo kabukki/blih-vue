@@ -242,7 +242,6 @@
 </template>
 
 <script>
-	import colors from 'vuetify/es5/util/colors';
 	import { mapGetters, mapActions } from 'vuex';
 	import TileAvatar from '../TileAvatar';
 	import Avatar from '../Avatar';
@@ -287,7 +286,7 @@
 					return this.$store.state.theme;
 				},
 				set (name) {
-					const theme = this.$store.getters.themes.find(t => t.name == name);
+					const theme = this.$store.getters.themes.find(t => t.name === name);
 					this.$vuetify.theme = theme.colors;
 					this.$store.dispatch('setTheme', name);
 				}
@@ -364,7 +363,7 @@
 				this.dialog_editModule.show = false;
 			}
 		}
-	}
+	};
 </script>
 
 <style lang="css">

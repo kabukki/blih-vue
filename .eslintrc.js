@@ -10,7 +10,7 @@ module.exports = {
     node: true,
     'es6': true
   },
-  extends: 'eslint:recommended',
+  extends: 'standard',
   globals: {
     __static: true
   },
@@ -19,9 +19,10 @@ module.exports = {
   ],
   'rules': {
     'arrow-parens': 0,
+    'indent': [0, 4],
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
-    'no-unused-vars': [2, {
-        'argsIgnorePattern': '^_'
-    }]
+    'no-tabs': 0,
+    'no-unused-vars': [2, { 'argsIgnorePattern': '^_' }],
+    'semi': [2, 'always']
   }
 }

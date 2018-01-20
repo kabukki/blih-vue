@@ -7,9 +7,5 @@
 <script>
 	export default {
 	    name: 'blih-vue'
-	}
+	};
 </script>
-
-<style>
-	/* CSS */
-</style>

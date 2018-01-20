@@ -155,7 +155,7 @@
 				dialog_diff: {
 					show: false,
 					commit: {},
-					diff: {},
+					diff: {}
 				},
 				/* Data */
 				git: null,
@@ -177,10 +177,10 @@
 						.catch(err => {
 							this.error = err.toString();
 						}).then(_ => {
-							this.init = false
+							this.init = false;
 						});
 					// TODO: Allow to switch between branches. Tabs ?
-					//this.git.branch().then(console.log).catch(console.log)
+					// this.git.branch().then(console.log).catch(console.log)
 				} catch (err) {
 					this.error = err.message;
 				}
@@ -227,6 +227,8 @@
 			diff (commit) {
 				const parent = this.parentOf(commit);
 				this.dialog_diff.commit = commit;
+				// console.log(this.git);
+				// console.log(this.git.diffSummary([parent.hash, commit.hash]));
 				this.git.diffSummary([parent.hash, commit.hash])
 					.then(diff => {
 						this.dialog_diff.diff = diff;
@@ -245,13 +247,13 @@
 				return hash.slice(0, 7);
 			},
 			legibleTime (date) {
-				const m = moment(date, "YYYY-MM-DD hh:mm:ss ZZ");
+				const m = moment(date, 'YYYY-MM-DD hh:mm:ss ZZ');
 				return m.fromNow();
 			},
 			/* Helpers */
 			parentOf (commit) {
-				const index = this.commits.findIndex(c => c.hash == commit.hash);
-				return (index != this.commits.length - 1 ? this.commits[index + 1] : { hash: '4b825dc642cb6eb9a060e54bf8d69288fbee4904' });
+				const index = this.commits.findIndex(c => c.hash === commit.hash);
+				return (index !== this.commits.length - 1 ? this.commits[index + 1] : { hash: '4b825dc642cb6eb9a060e54bf8d69288fbee4904' });
 			},
 			showSnackbar (color, message) {
 				this.snackbar = {
@@ -278,11 +280,7 @@
 				} else {
 					this.local = path;
 					this.cleanup = cleanup;
-					this.git = git(path).outputHandler((cmd, stdout, stderr) => {
-						//console.log(cmd);
-						// FIXME: not working
-						//console.log(stdout);
-					}).silent(true);
+					this.git = git(path).silent(true);
 					this.clone();
 				}
 			});
@@ -293,5 +291,5 @@
 				this.git.exec(this.cleanup);
 			}
 		}
-	}
+	};
 </script>

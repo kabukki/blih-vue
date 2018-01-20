@@ -60,5 +60,5 @@
 		created () {
 			this._init_();
 		}
-	}
+	};
 </script>

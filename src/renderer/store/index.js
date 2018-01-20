@@ -1,15 +1,15 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-import Blih from 'blih'
+import Blih from 'blih';
 import Store from 'electron-store';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 function ignoreCaseSort (a, b) {
-  if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-  else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-  else return 0;
+    if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+    else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+    else return 0;
 }
 
 /* Default data */
@@ -23,15 +23,42 @@ const defaultCollaborators = [
 ];
 
 const defaultColorMap = {
-    a: 'red', b: 'pink', c: 'purple', d: 'deep-purple',
-    e: 'indigo', f: 'blue', g: 'light-blue', h: 'cyan',
-    i: 'teal', j: 'green', k: 'light-green', l: 'lime',
-    m: 'yellow darken-1', n: 'amber', o: 'orange', p: 'deep-orange',
-    q: 'brown', r: 'blue-grey', s: 'grey', t: 'red lighten-2',
-    u: 'pink lighten-2', v: 'purple lighten-2',w: 'deep-purple lighten-2', x: 'indigo lighten-2',
-    y: 'blue lighten-2', z: 'light-blue lighten-2', '0': 'cyan lighten-2', '1': 'teal lighten-2',
-    '2': 'green lighten-2', '3': 'light-green lighten-2', '4': 'lime lighten-2', '5': 'yellow',
-    '6': 'amber lighten-2', '7': 'orange lighten-2', '8': 'deep-orange lighten-2', '9': 'brown lighten-2',
+    a: 'red',
+    b: 'pink',
+    c: 'purple',
+    d: 'deep-purple',
+    e: 'indigo',
+    f: 'blue',
+    g: 'light-blue',
+    h: 'cyan',
+    i: 'teal',
+    j: 'green',
+    k: 'light-green',
+    l: 'lime',
+    m: 'yellow darken-1',
+    n: 'amber',
+    o: 'orange',
+    p: 'deep-orange',
+    q: 'brown',
+    r: 'blue-grey',
+    s: 'grey',
+    t: 'red lighten-2',
+    u: 'pink lighten-2',
+    v: 'purple lighten-2',
+    w: 'deep-purple lighten-2',
+    x: 'indigo lighten-2',
+    y: 'blue lighten-2',
+    z: 'light-blue lighten-2',
+    '0': 'cyan lighten-2',
+    '1': 'teal lighten-2',
+    '2': 'green lighten-2',
+    '3': 'light-green lighten-2',
+    '4': 'lime lighten-2',
+    '5': 'yellow',
+    '6': 'amber lighten-2',
+    '7': 'orange lighten-2',
+    '8': 'deep-orange lighten-2',
+    '9': 'brown lighten-2'
 };
 
 const defaultModules = [
@@ -40,7 +67,7 @@ const defaultModules = [
         icon: 'bubble_chart',
         color: 'green',
         regexp: [
-            '^dante$', '^gomoku$'
+            '^dante$', '^gomoku$', '^need4steak$'
         ]
     }, {
         name: 'Assembly',
@@ -182,35 +209,35 @@ const defaultThemes = [
     {
         name: 'Default',
         colors: {
-            "primary": "#1976D2",
-            "secondary": "#424242",
-            "accent": "#82B1FF",
-            "error": "#FF5252",
-            "warning": "#FFC107",
-            "info": "#2196F3",
-            "success": "#4CAF50"
-        },
+            'primary': '#1976D2',
+            'secondary': '#424242',
+            'accent': '#82B1FF',
+            'error': '#FF5252',
+            'warning': '#FFC107',
+            'info': '#2196F3',
+            'success': '#4CAF50'
+        }
     }, {
         name: 'Halloween',
         colors: {
-            "primary": "#FB8C00",
-            "secondary": "#000000",
-            "accent": "#FFD180",
-            "error": "#F44336",
-            "warning": "#FFC107",
-            "info": "#2196F3",
-            "success": "#4CAF50"
+            'primary': '#FB8C00',
+            'secondary': '#000000',
+            'accent': '#FFD180',
+            'error': '#F44336',
+            'warning': '#FFC107',
+            'info': '#2196F3',
+            'success': '#4CAF50'
         }
     }, {
         name: 'Christmas',
         colors: {
-            "primary": "#F44336",
-            "secondary": "#2E7D32",
-            "accent": "#795548",
-            "error": "#F44336",
-            "warning": "#FFC107",
-            "info": "#2196F3",
-            "success": "#4CAF50"
+            'primary': '#F44336',
+            'secondary': '#2E7D32',
+            'accent': '#795548',
+            'error': '#F44336',
+            'warning': '#FFC107',
+            'info': '#2196F3',
+            'success': '#4CAF50'
         }
     }
 ];
@@ -220,9 +247,9 @@ const defaultThemes = [
 let config = new Store({
     defaults: {
         lastEmail: '',
-        theme: 'light',
+        theme: 'Default',
         dark: false,
-        welcome: true,
+        welcome: true
     }
 });
 
@@ -254,9 +281,9 @@ const state = {
     welcome: config.get('welcome'),
     /* Data */
     collaborators: data.get('collaborators').sort(ignoreCaseSort),
-    colorMap: defaultColorMap,//data.get('colorMap'),
-    modules: defaultModules.sort(ignoreCaseSort),//data.get('modules').sort(ignoreCaseSort),
-    themes: defaultThemes.sort(ignoreCaseSort),//data.get('themes').sort(ignoreCaseSort)
+    colorMap: defaultColorMap, // data.get('colorMap'),
+    modules: defaultModules.sort(ignoreCaseSort), // data.get('modules').sort(ignoreCaseSort),
+    themes: defaultThemes.sort(ignoreCaseSort) // data.get('themes').sort(ignoreCaseSort)
 };
 
 const getters = {
@@ -273,8 +300,8 @@ const getters = {
     /* Data */
     collaborators: state => state.collaborators,
     colorMap: state => state.colorMap,
-    colorOf: state => text => {
-        const letter = (text && text.length) && text[0].toLowerCase() || '?';
+    colorOf: _ => text => {
+        const letter = (text && text.length) ? text[0].toLowerCase() : '?';
         return defaultColorMap[letter] || 'black';
     },
     modules: state => state.modules,
@@ -285,7 +312,7 @@ const getters = {
                     return {
                         name: module.name,
                         icon: module.icon,
-                        color: module.color,
+                        color: module.color
                     };
                 }
             }
@@ -309,7 +336,7 @@ const mutations = {
         state.repositories = state.repositories.sort(ignoreCaseSort);
     },
     REMOVE_REPOSITORY (state, payload) {
-        state.repositories = state.repositories.filter(r => r.name != payload.name);
+        state.repositories = state.repositories.filter(r => r.name !== payload.name);
     },
     UPDATE_KEYS (state, payload) {
         state.keys = payload.keys;
@@ -319,7 +346,7 @@ const mutations = {
         state.keys = state.keys.sort(ignoreCaseSort);
     },
     REMOVE_KEY (state, payload) {
-        state.keys = state.keys.filter(k => k.name != payload.name);
+        state.keys = state.keys.filter(k => k.name !== payload.name);
     },
     /* Config */
     SET_LAST_EMAIL (state, payload) {
@@ -344,17 +371,17 @@ const mutations = {
         data.set('collaborators', state.collaborators.sort(ignoreCaseSort));
     },
     UPDATE_COLLABORATOR (state, payload) {
-        let index = state.collaborators.findIndex(c => c.name == payload.name);
+        let index = state.collaborators.findIndex(c => c.name === payload.name);
         if (index >= 0) {
             state.collaborators[index] = payload;
-            data.set('collaborators', state.collaborators.sort(ignoreCaseSort))
+            data.set('collaborators', state.collaborators.sort(ignoreCaseSort));
         }
     },
     UPDATE_MODULE (state, payload) {
-        let index = state.modules.findIndex(c => c.name == payload.name);
+        let index = state.modules.findIndex(c => c.name === payload.name);
         if (index >= 0) {
             state.modules[index] = payload;
-            data.set('modules', state.modules.sort(ignoreCaseSort))
+            data.set('modules', state.modules.sort(ignoreCaseSort));
         }
     }
 };
@@ -380,11 +407,11 @@ const actions = {
         return context.getters.api.listRepositories()
             .then(data => {
                 context.commit('UPDATE_REPOSITORIES', {
-                  repositories: data.sort(ignoreCaseSort)
-                    .map(r => Object.freeze({
-                        ...r,
-                        module: context.getters.getModule(r.name)
-                    }))
+                    repositories: data.sort(ignoreCaseSort)
+                        .map(r => Object.freeze({
+                            ...r,
+                            module: context.getters.getModule(r.name)
+                        }))
                 });
             });
     },
@@ -416,7 +443,7 @@ const actions = {
         return context.getters.api.uploadKey(key)
             .then(_ => context.dispatch('updateKeys'))
             // Return the new key
-            .then(_ => context.getters.keys.filter(k => !oldKeys.find(ok => ok.name == k.name))[0])
+            .then(_ => context.getters.keys.filter(k => !oldKeys.find(ok => ok.name === k.name))[0]);
     },
     deleteKey (context, key) {
         return context.getters.api.deleteKey(key)
@@ -441,7 +468,7 @@ const actions = {
     },
     /* Data */
     addCollaborator (context, name) {
-        if (!context.getters.collaborators.find(c => c.name == name)) {
+        if (!context.getters.collaborators.find(c => c.name === name)) {
             context.commit('ADD_COLLABORATOR', {
                 name,
                 picture: (name.includes('@epitech.eu'))
@@ -452,12 +479,12 @@ const actions = {
         }
     },
     updateCollaborator (context, data) {
-        if (context.getters.collaborators.find(c => c.name == data.name)) {
+        if (context.getters.collaborators.find(c => c.name === data.name)) {
             context.commit('UPDATE_COLLABORATOR', data);
         }
     },
     updateModule (context, data) {
-        if (context.getters.modules.find(c => c.name == data.name)) {
+        if (context.getters.modules.find(c => c.name === data.name)) {
             context.commit('UPDATE_MODULE', data);
         }
     }

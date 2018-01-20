@@ -13,15 +13,15 @@
 		computed: {
 			...mapGetters(['collaborators', 'colorOf']),
 			letter () {
-				return (this.name && this.name.length) && this.name[0].toUpperCase() || '?';
+				return (this.name && this.name.length) ? this.name[0].toUpperCase() : '?';
 			},
 			color () {
 				return this.colorOf(this.name);
 			},
 			src () {
-				const c = this.collaborators.find(c => c.name == this.name || c.aliases.includes(this.name));
-				return c && c.picture || false;
+				const c = this.collaborators.find(c => c.name === this.name || c.aliases.includes(this.name));
+				return c ? c.picture : false;
 			}
 		}
-	}
+	};
 </script>
