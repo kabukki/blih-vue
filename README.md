@@ -1,12 +1,14 @@
 # Blih Vue
 
+<p align="center">
+  <img src='build/icons/logo2.png' alt='logo'/>
+</p>
+
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com)
+
 > Managing repositories has never been easier.
 
-[![js-standard-style](https://cdn.rawgit.com/standard/standard/master/badge.svg)](http://standardjs.com)
-
 Blih Vue is an intuitive and easy-to-use app that helps you manage efficiently your Epitech repositories.
-
-![Logo](build/icons/logo2.png)
 
 ## Easy to use
 
