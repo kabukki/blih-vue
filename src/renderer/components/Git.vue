@@ -61,7 +61,6 @@
 			<v-form v-model='dialog_clone.valid' @submit.prevent='cloneClone'>
 				<v-card>
 					<v-card-title>
-						<span class="headline">Clone a repository</span>
 					</v-card-title>
 					<v-card-text>
 						<v-text-field label='Destination' prepend-icon='folder' readonly v-model='dialog_clone.destination' :rules='dialog_clone.rules'></v-text-field>
@@ -77,60 +76,65 @@
 		</v-dialog>
 
 		<!-- Dialog: Diff -->
-		<v-dialog scrollable max-width='500px' v-model='dialog_diff.show'>
-			<v-card v-if='dialog_diff.show'>
-				<v-card-title>
-					<span class="headline">
-						 {{ dialog_diff.commit.message }} &mdash;
-						 <span class='grey--text'>{{ shortHash(dialog_diff.commit.hash) }}</span>
-					</span>
-				</v-card-title>
-				<v-divider></v-divider>
-				<v-card-text>
-					<v-list two-line v-if='dialog_diff.diff.files.length > 0'>
-						<template v-for='(file, index) in dialog_diff.diff.files'>
-							<v-divider v-if='index > 0'></v-divider>
-							<v-list-tile avatar :key='file.file'>
-								<v-list-tile-avatar color='grey lighten-1'>
-									<span><v-icon>insert_drive_file</v-icon></span>
-								</v-list-tile-avatar>
-								<v-list-tile-content>
-									<v-list-tile-title>{{ file.file }}</v-list-tile-title>
-									<v-list-tile-sub-title>
-										<span v-show='file.insertions > 0' class="success--text">{{ file.insertions }} insertions</span>
-										<span v-show='file.insertions > 0 && file.deletions > 0'>&mdash;</span>
-										<span v-show='file.deletions > 0' class="error--text">{{ file.deletions }} deletions</span>
-									</v-list-tile-sub-title>
-								</v-list-tile-content>
-							</v-list-tile>
-						</template>
-					</v-list>
-					<p class='text-xs-center mb-0' v-else>
-						Nothing to show.
-					</p>
-				</v-card-text>
-				<v-divider></v-divider>
-				<v-card-actions>
-					<v-icon>edit</v-icon>
-					Total: {{ dialog_diff.diff.insertions + dialog_diff.diff.deletions }} changes
-					(<span class="success--text">{{ dialog_diff.diff.insertions }}</span> /
-					<span class="error--text">{{ dialog_diff.diff.deletions }}</span>)
-					<v-spacer></v-spacer>
-					<v-btn color="primary" flat @click.stop='diffClose'>Close</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<dialog-basic scrollable v-model='dialogDiff.show'>
+			<span slot="header" class="headline">
+				{{ dialogDiff.commit.message }} &mdash;
+				<span class='grey--text'>{{ shortHash(dialogDiff.commit.hash) }}</span>
+			</span>
+			<v-list two-line v-if='dialogDiff.diff.files.length > 0'>
+				<template v-for='(file, index) in dialogDiff.diff.files'>
+					<v-divider v-if='index > 0'></v-divider>
+					<v-list-tile avatar :key='file.file'>
+						<v-list-tile-avatar color='grey lighten-1'>
+							<span><v-icon>insert_drive_file</v-icon></span>
+						</v-list-tile-avatar>
+						<v-list-tile-content>
+							<v-list-tile-title>{{ file.file }}</v-list-tile-title>
+							<v-list-tile-sub-title>
+								<span v-show='file.insertions > 0' class="success--text">{{ file.insertions }} insertions</span>
+								<span v-show='file.insertions > 0 && file.deletions > 0'>&mdash;</span>
+								<span v-show='file.deletions > 0' class="error--text">{{ file.deletions }} deletions</span>
+							</v-list-tile-sub-title>
+						</v-list-tile-content>
+					</v-list-tile>
+				</template>
+			</v-list>
+			<p class='text-xs-center mb-0' v-else>
+				Nothing to show.
+			</p>
+			<div slot="footer">
+				<v-icon>edit</v-icon>
+				Total: {{ dialogDiff.diff.insertions + dialogDiff.diff.deletions }} changes
+				(<span class="success--text">{{ dialogDiff.diff.insertions }}</span> /
+				<span class="error--text">{{ dialogDiff.diff.deletions }}</span>)
+			</div>
+		</dialog-basic>
+
 	</v-card>
 </template>
 <script>
+	import { snackbar } from '../mixins';
+
+	import TileAvatar from './TileAvatar';
+	import DialogBasic from './Dialogs/DialogBasic';
+
 	import git from 'simple-git/promise';
 	import tmp from 'tmp';
 	import moment from 'moment';
 	import fs from 'fs-extra';
-	import TileAvatar from './TileAvatar';
+
+	const defaultCommit = {
+		hash: ''
+	};
+	const defaultDiff = {
+		files: [],
+		deletions: 0,
+		insertions: 0
+	};
 
 	export default {
-		components: { TileAvatar },
+		components: { TileAvatar, DialogBasic },
+		mixins: [snackbar],
 		props: {
 			url: {
 				type: String,
@@ -143,6 +147,7 @@
 				init: true,
 				error: false,
 				/* Dialogs */
+				// TODO: vuetify file input component to use with dialog-form
 				dialog_clone: {
 					show: false,
 					loading: false,
@@ -152,10 +157,10 @@
 					valid: true,
 					destination: null
 				},
-				dialog_diff: {
+				dialogDiff: {
 					show: false,
-					commit: {},
-					diff: {}
+					commit: defaultCommit,
+					diff: defaultDiff
 				},
 				/* Data */
 				git: null,
@@ -226,25 +231,20 @@
 			/* Dialog: Diff */
 			diff (commit) {
 				const parent = this.parentOf(commit);
-				this.dialog_diff.commit = commit;
+				this.dialogDiff.commit = commit;
 				// console.log(this.git);
 				// console.log(this.git.diffSummary([parent.hash, commit.hash]));
 				this.git.diffSummary([parent.hash, commit.hash])
 					.then(diff => {
-						this.dialog_diff.diff = diff;
-						this.dialog_diff.show = true;
+						this.dialogDiff.diff = diff;
+						this.dialogDiff.show = true;
 					}).catch(err => {
 						this.error = err;
 					});
 			},
-			diffClose () {
-				this.dialog_diff.show = false;
-				this.dialog_diff.commit = '';
-				this.dialog_diff.diff = {};
-			},
 			/* Transform */
 			shortHash (hash) {
-				return hash.slice(0, 7);
+				return hash ? hash.slice(0, 7) : '';
 			},
 			legibleTime (date) {
 				const m = moment(date, 'YYYY-MM-DD hh:mm:ss ZZ');
@@ -254,13 +254,6 @@
 			parentOf (commit) {
 				const index = this.commits.findIndex(c => c.hash === commit.hash);
 				return (index !== this.commits.length - 1 ? this.commits[index + 1] : { hash: '4b825dc642cb6eb9a060e54bf8d69288fbee4904' });
-			},
-			showSnackbar (color, message) {
-				this.snackbar = {
-					show: true,
-					color,
-					message
-				};
 			}
 		},
 		computed: {

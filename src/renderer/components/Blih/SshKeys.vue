@@ -74,9 +74,11 @@
 <script>
 	import { mapGetters, mapActions } from 'vuex';
 	import { snackbar } from '../../mixins';
+
+	import TileAvatar from '../TileAvatar';
+	
 	import fs from 'fs-extra';
 	import Page from './Page';
-	import TileAvatar from '../TileAvatar';
 
 	export default {
 		components: { Page, TileAvatar },
@@ -86,6 +88,7 @@
 				/* Page state */
 				fab: false,
 				/* Dialogs */
+				// TODO: vuetify file input component to use with dialog-form
 				dialog_upload: {
 					show: false,
 					loading: false,
@@ -146,6 +149,3 @@
 		}
 	};
 </script>
-
-<style lang="css">
-</style>

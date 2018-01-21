@@ -115,158 +115,144 @@
 		</v-layout>
 
 		<!-- Dialog: Edit collaborator -->
-		<v-dialog scrollable max-width='500px' v-model='dialog_editCollaborator.show'>
-			<v-card>
-				<v-card-title>
-					<span class="headline">Edit a collaborator's details</span>
-				</v-card-title>
-				<v-card-text>
-					<v-container grid-list-md>
-						<v-layout row wrap>
-							<v-flex xs12 class='text-xs-center'>
-								<avatar :name='dialog_editCollaborator.collaborator.name' size='80px'></avatar>
-								<p class='headline ellipsis mb-0'>{{ dialog_editCollaborator.collaborator.name }}</p>
-							</v-flex>
-							<v-flex xs12 class='my-3'>
-								<v-divider></v-divider>
-							</v-flex>
-							<v-flex xs12>
-								<!-- Picture -->
-								<v-subheader>Picture</v-subheader>
-								<v-text-field label='URI' hint='Optimal size: 100x100' v-model='dialog_editCollaborator.collaborator.picture'></v-text-field>
-								<!-- Aliases -->
-								<v-subheader>Aliases</v-subheader>
-								<v-list one-line subheader dense class='text-xs-center'>
-									<template v-for='(alias, index) in dialog_editCollaborator.collaborator.aliases' v-show='dialog_editCollaborator.collaborator.aliases && dialog_editCollaborator.collaborator.aliases.length > 0'>
-										<v-divider v-if='index > 0'></v-divider>
-										<v-list-tile :key='alias'>
-											<v-list-tile-content>
-												<v-list-tile-title>{{ alias }}</v-list-tile-title>
-											</v-list-tile-content>
-											<v-list-tile-action @click.stop='dialog_editCollaborator.collaborator.aliases.splice(index, 1)'>
-												<v-btn icon><v-icon>delete</v-icon></v-btn>
-											</v-list-tile-action>
-										</v-list-tile>
-									</template>
-									<p class='mb-0' v-show='dialog_editCollaborator.collaborator.aliases && dialog_editCollaborator.collaborator.aliases.length == 0'>
-										No aliases
-									</p>
-									<v-btn @click.stop='dialog_addAlias.show = true'><v-icon left>add</v-icon>Add an alias</v-btn>
-								</v-list>
-								<p class='caption mb-0'><v-icon small>info</v-icon> Aliases are used to identify collaborators through commit author name, if it is not the same as their login.</p>
-							</v-flex>
-						</v-layout>
-					</v-container>
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn color="primary" flat @click.stop='editCollaboratorCancel'>Cancel</v-btn>
-					<v-btn color="primary" flat @click.stop='editCollaboratorEdit'>Edit</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<dialog-basic scrollable action='Edit' @submit='dialogEditCollaborator.submit' v-model='dialogEditCollaborator.show'>
+			<span slot="header" class="headline">Edit a collaborator's details</span>
+			<v-container grid-list-md>
+				<v-layout row wrap>
+					<v-flex xs12 class='text-xs-center'>
+						<avatar :name='dialogEditCollaborator.collaborator.name' size='80px'></avatar>
+						<p class='headline ellipsis mb-0'>{{ dialogEditCollaborator.collaborator.name }}</p>
+					</v-flex>
+					<v-flex xs12 class='my-3'>
+						<v-divider></v-divider>
+					</v-flex>
+					<v-flex xs12>
+						<!-- Picture -->
+						<v-subheader>Picture</v-subheader>
+						<v-text-field label='URI' hint='Optimal size: 100x100' v-model='dialogEditCollaborator.collaborator.picture'></v-text-field>
+						<!-- Aliases -->
+						<v-subheader>Aliases</v-subheader>
+						<v-list one-line subheader dense class='text-xs-center'>
+							<template v-for='(alias, index) in dialogEditCollaborator.collaborator.aliases' v-show='dialogEditCollaborator.collaborator.aliases && dialogEditCollaborator.collaborator.aliases.length > 0'>
+								<v-divider v-if='index > 0'></v-divider>
+								<v-list-tile :key='alias'>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ alias }}</v-list-tile-title>
+									</v-list-tile-content>
+									<v-list-tile-action @click.stop='dialogEditCollaborator.collaborator.aliases.splice(index, 1)'>
+										<v-btn icon><v-icon>delete</v-icon></v-btn>
+									</v-list-tile-action>
+								</v-list-tile>
+							</template>
+							<p class='mb-0' v-show='dialogEditCollaborator.collaborator.aliases && dialogEditCollaborator.collaborator.aliases.length == 0'>
+								No aliases
+							</p>
+							<v-btn @click.stop='dialogAddAlias.show = true'><v-icon left>add</v-icon>Add an alias</v-btn>
+						</v-list>
+						<p class='caption mb-0'><v-icon small>info</v-icon> Aliases are used to identify collaborators through commit author name, if it is not the same as their login.</p>
+					</v-flex>
+				</v-layout>
+			</v-container>
+		</dialog-basic>
+
 
 		<!-- Dialog: Add alias -->
-		<v-dialog max-width='500px' v-model='dialog_addAlias.show'>
-			<v-form @submit.prevent='addAliasAdd'>
-				<v-card>
-					<v-card-title>
-						<span class="headline">Add an alias</span>
-					</v-card-title>
-					<v-card-text>
-						<v-text-field label='Alias' prepend-icon='label' v-model='dialog_addAlias.alias'></v-text-field>
-					</v-card-text>
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="primary" flat @click.stop='addAliasCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat >Add</v-btn>
-					</v-card-actions>
-				</v-card>
-			</v-form>
-		</v-dialog>
+		<dialog-form action='Add' :fields='dialogAddAlias.fields' @submit='dialogAddAlias.submit' v-model='dialogAddAlias.show'>
+			<span slot="header" class="headline">Add an alias</span>
+		</dialog-form>
 
 		<!-- Dialog: Edit module -->
-		<v-dialog scrollable max-width='500px' v-model='dialog_editModule.show'>
-			<v-card>
-				<v-card-title>
-					<span class="headline">Edit a module</span>
-				</v-card-title>
-				<v-card-text>
-					<v-container grid-list-md>
-						<v-layout row wrap>
-							<v-flex xs12 class='text-xs-center'>
-								<v-avatar :color='dialog_editModule.module.color' size='80px'>
-									<span><v-icon x-large>{{ dialog_editModule.module.icon }}</v-icon></span>
-								</v-avatar>
-								<p class='headline ellipsis mb-0'>{{ dialog_editModule.module.name }}</p>
-							</v-flex>
-							<v-flex xs12 class='my-3'>
-								<v-divider></v-divider>
-							</v-flex>
-							<v-flex xs12 sm6>
-								<!-- Icon -->
-								<v-subheader>Icon</v-subheader>
-								<v-text-field label='Icon' hint='Material icon name' :prepend-icon='dialog_editModule.module.icon || "add"' v-model='dialog_editModule.module.icon'></v-text-field>
-							</v-flex>
-							<v-flex xs12 sm6>
-								<!-- Color -->
-								<v-subheader>Color</v-subheader>
-								<v-text-field label='Color' hint='Material color' prepend-icon='palette' v-model='dialog_editModule.module.color'></v-text-field>
-							</v-flex>
-							<v-flex xs12>
-								<!-- Matches -->
-								<v-subheader>Matches</v-subheader>
-								<v-list one-line subheader dense class='text-xs-center'>
-									<template v-for='(regexp, index) in dialog_editModule.module.regexp'>
-										<v-divider v-if='index > 0'></v-divider>
-										<v-list-tile :key='regexp'>
-											<v-list-tile-content>
-												<v-list-tile-title>{{ regexp }}</v-list-tile-title>
-											</v-list-tile-content>
-										</v-list-tile>
-									</template>
-								</v-list>
-							</v-flex>
-						</v-layout>
-					</v-container>
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn color="primary" flat @click.stop='editModuleCancel'>Close</v-btn>
-					<v-btn color="primary" flat @click.stop='editModuleEdit'>Edit</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<dialog-basic scrollable action='Edit' @submit='dialogEditModule.submit' v-model='dialogEditModule.show'>
+			<span slot="header" class="headline">Edit a module</span>
+			<v-container grid-list-md>
+				<v-layout row wrap>
+					<v-flex xs12 class='text-xs-center'>
+						<v-avatar :color='dialogEditModule.module.color' size='80px'>
+							<span><v-icon x-large>{{ dialogEditModule.module.icon }}</v-icon></span>
+						</v-avatar>
+						<p class='headline ellipsis mb-0'>{{ dialogEditModule.module.name }}</p>
+					</v-flex>
+					<v-flex xs12 class='my-3'>
+						<v-divider></v-divider>
+					</v-flex>
+					<v-flex xs12 sm6>
+						<!-- Icon -->
+						<v-subheader>Icon</v-subheader>
+						<v-text-field label='Icon' hint='Material icon name' :prepend-icon='dialogEditModule.module.icon || "add"' v-model='dialogEditModule.module.icon'></v-text-field>
+					</v-flex>
+					<v-flex xs12 sm6>
+						<!-- Color -->
+						<v-subheader>Color</v-subheader>
+						<v-text-field label='Color' hint='Material color' prepend-icon='palette' v-model='dialogEditModule.module.color'></v-text-field>
+					</v-flex>
+					<v-flex xs12>
+						<!-- Matches -->
+						<v-subheader>Matches</v-subheader>
+						<v-list one-line subheader dense class='text-xs-center'>
+							<template v-for='(regexp, index) in dialogEditModule.module.regexp'>
+								<v-divider v-if='index > 0'></v-divider>
+								<v-list-tile :key='regexp'>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ regexp }}</v-list-tile-title>
+									</v-list-tile-content>
+								</v-list-tile>
+							</template>
+						</v-list>
+					</v-flex>
+				</v-layout>
+			</v-container>
+		</dialog-basic>
 
 	</v-container>
 </template>
 
 <script>
 	import { mapGetters, mapActions } from 'vuex';
+
 	import TileAvatar from '../TileAvatar';
 	import Avatar from '../Avatar';
+	import DialogBasic from '../Dialogs/DialogBasic';
+	import DialogForm from '../Dialogs/DialogForm';
 
 	export default {
-		components: { TileAvatar, Avatar },
+		components: { TileAvatar, Avatar, DialogBasic, DialogForm },
 		data () {
 			return {
-				/* Appearance */
 				/* Collaborators */
 				pageCollaborator: 1,
 				pageModule: 1,
 				perPage: 5,
 				/* Dialogs */
-				dialog_editCollaborator: {
+				dialogEditCollaborator: {
 					show: false,
-					collaborator: {}
+					collaborator: {},
+					submit: (success) => {
+						this.updateCollaborator(this.dialogEditCollaborator.collaborator);
+						success();
+					}
 				},
-				dialog_addAlias: {
+				dialogAddAlias: {
 					show: false,
-					alias: ''
+					fields: {
+						alias: {
+							is: 'v-text-field',
+							label: 'Alias',
+							icon: 'label',
+							default: ''
+						}
+					},
+					submit: (data, success) => {
+						this.dialogEditCollaborator.collaborator.aliases.push(data.alias);
+						success();
+					}
 				},
-				dialog_editModule: {
+				dialogEditModule: {
 					show: false,
-					module: {}
+					module: {},
+					submit: (success) => {
+						this.updateModule(this.dialogEditModule.module);
+						success();
+					}
 				}
 			};
 		},
@@ -322,49 +308,23 @@
 			/* Dialog: Edit collaborator */
 			editCollaborator (collaborator) {
 				// Create a copy and mutate later
-				this.dialog_editCollaborator.collaborator = {
+				this.dialogEditCollaborator.collaborator = {
 					name: collaborator.name,
 					picture: collaborator.picture,
 					aliases: Array.from(collaborator.aliases)
 				};
-				this.dialog_editCollaborator.show = true;
+				this.dialogEditCollaborator.show = true;
 			},
-			editCollaboratorCancel () {
-				this.dialog_editCollaborator.show = false;
-			},
-			editCollaboratorEdit () {
-				this.updateCollaborator(this.dialog_editCollaborator.collaborator);
-				this.dialog_editCollaborator.show = false;
-			},
-			/* Dialog: Add alias */
-			addAliasCancel () {
-				this.dialog_addAlias.show = false;
-			},
-			addAliasAdd () {
-				this.dialog_editCollaborator.collaborator.aliases.push(this.dialog_addAlias.alias);
-				this.dialog_addAlias.alias = '';
-				this.dialog_addAlias.show = false;
-			},
-			/* Dialog: Edit collaborator */
+			/* Dialog: Edit module */
 			editModule (module) {
-				this.dialog_editModule.module = {
+				this.dialogEditModule.module = {
 					name: module.name,
 					icon: module.icon,
 					color: module.color,
 					regexp: Array.from(module.regexp)
 				};
-				this.dialog_editModule.show = true;
-			},
-			editModuleCancel () {
-				this.dialog_editModule.show = false;
-			},
-			editModuleEdit () {
-				this.updateModule(this.dialog_editModule.module);
-				this.dialog_editModule.show = false;
+				this.dialogEditModule.show = true;
 			}
 		}
 	};
 </script>
-
-<style lang="css">
-</style>

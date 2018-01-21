@@ -61,6 +61,7 @@
 			/* Submit callbacks */
 			success () {
 				this.close();
+				this.loading = false;
 				this.data = this.fieldsToDefault();
 				console.log('ok bye!');
 			},

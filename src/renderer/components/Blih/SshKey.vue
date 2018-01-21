@@ -45,7 +45,7 @@
 				<v-card tile class='text-xs-center'>
 					<v-container>
 						<div class="subheading grey--text">Danger zone</div>
-						<v-btn color='error' @click.stop='dialog_delete.show = true'>
+						<v-btn color='error' @click.stop='dialogDelete.show = true'>
 							<v-icon left>delete</v-icon>
 							Delete
 						</v-btn>
@@ -55,23 +55,10 @@
 		</v-layout>
 
 		<!-- Dialog: Delete -->
-		<v-dialog persistent max-width='500px' v-model='dialog_delete.show'>
-			<v-form @submit.prevent='deleteDelete'>
-				<v-card>
-					<v-card-title>
-						<span class="headline">Delete key ?</span>
-					</v-card-title>
-					<v-card-text>
-						This will delete the key "{{ name }}" forever.
-					</v-card-text>
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="primary" flat :disabled='dialog_delete.loading' @click.stop='deleteCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat :disabled='dialog_delete.loading' :loading='dialog_delete.loading'>Delete</v-btn>
-					</v-card-actions>
-				</v-card>
-			</v-form>
-		</v-dialog>
+		<dialog-basic action='Delete' @submit='dialogDelete.submit' v-model='dialogDelete.show'>
+			<span slot="header" class="headline">Delete key ?</span>
+			This will delete the key "{{ name }}" forever.
+		</dialog-basic>
 
 		<!-- Dialog: Download -->
 		<v-dialog persistent max-width='500px' v-model='dialog_download.show'>
@@ -87,8 +74,8 @@
 					</v-card-text>
 					<v-card-actions>
 						<v-spacer></v-spacer>
-						<v-btn color="primary" flat :disabled='dialog_delete.loading' @click.stop='downloadCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat :disabled='dialog_delete.loading || !dialog_download.valid' :loading='dialog_delete.loading'>Download</v-btn>
+						<v-btn color="primary" flat :disabled='dialog_download.loading' @click.stop='downloadCancel'>Cancel</v-btn>
+						<v-btn color="primary" type='submit' flat :disabled='dialog_download.loading || !dialog_download.valid' :loading='dialog_download.loading'>Download</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-form>
@@ -99,10 +86,12 @@
 <script>
 	import { mapGetters } from 'vuex';
 	import { snackbar } from '../../mixins';
+
+	import Page from './Page';
+
 	import fingerprint from 'ssh-fingerprint';
 	import fs from 'fs-extra';
 	import path from 'path';
-	import Page from './Page';
 
 	export default {
 		components: { Page },
@@ -110,9 +99,18 @@
 		data () {
 			return {
 				/* Dialogs */
-				dialog_delete: {
+				dialogDelete: {
 					show: false,
-					loading: false
+					submit: (success, failure) => {
+						this.api.deleteKey(this.name)
+							.then(_ => {
+								success();
+								this.$router.push({name: 'blih.ssh-keys'});
+							}).catch(err => {
+								failure();
+								this.showSnackbar('error', err);
+							});
+					}
 				},
 				dialog_download: {
 					show: false,
@@ -133,21 +131,6 @@
 			...mapGetters(['keys']),
 			_init_ (callback) {
 				callback();
-			},
-			/* Dialog: Delete */
-			deleteCancel () {
-				this.dialog_delete.show = false;
-			},
-			deleteDelete () {
-				this.dialog_delete.loading = true;
-				this.api.deleteKey(this.name)
-					.then(_ => {
-						this.$router.push({name: 'blih.ssh-keys'});
-					}).catch(err => {
-						this.showSnackbar('error', err);
-					}).then(_ => {
-						this.dialog_delete.loading = false;
-					});
 			},
 			/* Dialog: Download */
 			downloadCancel () {
@@ -193,6 +176,3 @@
 		}
 	};
 </script>
-
-<style lang="css">
-</style>

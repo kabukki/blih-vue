@@ -62,9 +62,9 @@
 		</v-layout>
 
 		<!-- Dialog: Create -->
-		<form-dialog :fields='dialogCreate.fields' action='Create' @submit='dialogCreate.submit' v-model='dialogCreate.show'>
+		<dialog-form :fields='dialogCreate.fields' action='Create' @submit='dialogCreate.submit' v-model='dialogCreate.show'>
 			<span slot="header" class="headline">Create a new repository</span>
-		</form-dialog>
+		</dialog-form>
 
 		<!-- FAB -->
 		<v-btn v-model='fab' color='primary' fixed bottom right fab @click.stop='dialogCreate.show = true'>
@@ -76,12 +76,13 @@
 <script>
 	import { mapGetters, mapActions } from 'vuex';
 	import { snackbar } from '../../mixins';
+
 	import Page from './Page';
 	import TileAvatar from '../TileAvatar';
-	import FormDialog from '../Dialogs/FormDialog';
+	import DialogForm from '../Dialogs/DialogForm';
 
 	export default {
-		components: { Page, TileAvatar, FormDialog },
+		components: { Page, TileAvatar, DialogForm },
 		mixins: [snackbar],
 		data () {
 			return {

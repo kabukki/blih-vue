@@ -82,7 +82,7 @@
 				<v-card tile class='text-xs-center'>
 					<v-container>
 						<div class="subheading grey--text">Danger zone</div>
-						<v-btn color='error' @click.stop='dialog_delete.show = true'>
+						<v-btn color='error' @click.stop='dialogDelete.show = true'>
 							<v-icon left>delete</v-icon>
 							Delete
 						</v-btn>
@@ -92,25 +92,24 @@
 		</v-layout>
 
 		<!-- Dialog: Delete -->
-		<v-dialog max-width='500px' v-model='dialog_delete.show'>
-			<v-form @submit.prevent='deleteDelete'>
-				<v-card>
-					<v-card-title>
-						<span class="headline">Delete repository ?</span>
-					</v-card-title>
-					<v-card-text>
-						This will delete the repository "{{ name }}" forever.
-					</v-card-text>
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="primary" flat :disabled='dialog_delete.loading' @click.stop='deleteCancel'>Cancel</v-btn>
-						<v-btn color="primary" type='submit' flat :disabled='dialog_delete.loading' :loading='dialog_delete.loading'>Delete</v-btn>
-					</v-card-actions>
-				</v-card>
-			</v-form>
-		</v-dialog>
+		<dialog-basic action='Delete' @submit='dialogDelete.submit' v-model='dialogDelete.show'>
+			<span slot="header" class="headline">Delete repository ?</span>
+			This will delete the repository "{{ name }}" forever.
+		</dialog-basic>
 
 		<!-- Dialog: Add -->
+		<!--
+		<dialog-form>
+			<span slot="header" class="headline">Add a collaborator</span>
+
+
+		</dialog-form>
+
+		<form>
+			<form-select></form-select>
+			<form-checkboxes></form-checkboxes>
+		</form>
+		-->
 		<v-dialog max-width='500px' v-model='dialog_add.show'>
 			<v-form v-model='dialog_add.valid' @submit.prevent='addAdd'>
 				<v-card>
@@ -219,21 +218,34 @@
 <script>
 	import { mapGetters, mapActions } from 'vuex';
 	import { snackbar } from '../../mixins';
-	import moment from 'moment';
+
 	import Page from './Page';
 	import Avatar from '../Avatar';
 	import TileAvatar from '../TileAvatar';
+	import DialogForm from '../Dialogs/DialogForm';
+	import DialogBasic from '../Dialogs/DialogBasic';
 	import Git from '../Git';
 
+	import moment from 'moment';
+
 	export default {
-		components: { Page, Git, Avatar, TileAvatar },
+		components: { Page, Git, Avatar, TileAvatar, DialogForm, DialogBasic },
 		mixins: [snackbar],
 		data () {
 			return {
 				/* Dialogs */
-				dialog_delete: {
+				dialogDelete: {
 					show: false,
-					loading: false
+					submit: (success, failure) => {
+						this.deleteRepository(this.name)
+							.then(_ => {
+								success();
+								this.$router.push({name: 'blih.repositories'});
+							}).catch(err => {
+								failure();
+								this.showSnackbar('error', err);
+							});
+					}
 				},
 				dialog_add: {
 					show: false,

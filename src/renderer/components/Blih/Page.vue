@@ -26,6 +26,7 @@
 		</v-layout>
 	</v-container>
 </template>
+
 <script>
 	import Error from '../Error';
 	import Loader from '../Loader';
