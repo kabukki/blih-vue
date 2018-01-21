@@ -1,7 +1,7 @@
 # Blih Vue
 
 <p align="center">
-  <img src='build/icons/logo2.png' alt='logo'/>
+  <img src='build/icons/logo3.png' alt='logo' width='256'/>
 </p>
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com)
