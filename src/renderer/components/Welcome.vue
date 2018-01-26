@@ -4,6 +4,7 @@
 			<v-container fill-height fluid id='welcome'>
 			    <v-layout row align-center>
 					<v-flex class='text-xs-center'>
+						<img src="static/256.png" alt="logo" width="192">
 						<div class='display-3 white--text wide-letters'>BLIH</div>
 						<div class='subheading white--text'>Bocal Lightweight Interface for Humans</div>
 						<v-btn round large color='primary' :to="{name: 'login'}">Get started</v-btn>

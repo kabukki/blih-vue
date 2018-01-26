@@ -118,6 +118,10 @@
 	import TileAvatar from './TileAvatar';
 	import DialogBasic from './Dialogs/DialogBasic';
 
+	import electron from 'electron';
+	import path from 'path';
+	import RepositoryHub from '../RepositoryHub';
+
 	import git from 'simple-git/promise';
 	import tmp from 'tmp';
 	import moment from 'moment';
@@ -131,6 +135,7 @@
 		deletions: 0,
 		insertions: 0
 	};
+	const dataDir = (electron.app || electron.remote.app).getPath('userData');
 
 	export default {
 		components: { TileAvatar, DialogBasic },
@@ -164,6 +169,7 @@
 				},
 				/* Data */
 				git: null,
+				hub: null,
 				branch: null,
 				commits: [],
 				page: 1,
@@ -266,6 +272,7 @@
 			}
 		},
 		mounted () {
+			this.hub = new RepositoryHub(path.join(dataDir, '_hub'));
 			tmp.setGracefulCleanup();
 			tmp.dir({ unsafeCleanup: true }, (err, path, cleanup) => {
 				if (err) {
