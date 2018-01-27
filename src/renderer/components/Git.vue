@@ -11,20 +11,20 @@
 					<v-list two-line v-show='commits.length > 0'>
 						<template v-for='(commit, index) in pageCommits'>
 							<v-divider v-if='index > 0'></v-divider>
-							<v-list-tile avatar :key='commit.hash' @click.stop='diff(commit)'>
-								<tile-avatar :name='commit.author_name' class='mr-3'></tile-avatar>
+							<v-list-tile avatar :key='commit.sha()' @click.stop='diff(commit)'>
+								<tile-avatar :name='commit.author().name()' class='mr-3'></tile-avatar>
 								<v-list-tile-content>
 									<v-list-tile-title>
-										{{ commit.message }} &mdash; <span class="grey--text">{{ shortHash(commit.hash) }}</span>
+										{{ commit.message() }} &mdash; <span class="grey--text">{{ shortHash(commit.sha()) }}</span>
 									</v-list-tile-title>
 									<v-list-tile-sub-title>
-										<span class='text--primary'>{{ commit.author_name }}</span>
-										<span class='text--secondary'>&lt;{{ commit.author_email }}&gt;</span>
+										<span class='text--primary'>{{ commit.author().name() }}</span>
+										<span class='text--secondary'>&lt;{{ commit.author().email() }}&gt;</span>
 									</v-list-tile-sub-title>
 								</v-list-tile-content>
 								<v-list-tile-action>
 									<v-list-tile-action-text>
-										{{ legibleTime(commit.date) }}
+										{{ legibleTime(commit.date()) }}
 									</v-list-tile-action-text>
 								</v-list-tile-action>
 							</v-list-tile>
@@ -76,10 +76,10 @@
 		</v-dialog>
 
 		<!-- Dialog: Diff -->
-		<dialog-basic scrollable v-model='dialogDiff.show'>
+		<dialog-basic scrollable v-model='dialogDiff.show' v-if='dialogDiff.commit'>
 			<span slot="header" class="headline">
-				{{ dialogDiff.commit.message }} &mdash;
-				<span class='grey--text'>{{ shortHash(dialogDiff.commit.hash) }}</span>
+				{{ dialogDiff.commit.message() }} &mdash;
+				<span class='grey--text'>{{ shortHash(dialogDiff.commit.sha()) }}</span>
 			</span>
 			<v-list two-line v-if='dialogDiff.diff.files.length > 0'>
 				<template v-for='(file, index) in dialogDiff.diff.files'>
@@ -113,28 +113,18 @@
 	</v-card>
 </template>
 <script>
+	import { mapGetters } from 'vuex';
 	import { snackbar } from '../mixins';
 
 	import TileAvatar from './TileAvatar';
 	import DialogBasic from './Dialogs/DialogBasic';
 
+	import RepositoryHub from '../RepositoryHub';
 	import electron from 'electron';
 	import path from 'path';
-	import RepositoryHub from '../RepositoryHub';
-
-	import git from 'simple-git/promise';
-	import tmp from 'tmp';
 	import moment from 'moment';
 	import fs from 'fs-extra';
 
-	const defaultCommit = {
-		hash: ''
-	};
-	const defaultDiff = {
-		files: [],
-		deletions: 0,
-		insertions: 0
-	};
 	const dataDir = (electron.app || electron.remote.app).getPath('userData');
 
 	export default {
@@ -142,6 +132,10 @@
 		mixins: [snackbar],
 		props: {
 			url: {
+				type: String,
+				required: true
+			},
+			name: {
 				type: String,
 				required: true
 			}
@@ -164,11 +158,10 @@
 				},
 				dialogDiff: {
 					show: false,
-					commit: defaultCommit,
-					diff: defaultDiff
+					commit: null,
+					diff: null
 				},
 				/* Data */
-				git: null,
 				hub: null,
 				branch: null,
 				commits: [],
@@ -180,39 +173,6 @@
 			};
 		},
 		methods: {
-			clone () {
-				try {
-					this.git.clone(this.url, this.local)
-						.then(this.getStatus)
-						.then(this.getLog)
-						.catch(err => {
-							this.error = err.toString();
-						}).then(_ => {
-							this.init = false;
-						});
-					// TODO: Allow to switch between branches. Tabs ?
-					// this.git.branch().then(console.log).catch(console.log)
-				} catch (err) {
-					this.error = err.message;
-				}
-			},
-			getStatus () {
-				// TODO: Maybe do .branch instead ?
-				return this.git.status()
-					.then(status => {
-						this.branch = status.current;
-					}).catch(err => {
-						this.error = err.message;
-					});
-			},
-			getLog () {
-				return this.git.log({ splitter: '\\' })
-					.then(log => {
-						this.commits = log.all;
-					}).catch(_ => {
-						this.commits = [];
-					});
-			},
 			/* Dialog: Clone */
 			cloneCancel () {
 				this.dialog_clone.show = false;
@@ -235,11 +195,20 @@
 				}
 			},
 			/* Dialog: Diff */
-			diff (commit) {
-				const parent = this.parentOf(commit);
+			async diff (commit) {
+				const diff = (await commit.getDiff())[0];
+				for (const patch of await diff.patches()) {
+					for (const hunk of await patch.hunks()) {
+						console.log(hunk.header().trim());
+					}
+				}
+				this.dialogDiff.diff = { files: [], insertions: 0, deletions: 0 };
 				this.dialogDiff.commit = commit;
+				this.dialogDiff.show = true;
+				// const parent = this.parentOf(commit);
 				// console.log(this.git);
 				// console.log(this.git.diffSummary([parent.hash, commit.hash]));
+				/*
 				this.git.diffSummary([parent.hash, commit.hash])
 					.then(diff => {
 						this.dialogDiff.diff = diff;
@@ -247,6 +216,7 @@
 					}).catch(err => {
 						this.error = err;
 					});
+					*/
 			},
 			/* Transform */
 			shortHash (hash) {
@@ -263,6 +233,7 @@
 			}
 		},
 		computed: {
+			...mapGetters(['login']),
 			pageCommits () {
 				const start = (this.page - 1) * this.perPage;
 				return this.commits.slice(start, start + this.perPage);
@@ -272,24 +243,19 @@
 			}
 		},
 		mounted () {
-			this.hub = new RepositoryHub(path.join(dataDir, '_hub'));
-			tmp.setGracefulCleanup();
-			tmp.dir({ unsafeCleanup: true }, (err, path, cleanup) => {
-				if (err) {
-					this.error = err;
-				} else {
-					this.local = path;
-					this.cleanup = cleanup;
-					this.git = git(path).silent(true);
-					this.clone();
-				}
-			});
-		},
-		destroyed () {
-			if (this.git && this.cleanup) {
-				this.git.clearQueue();
-				this.git.exec(this.cleanup);
-			}
+			// TODO: Allow to switch between branches. Tabs ?
+			this.hub = new RepositoryHub(path.join(dataDir, '.hub'));
+			this.hub.init()
+				.then(_ => this.hub.use(this.login))
+				.then(_ => this.hub.add(this.name, this.url))
+				.then(_ => this.hub.update(this.name))
+				.then(_ => this.hub.history(this.name))
+				.then(commits => {
+					this.commits = commits;
+					this.branch = 'master';
+					console.log(this.commits);
+					this.init = false;
+				});
 		}
 	};
 </script>

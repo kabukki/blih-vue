@@ -74,7 +74,7 @@
 			<!-- Git -->
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
-					<git :url="gitUrl" @snackbar='showSnackbar'></git>
+					<git :url="gitUrl" :name="name" @snackbar='showSnackbar'></git>
 				</v-card>
 			</v-flex>
 			<!-- Danger zone -->
