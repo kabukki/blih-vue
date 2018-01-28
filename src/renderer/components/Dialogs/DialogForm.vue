@@ -27,51 +27,51 @@
 
 <script>
 	export default {
-		props: {
-			value: Boolean,
-			action: String,
-			fields: {
-				type: Object,
-				default: _ => {},
-				required: true
-			}
-		},
-		data () {
-			return {
-				data: this.fieldsToDefault(),
-				loading: false,
-				valid: false
-			};
-		},
-		methods: {
-			fieldsToDefault () {
-				return Object.keys(this.fields)
-					.reduce((obj, field) => ({
-						...obj,
-						[field]: this.fields[field].default
-					}), {});
-			},
-			close () {
-				this.$emit('input', false);
-			},
-			submit () {
-				this.loading = true;
-				this.$emit('submit', this.data, this.success, this.failure);
-			},
-			/* Submit callbacks */
-			success () {
-				this.close();
-				this.loading = false;
-				this.data = this.fieldsToDefault();
-				console.log('ok bye!');
-			},
-			failure () {
-				this.loading = false;
-				console.log('too bad');
-			}
-		},
-		created () {
-			console.log(this.data);
-		}
+	  props: {
+	    value: Boolean,
+	    action: String,
+	    fields: {
+	      type: Object,
+	      default: _ => {},
+	      required: true
+	    }
+	  },
+	  data () {
+	    return {
+	      data: this.fieldsToDefault(),
+	      loading: false,
+	      valid: false
+	    };
+	  },
+	  methods: {
+	    fieldsToDefault () {
+	      return Object.keys(this.fields)
+	        .reduce((obj, field) => ({
+	          ...obj,
+	          [field]: this.fields[field].default
+	        }), {});
+	    },
+	    close () {
+	      this.$emit('input', false);
+	    },
+	    submit () {
+	      this.loading = true;
+	      this.$emit('submit', this.data, this.success, this.failure);
+	    },
+	    /* Submit callbacks */
+	    success () {
+	      this.close();
+	      this.loading = false;
+	      this.data = this.fieldsToDefault();
+	      console.log('ok bye!');
+	    },
+	    failure () {
+	      this.loading = false;
+	      console.log('too bad');
+	    }
+	  },
+	  created () {
+	    console.log(this.data);
+	  }
 	};
 </script>

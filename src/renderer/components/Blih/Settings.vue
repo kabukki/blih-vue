@@ -215,116 +215,116 @@
 	import DialogForm from '../Dialogs/DialogForm';
 
 	export default {
-		components: { TileAvatar, Avatar, DialogBasic, DialogForm },
-		data () {
-			return {
-				/* Collaborators */
-				pageCollaborator: 1,
-				pageModule: 1,
-				perPage: 5,
-				/* Dialogs */
-				dialogEditCollaborator: {
-					show: false,
-					collaborator: {},
-					submit: (success) => {
-						this.updateCollaborator(this.dialogEditCollaborator.collaborator);
-						success();
-					}
-				},
-				dialogAddAlias: {
-					show: false,
-					fields: {
-						alias: {
-							is: 'v-text-field',
-							label: 'Alias',
-							icon: 'label',
-							default: ''
-						}
-					},
-					submit: (data, success) => {
-						this.dialogEditCollaborator.collaborator.aliases.push(data.alias);
-						success();
-					}
-				},
-				dialogEditModule: {
-					show: false,
-					module: {},
-					submit: (success) => {
-						this.updateModule(this.dialogEditModule.module);
-						success();
-					}
-				}
-			};
-		},
-		computed: {
-			...mapGetters(['collaborators', 'modules', 'colorOf']),
-			welcome: {
-				get () {
-					return this.$store.state.welcome;
-				},
-				set (value) {
-					this.$store.dispatch('setWelcome', value);
-				}
-			},
-			/* Appearance */
-			theme: {
-				get () {
-					return this.$store.state.theme;
-				},
-				set (name) {
-					const theme = this.$store.getters.themes.find(t => t.name === name);
-					this.$vuetify.theme = theme.colors;
-					this.$store.dispatch('setTheme', name);
-				}
-			},
-			dark: {
-				get () {
-					return this.$store.state.dark;
-				},
-				set (value) {
-					this.$store.dispatch('setDark', value);
-				}
-			},
-			themes () {
-				return this.$store.getters.themes.map(t => t.name);
-			},
-			pageCollaborators () {
-				const start = (this.pageCollaborator - 1) * this.perPage;
-				return this.collaborators.slice(start, start + this.perPage);
-			},
-			pageModules () {
-				const start = (this.pageModule - 1) * this.perPage;
-				return this.modules.slice(start, start + this.perPage);
-			},
-			nbPagesCollaborators () {
-				return Math.ceil(this.collaborators.length / this.perPage);
-			},
-			nbPagesModules () {
-				return Math.ceil(this.modules.length / this.perPage);
-			}
-		},
-		methods: {
-			...mapActions(['updateCollaborator', 'updateModule']),
-			/* Dialog: Edit collaborator */
-			editCollaborator (collaborator) {
-				// Create a copy and mutate later
-				this.dialogEditCollaborator.collaborator = {
-					name: collaborator.name,
-					picture: collaborator.picture,
-					aliases: Array.from(collaborator.aliases)
-				};
-				this.dialogEditCollaborator.show = true;
-			},
-			/* Dialog: Edit module */
-			editModule (module) {
-				this.dialogEditModule.module = {
-					name: module.name,
-					icon: module.icon,
-					color: module.color,
-					regexp: Array.from(module.regexp)
-				};
-				this.dialogEditModule.show = true;
-			}
-		}
+	  components: { TileAvatar, Avatar, DialogBasic, DialogForm },
+	  data () {
+	    return {
+	      /* Collaborators */
+	      pageCollaborator: 1,
+	      pageModule: 1,
+	      perPage: 5,
+	      /* Dialogs */
+	      dialogEditCollaborator: {
+	        show: false,
+	        collaborator: {},
+	        submit: (success) => {
+	          this.updateCollaborator(this.dialogEditCollaborator.collaborator);
+	          success();
+	        }
+	      },
+	      dialogAddAlias: {
+	        show: false,
+	        fields: {
+	          alias: {
+	            is: 'v-text-field',
+	            label: 'Alias',
+	            icon: 'label',
+	            default: ''
+	          }
+	        },
+	        submit: (data, success) => {
+	          this.dialogEditCollaborator.collaborator.aliases.push(data.alias);
+	          success();
+	        }
+	      },
+	      dialogEditModule: {
+	        show: false,
+	        module: {},
+	        submit: (success) => {
+	          this.updateModule(this.dialogEditModule.module);
+	          success();
+	        }
+	      }
+	    };
+	  },
+	  computed: {
+	    ...mapGetters(['collaborators', 'modules', 'colorOf']),
+	    welcome: {
+	      get () {
+	        return this.$store.state.welcome;
+	      },
+	      set (value) {
+	        this.$store.dispatch('setWelcome', value);
+	      }
+	    },
+	    /* Appearance */
+	    theme: {
+	      get () {
+	        return this.$store.state.theme;
+	      },
+	      set (name) {
+	        const theme = this.$store.getters.themes.find(t => t.name === name);
+	        this.$vuetify.theme = theme.colors;
+	        this.$store.dispatch('setTheme', name);
+	      }
+	    },
+	    dark: {
+	      get () {
+	        return this.$store.state.dark;
+	      },
+	      set (value) {
+	        this.$store.dispatch('setDark', value);
+	      }
+	    },
+	    themes () {
+	      return this.$store.getters.themes.map(t => t.name);
+	    },
+	    pageCollaborators () {
+	      const start = (this.pageCollaborator - 1) * this.perPage;
+	      return this.collaborators.slice(start, start + this.perPage);
+	    },
+	    pageModules () {
+	      const start = (this.pageModule - 1) * this.perPage;
+	      return this.modules.slice(start, start + this.perPage);
+	    },
+	    nbPagesCollaborators () {
+	      return Math.ceil(this.collaborators.length / this.perPage);
+	    },
+	    nbPagesModules () {
+	      return Math.ceil(this.modules.length / this.perPage);
+	    }
+	  },
+	  methods: {
+	    ...mapActions(['updateCollaborator', 'updateModule']),
+	    /* Dialog: Edit collaborator */
+	    editCollaborator (collaborator) {
+	      // Create a copy and mutate later
+	      this.dialogEditCollaborator.collaborator = {
+	        name: collaborator.name,
+	        picture: collaborator.picture,
+	        aliases: Array.from(collaborator.aliases)
+	      };
+	      this.dialogEditCollaborator.show = true;
+	    },
+	    /* Dialog: Edit module */
+	    editModule (module) {
+	      this.dialogEditModule.module = {
+	        name: module.name,
+	        icon: module.icon,
+	        color: module.color,
+	        regexp: Array.from(module.regexp)
+	      };
+	      this.dialogEditModule.show = true;
+	    }
+	  }
 	};
 </script>

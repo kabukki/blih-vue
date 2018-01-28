@@ -12,7 +12,7 @@
 
 <script>
 	export default {
-		props: ['message', 'description']
+	  props: ['message', 'description']
 	};
 </script>
 

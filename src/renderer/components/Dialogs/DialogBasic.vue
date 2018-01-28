@@ -21,39 +21,39 @@
 
 <script>
 	export default {
-		props: {
-			value: Boolean,
-			action: String,
-			scrollable: Boolean
-		},
-		data () {
-			return {
-				loading: false
-			};
-		},
-		methods: {
-			close () {
-				this.$emit('input', false);
-			},
-			submit () {
-				this.loading = true;
-				this.$emit('submit', this.success, this.failure);
-			},
-			/* Submit callbacks */
-			success () {
-				this.close();
-				this.loading = false;
-				console.log('ok bye!');
-			},
-			failure () {
-				this.loading = false;
-				console.log('too bad');
-			}
-		},
-		computed: {
-			closeText () {
-				return this.action ? 'Cancel' : 'Close';
-			}
-		}
+	  props: {
+	    value: Boolean,
+	    action: String,
+	    scrollable: Boolean
+	  },
+	  data () {
+	    return {
+	      loading: false
+	    };
+	  },
+	  methods: {
+	    close () {
+	      this.$emit('input', false);
+	    },
+	    submit () {
+	      this.loading = true;
+	      this.$emit('submit', this.success, this.failure);
+	    },
+	    /* Submit callbacks */
+	    success () {
+	      this.close();
+	      this.loading = false;
+	      console.log('ok bye!');
+	    },
+	    failure () {
+	      this.loading = false;
+	      console.log('too bad');
+	    }
+	  },
+	  computed: {
+	    closeText () {
+	      return this.action ? 'Cancel' : 'Close';
+	    }
+	  }
 	};
 </script>

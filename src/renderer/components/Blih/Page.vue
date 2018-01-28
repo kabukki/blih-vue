@@ -32,34 +32,34 @@
 	import Loader from '../Loader';
 
 	export default {
-		props: {
-			fillHeight: Boolean,
-			snackbar: {
-				type: Object,
-				default: _ => ({ show: false })
-			}
-		},
-		components: { Error, Loader },
-		data () {
-			return {
-				init: true,
-				error: false,
-				description: false
-			};
-		},
-		methods: {
-			_init_ () {
-				this.init = true;
-				this.error = false;
-				this.$emit('init', (err, description) => {
-					this.error = err;
-					this.description = description || false;
-					this.init = false;
-				});
-			}
-		},
-		created () {
-			this._init_();
-		}
+	  props: {
+	    fillHeight: Boolean,
+	    snackbar: {
+	      type: Object,
+	      default: _ => ({ show: false })
+	    }
+	  },
+	  components: { Error, Loader },
+	  data () {
+	    return {
+	      init: true,
+	      error: false,
+	      description: false
+	    };
+	  },
+	  methods: {
+	    _init_ () {
+	      this.init = true;
+	      this.error = false;
+	      this.$emit('init', (err, description) => {
+	        this.error = err;
+	        this.description = description || false;
+	        this.init = false;
+	      });
+	    }
+	  },
+	  created () {
+	    this._init_();
+	  }
 	};
 </script>

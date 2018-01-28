@@ -46,44 +46,44 @@
 	import TileAvatar from './TileAvatar';
 
 	export default {
-		components: { TileAvatar },
-		data () {
-			return {
-				drawer: false,
-				links: [
-					{ icon: 'cloud', title: 'Repositories', to: 'blih.repositories', nav: 'drawer' },
-					{ icon: 'vpn_key', title: 'SSH keys', to: 'blih.ssh-keys', nav: 'drawer' }
-				],
-				otherLinks: [
-					{ icon: 'settings', title: 'Settings', to: 'blih.settings', nav: 'drawer' },
-					{ icon: 'exit_to_app', title: 'Log out', to: 'login', nav: 'drawer' }
-				],
-				noLinks: [
-					{ title: 'Repository', to: 'blih.repository', nav: 'back' },
-					{ title: 'SSH key', to: 'blih.ssh-key', nav: 'back' }
-				]
-			};
-		},
-		computed: {
-			...mapGetters(['email', 'login', 'dark']),
-			title () {
-				let page = this.getCurrentPage();
-				return (page ? page.title : '[untitled]');
-			},
-			navicon () {
-				let page = this.getCurrentPage();
-				return (page ? page.nav : 'drawer');
-			}
-		},
-		methods: {
-			getCurrentPage () {
-				let links = this.links.concat(this.otherLinks, this.noLinks);
-				return links.filter(l => l.to === this.$route.name)[0];
-			},
-			goBack () {
-				this.$router.go(-1);
-			}
-		}
+	  components: { TileAvatar },
+	  data () {
+	    return {
+	      drawer: false,
+	      links: [
+	        { icon: 'cloud', title: 'Repositories', to: 'blih.repositories', nav: 'drawer' },
+	        { icon: 'vpn_key', title: 'SSH keys', to: 'blih.ssh-keys', nav: 'drawer' }
+	      ],
+	      otherLinks: [
+	        { icon: 'settings', title: 'Settings', to: 'blih.settings', nav: 'drawer' },
+	        { icon: 'exit_to_app', title: 'Log out', to: 'login', nav: 'drawer' }
+	      ],
+	      noLinks: [
+	        { title: 'Repository', to: 'blih.repository', nav: 'back' },
+	        { title: 'SSH key', to: 'blih.ssh-key', nav: 'back' }
+	      ]
+	    };
+	  },
+	  computed: {
+	    ...mapGetters(['email', 'login', 'dark']),
+	    title () {
+	      let page = this.getCurrentPage();
+	      return (page ? page.title : '[untitled]');
+	    },
+	    navicon () {
+	      let page = this.getCurrentPage();
+	      return (page ? page.nav : 'drawer');
+	    }
+	  },
+	  methods: {
+	    getCurrentPage () {
+	      let links = this.links.concat(this.otherLinks, this.noLinks);
+	      return links.filter(l => l.to === this.$route.name)[0];
+	    },
+	    goBack () {
+	      this.$router.go(-1);
+	    }
+	  }
 	};
 </script>
 

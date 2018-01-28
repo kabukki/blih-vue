@@ -82,121 +82,121 @@
 	import DialogForm from '../Dialogs/DialogForm';
 
 	export default {
-		components: { Page, TileAvatar, DialogForm },
-		mixins: [snackbar],
-		data () {
-			return {
-				/* Page state */
-				fab: false,
-				/* Dialogs */
-				dialogCreate: {
-					show: false,
-					fields: {
-						name: {
-							is: 'v-text-field',
-							label: 'Name',
-							icon: 'cloud',
-							required: true,
-							rules: [
-								name => !!name || 'Required',
-								name => !name.includes(' ') || 'No spaces allowed'
-							],
-							type: 'text',
-							default: ''
-						},
-						description: {
-							is: 'v-text-field',
-							label: 'Description',
-							icon: 'description',
-							type: 'text',
-							default: ''
-						},
-						turnIn: {
-							is: 'v-checkbox',
-							label: 'Add read rights to ramassage-tek for turn-in',
-							default: false
-						}
-					},
-					submit: (data, success, failure) => {
-						this.createRepository(data.name, data.description)
-							.then(_ => {
-								if (data.turnIn) {
-									return this.api.setACL(data.name, 'ramassage-tek', 'r');
-								} else {
-									return Promise.resolve();
-								}
-							}).then(_ => {
-								success();
-								this.$router.push({name: 'blih.repository', params: { name: data.name }});
-							}).catch(err => {
-								failure();
-								this.showSnackbar('error', err);
-							});
-					}
-				},
-				/* Data */
-				filter: '',
-				orderByItems: ['name', 'year', 'module'],
-				orderBy: 'name'
-			};
-		},
-		computed: {
-			...mapGetters(['api', 'repositories']),
-			filtered () {
-				return this.ordered.map(c => ({
-					name: c.name,
-					repositories: c.repositories
-						.filter(r => r.name.toLowerCase()
-							.includes(this.filter.toLowerCase())
-						)
-				})).filter(c => c.repositories.length);
-			},
-			ordered () {
-				const func = {
-					name: r => r.name[0].toUpperCase(),
-					year: r => {
-						const match = r.name.match(/20\d{2}/);
-						return match || 'Other';
-					},
-					module: r => r.module ? r.module.name : 'Other'
-				};
+	  components: { Page, TileAvatar, DialogForm },
+	  mixins: [snackbar],
+	  data () {
+	    return {
+	      /* Page state */
+	      fab: false,
+	      /* Dialogs */
+	      dialogCreate: {
+	        show: false,
+	        fields: {
+	          name: {
+	            is: 'v-text-field',
+	            label: 'Name',
+	            icon: 'cloud',
+	            required: true,
+	            rules: [
+	              name => !!name || 'Required',
+	              name => !name.includes(' ') || 'No spaces allowed'
+	            ],
+	            type: 'text',
+	            default: ''
+	          },
+	          description: {
+	            is: 'v-text-field',
+	            label: 'Description',
+	            icon: 'description',
+	            type: 'text',
+	            default: ''
+	          },
+	          turnIn: {
+	            is: 'v-checkbox',
+	            label: 'Add read rights to ramassage-tek for turn-in',
+	            default: false
+	          }
+	        },
+	        submit: (data, success, failure) => {
+	          this.createRepository(data.name, data.description)
+	            .then(_ => {
+	              if (data.turnIn) {
+	                return this.api.setACL(data.name, 'ramassage-tek', 'r');
+	              } else {
+	                return Promise.resolve();
+	              }
+	            }).then(_ => {
+	              success();
+	              this.$router.push({name: 'blih.repository', params: { name: data.name }});
+	            }).catch(err => {
+	              failure();
+	              this.showSnackbar('error', err);
+	            });
+	        }
+	      },
+	      /* Data */
+	      filter: '',
+	      orderByItems: ['name', 'year', 'module'],
+	      orderBy: 'name'
+	    };
+	  },
+	  computed: {
+	    ...mapGetters(['api', 'repositories']),
+	    filtered () {
+	      return this.ordered.map(c => ({
+	        name: c.name,
+	        repositories: c.repositories
+	          .filter(r => r.name.toLowerCase()
+	            .includes(this.filter.toLowerCase())
+	          )
+	      })).filter(c => c.repositories.length);
+	    },
+	    ordered () {
+	      const func = {
+	        name: r => r.name[0].toUpperCase(),
+	        year: r => {
+	          const match = r.name.match(/20\d{2}/);
+	          return match || 'Other';
+	        },
+	        module: r => r.module ? r.module.name : 'Other'
+	      };
 
-				return this.categorizeRepositories(func[this.orderBy]);
-			},
-			nbFiltered () {
-				return this.filtered.reduce((total, c) => total + c.repositories.length, 0);
-			}
-		},
-		methods: {
-			...mapActions(['updateRepositories', 'createRepository']),
-			_init_ (callback) {
-				this.updateRepositories()
-					.then(_ => {
-						callback();
-					}).catch(err => {
-						callback(err);
-					});
-			},
-			/* Helpers */
-			categorizeRepositories (getCategoty) {
-				let res = {};
-				for (const elem of this.repositories) {
-					const category = getCategoty(elem); // elem.name[0].toUpperCase();
+	      return this.categorizeRepositories(func[this.orderBy]);
+	    },
+	    nbFiltered () {
+	      return this.filtered.reduce((total, c) => total + c.repositories.length, 0);
+	    }
+	  },
+	  methods: {
+	    ...mapActions(['updateRepositories', 'createRepository']),
+	    _init_ (callback) {
+	      this.updateRepositories()
+	        .then(_ => {
+	          callback();
+	        }).catch(err => {
+	          callback(err);
+	        });
+	    },
+	    /* Helpers */
+	    categorizeRepositories (getCategoty) {
+	      let res = {};
+	      for (const elem of this.repositories) {
+	        const category = getCategoty(elem); // elem.name[0].toUpperCase();
 
-					if (!res.hasOwnProperty(category)) {
-						res[category] = [];
-					}
-					res[category].push(elem);
-				}
-				return Object.keys(res).map(m => ({
-					name: m,
-					repositories: res[m]
-				})).sort((a, b) => {
-					if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-					else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-					else return 0;
-				});
-			}
-		}
+	        if (!res.hasOwnProperty(category)) {
+	          res[category] = [];
+	        }
+	        res[category].push(elem);
+	      }
+	      return Object.keys(res).map(m => ({
+	        name: m,
+	        repositories: res[m]
+	      })).sort((a, b) => {
+	        if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+	        else if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+	        else return 0;
+	      });
+	    }
+	  }
 	};
 </script>

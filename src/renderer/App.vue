@@ -6,6 +6,6 @@
 
 <script>
 	export default {
-	    name: 'blih-vue'
+	  name: 'blih-vue'
 	};
 </script>

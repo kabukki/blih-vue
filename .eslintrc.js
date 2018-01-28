@@ -19,9 +19,7 @@ module.exports = {
   ],
   'rules': {
     'arrow-parens': 0,
-    'indent': [0, 4],
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
-    'no-tabs': 0,
     'no-unused-vars': [2, { 'argsIgnorePattern': '^_' }],
     'semi': [2, 'always']
   }
