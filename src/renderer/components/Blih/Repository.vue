@@ -73,7 +73,7 @@
 			</v-flex>
 			<!-- Git -->
 			<v-flex xs12>
-				<v-card tile class='text-xs-center'>
+				<v-card tile>
 					<git :url="gitUrl" :name="name" @snackbar='showSnackbar'></git>
 				</v-card>
 			</v-flex>
