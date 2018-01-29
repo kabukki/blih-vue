@@ -1,8 +1,10 @@
-# Blih Vue
-
 <p align="center">
   <img src='build/icons/256.png' alt='logo'/>
 </p>
+
+<h1 align='center'>
+  Blih Vue
+</h1>
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com)
 
