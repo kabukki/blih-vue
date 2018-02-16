@@ -6,13 +6,12 @@ export default {
   authenticate (context, credentials) {
     try {
       let api = new Blih({ email: credentials.email, password: credentials.password });
-
       return api.whoami()
         .then(data => {
           context.commit('AUTHENTICATE', {
             api,
             email: credentials.email,
-            login: data.message
+            login: data
           });
         });
     } catch (err) {
