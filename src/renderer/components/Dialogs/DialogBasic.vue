@@ -43,11 +43,11 @@
 	    success () {
 	      this.close();
 	      this.loading = false;
-	      console.log('ok bye!');
+	      // console.log('ok bye!');
 	    },
 	    failure () {
 	      this.loading = false;
-	      console.log('too bad');
+	      // console.log('too bad');
 	    }
 	  },
 	  computed: {

@@ -63,15 +63,15 @@
 	      this.close();
 	      this.loading = false;
 	      this.data = this.fieldsToDefault();
-	      console.log('ok bye!');
+	      // console.log('ok bye!');
 	    },
 	    failure () {
 	      this.loading = false;
-	      console.log('too bad');
+	      // console.log('too bad');
 	    }
 	  },
 	  created () {
-	    console.log(this.data);
+	    // console.log(this.data);
 	  }
 	};
 </script>
