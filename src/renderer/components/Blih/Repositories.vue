@@ -67,7 +67,7 @@
 		</dialog-form>
 
 		<!-- FAB -->
-		<v-btn v-model='fab' color='primary' fixed bottom right fab @click.stop='dialogCreate.show = true'>
+		<v-btn color='primary' fixed bottom right fab @click.stop='dialogCreate.show = true'>
 			<v-icon>add</v-icon>
 		</v-btn>
 	</page>
@@ -86,8 +86,6 @@
 	  mixins: [snackbar],
 	  data () {
 	    return {
-	      /* Page state */
-	      fab: false,
 	      /* Dialogs */
 	      dialogCreate: {
 	        show: false,

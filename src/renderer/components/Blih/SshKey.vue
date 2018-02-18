@@ -88,13 +88,14 @@
 	import { snackbar } from '../../mixins';
 
 	import Page from './Page';
+	import DialogBasic from '../Dialogs/DialogBasic';
 
 	import fingerprint from 'ssh-fingerprint';
 	import fs from 'fs-extra';
 	import path from 'path';
 
 	export default {
-	  components: { Page },
+	  components: { Page, DialogBasic },
 	  mixins: [snackbar],
 	  data () {
 	    return {
