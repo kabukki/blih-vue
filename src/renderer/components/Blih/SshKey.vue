@@ -95,85 +95,85 @@
 	import path from 'path';
 
 	export default {
-	  components: { Page, DialogBasic },
-	  mixins: [snackbar],
-	  data () {
-	    return {
-	      /* Dialogs */
-	      dialogDelete: {
-	        show: false,
-	        submit: (success, failure) => {
-	          this.api.deleteKey(this.name)
-	            .then(_ => {
-	              success();
-	              this.$router.push({name: 'blih.ssh-keys'});
-	            }).catch(err => {
-	              failure();
-	              this.showSnackbar('error', err);
-	            });
-	        }
-	      },
-	      dialog_download: {
-	        show: false,
-	        loading: false,
-	        rules: [
-	          path => !!path || 'Required'
-	        ],
-	        valid: true,
-	        destination: null,
-	        name: null
-	      },
-	      /* Data */
-	      name: '',
-	      key: {}
-	    };
-	  },
-	  methods: {
-	    ...mapGetters(['keys']),
-	    _init_ (callback) {
-	      callback();
-	    },
-	    /* Dialog: Download */
-	    downloadCancel () {
-	      this.dialog_download.show = false;
-	    },
-	    downloadDownload () {
-	      const keyPath = path.join(this.dialog_download.destination, this.dialog_download.name);
-	      this.dialog_download.loading = true;
-	      fs.writeFile(keyPath, this.key.data.concat(' ', this.name), (err) => {
-	        if (err) {
-	          this.showSnackbar('error', err);
-	        } else {
-	          this.showSnackbar('success', 'Successfully downloaded key to ' + keyPath);
-	          this.dialog_download.show = false;
-	        }
-	        this.dialog_download.loading = false;
-	      });
-	    },
-	    downloadChange (destination) {
-	      if (destination.target.files[0]) {
-	        this.dialog_download.destination = destination.target.files[0].path;
-	      } else {
-	        this.dialog_download.destination = null;
-	      }
-	    }
-	  },
-	  computed: {
-	    ...mapGetters(['api', 'colorOf']),
-	    color () {
-	      return this.colorOf(this.name);
-	    },
-	    type () {
-	      return this.key.data.split(' ')[0];
-	    },
-	    fingerprint () {
-	      return fingerprint(this.key.data);
-	    }
-	  },
-	  created () {
-	    this.name = this.$route.params.name;
-	    this.key = this.keys().find(k => k.name === this.name);
-	    this.dialog_download.name = this.name + '.pub';
-	  }
+		components: { Page, DialogBasic },
+		mixins: [snackbar],
+		data () {
+			return {
+				/* Dialogs */
+				dialogDelete: {
+					show: false,
+					submit: (success, failure) => {
+						this.api.deleteKey(this.name)
+							.then(_ => {
+								success();
+								this.$router.push({name: 'blih.ssh-keys'});
+							}).catch(err => {
+								failure();
+								this.showSnackbar('error', err);
+							});
+					}
+				},
+				dialog_download: {
+					show: false,
+					loading: false,
+					rules: [
+						path => !!path || 'Required'
+					],
+					valid: true,
+					destination: null,
+					name: null
+				},
+				/* Data */
+				name: '',
+				key: {}
+			};
+		},
+		methods: {
+			...mapGetters(['keys']),
+			_init_ (callback) {
+				callback();
+			},
+			/* Dialog: Download */
+			downloadCancel () {
+				this.dialog_download.show = false;
+			},
+			downloadDownload () {
+				const keyPath = path.join(this.dialog_download.destination, this.dialog_download.name);
+				this.dialog_download.loading = true;
+				fs.writeFile(keyPath, this.key.data.concat(' ', this.name), (err) => {
+					if (err) {
+						this.showSnackbar('error', err);
+					} else {
+						this.showSnackbar('success', 'Successfully downloaded key to ' + keyPath);
+						this.dialog_download.show = false;
+					}
+					this.dialog_download.loading = false;
+				});
+			},
+			downloadChange (destination) {
+				if (destination.target.files[0]) {
+					this.dialog_download.destination = destination.target.files[0].path;
+				} else {
+					this.dialog_download.destination = null;
+				}
+			}
+		},
+		computed: {
+			...mapGetters(['api', 'colorOf']),
+			color () {
+				return this.colorOf(this.name);
+			},
+			type () {
+				return this.key.data.split(' ')[0];
+			},
+			fingerprint () {
+				return fingerprint(this.key.data);
+			}
+		},
+		created () {
+			this.name = this.$route.params.name;
+			this.key = this.keys().find(k => k.name === this.name);
+			this.dialog_download.name = this.name + '.pub';
+		}
 	};
 </script>

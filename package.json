@@ -4,6 +4,9 @@
   "author": "Lucien Le Roux <lucien.le-roux@epitech.eu>",
   "description": "An electron-vue project",
   "license": null,
+	"bugs": {
+    "url": "https://github.com/kabukki/blih-vue/issues"
+  },
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -54,6 +57,7 @@
   },
   "dependencies": {
     "blih": "^1.6.1",
+    "chart.js": "^2.7.1",
     "electron-store": "^1.3.0",
     "fs-extra": "^5.0.0",
     "language-map": "^1.3.0",
@@ -63,6 +67,7 @@
     "rimraf": "^2.6.2",
     "ssh-fingerprint": "0.0.1",
     "vue": "^2.3.3",
+    "vue-chartjs": "^3.2.1",
     "vue-router": "^2.5.3",
     "vuetify": "^1.0.0",
     "vuex": "^2.3.1"

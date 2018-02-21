@@ -36,58 +36,58 @@ import Blih from 'blih';
 import Page from './Blih/Page';
 
 export default {
-  components: { Page },
-  mixins: [snackbar],
-  data () {
-    return {
-      /* Page state */
-      loading: false,
-      rules: [
-        field => !!field || 'Required'
-      ],
-      valid: true,
-      /* Data */
-      email: '',
-      password: '',
-      visible: false
-    };
-  },
-  methods: {
-    ...mapActions(['authenticate', 'addCollaborator', 'setLastEmail']),
-    async _init_ (callback) {
-      try {
-        const time = await Blih.ping();
-        this.showSnackbar('success', `Blih is up (responded in ${time}ms)`);
-        callback();
-      } catch (e) {
-        callback(e, e.message);
-      }
-    },
-    /* Helpers */
-    logIn () {
-      this.loading = true;
-      this.authenticate({
-        email: this.email.includes('@') ? this.email : this.email + '@epitech.eu',
-        password: this.password
-      }).then(_ => {
-        // Remember login for next time
-        this.setLastEmail(this.email);
-        // Register yourself
-        this.addCollaborator(this.login);
-        this.$router.push({ name: 'blih.repositories' });
-      }).catch(err => {
-        this.showSnackbar('error', err);
-      }).then(_ => {
-        this.password = '';
-        this.loading = false;
-      });
-    }
-  },
-  computed: {
-    ...mapGetters(['login', 'lastEmail'])
-  },
-  created () {
-    this.email = this.lastEmail;
-  }
+	components: { Page },
+	mixins: [snackbar],
+	data () {
+		return {
+			/* Page state */
+			loading: false,
+			rules: [
+				field => !!field || 'Required'
+			],
+			valid: true,
+			/* Data */
+			email: '',
+			password: '',
+			visible: false
+		};
+	},
+	methods: {
+		...mapActions(['authenticate', 'addCollaborator', 'setLastEmail']),
+		async _init_ (callback) {
+			try {
+				const time = await Blih.ping();
+				this.showSnackbar('success', `Blih is up (responded in ${time}ms)`);
+				callback();
+			} catch (e) {
+				callback(e);
+			}
+		},
+		/* Helpers */
+		logIn () {
+			this.loading = true;
+			this.authenticate({
+				email: this.email.includes('@') ? this.email : this.email + '@epitech.eu',
+				password: this.password
+			}).then(_ => {
+				// Remember login for next time
+				this.setLastEmail(this.email);
+				// Register yourself
+				this.addCollaborator(this.login);
+				this.$router.push({ name: 'blih.repositories' });
+			}).catch(err => {
+				this.showSnackbar('error', err);
+			}).then(_ => {
+				this.password = '';
+				this.loading = false;
+			});
+		}
+	},
+	computed: {
+		...mapGetters(['login', 'lastEmail'])
+	},
+	created () {
+		this.email = this.lastEmail;
+	}
 };
 </script>

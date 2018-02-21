@@ -81,71 +81,71 @@
 	import Page from './Page';
 
 	export default {
-	  components: { Page, TileAvatar },
-	  mixins: [snackbar],
-	  data () {
-	    return {
-	      /* Page state */
-	      fab: false,
-	      /* Dialogs */
-	      // TODO: vuetify file input component to use with dialog-form
-	      dialog_upload: {
-	        show: false,
-	        loading: false,
-	        error: false,
-	        rules: [
-	          path => !!path || 'Required'
-	        ],
-	        valid: true,
-	        file: null
-	      },
-	      /* Data */
-	      filter: ''
-	    };
-	  },
-	  computed: {
-	    ...mapGetters(['keys']),
-	    filtered () {
-	      return this.keys.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
-	    }
-	  },
-	  methods: {
-	    ...mapActions(['updateKeys', 'uploadKey']),
-	    _init_ (callback) {
-	      this.updateKeys()
-	        .then(_keys => {
-	          callback();
-	        }).catch(err => {
-	          callback(err);
-	        });
-	    },
-	    /* Dialog: Upload */
-	    uploadCancel () {
-	      this.dialog_upload.show = false;
-	    },
-	    uploadUpload () {
-	      this.dialog_upload.loading = true;
-	      fs.readFile(this.dialog_upload.file, 'utf8', (err, data) => {
-	        if (err) {
-	          this.showSnackbar('error', err);
-	          this.dialog_upload.loading = false;
-	        } else {
-	          this.uploadKey(data)
-	            .then(key => {
-	              this.$router.push({name: 'blih.ssh-key', params: { name: key.name }});
-	            }).catch(err => {
-	              this.showSnackbar('error', err);
-	            }).then(_ => {
-	              this.dialog_upload.loading = false;
-	            });
-	        }
-	      });
-	    },
-	    uploadChange (file) {
-	      if (file.target.files[0]) {
-	        this.dialog_upload.file = file.target.files[0].path;
-	      }
-	    }
-	  }
+		components: { Page, TileAvatar },
+		mixins: [snackbar],
+		data () {
+			return {
+				/* Page state */
+				fab: false,
+				/* Dialogs */
+				// TODO: vuetify file input component to use with dialog-form
+				dialog_upload: {
+					show: false,
+					loading: false,
+					error: false,
+					rules: [
+						path => !!path || 'Required'
+					],
+					valid: true,
+					file: null
+				},
+				/* Data */
+				filter: ''
+			};
+		},
+		computed: {
+			...mapGetters(['keys']),
+			filtered () {
+				return this.keys.filter(e => e.name.toLowerCase().includes(this.filter.toLowerCase()));
+			}
+		},
+		methods: {
+			...mapActions(['updateKeys', 'uploadKey']),
+			_init_ (callback) {
+				this.updateKeys()
+					.then(_keys => {
+						callback();
+					}).catch(err => {
+						callback(err);
+					});
+			},
+			/* Dialog: Upload */
+			uploadCancel () {
+				this.dialog_upload.show = false;
+			},
+			uploadUpload () {
+				this.dialog_upload.loading = true;
+				fs.readFile(this.dialog_upload.file, 'utf8', (err, data) => {
+					if (err) {
+						this.showSnackbar('error', err);
+						this.dialog_upload.loading = false;
+					} else {
+						this.uploadKey(data)
+							.then(key => {
+								this.$router.push({name: 'blih.ssh-key', params: { name: key.name }});
+							}).catch(err => {
+								this.showSnackbar('error', err);
+							}).then(_ => {
+								this.dialog_upload.loading = false;
+							});
+					}
+				});
+			},
+			uploadChange (file) {
+				if (file.target.files[0]) {
+					this.dialog_upload.file = file.target.files[0].path;
+				}
+			}
+		}
 	};
 </script>

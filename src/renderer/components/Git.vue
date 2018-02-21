@@ -46,40 +46,54 @@
 
                     <!-- History -->
                     <v-tab-item class='text-xs-center mt-3'>
-                        <v-list two-line v-show='commits.length > 0'>
-                            <template v-for='(commit, index) in pageCommits'>
-									<v-divider v-if='index > 0'></v-divider>
-									<v-list-tile avatar :key='commit.sha' @click.stop='diff(commit)'>
-										<tile-avatar :name='commit.author.name' class='mr-3'></tile-avatar>
-										<v-list-tile-content>
-											<v-list-tile-title>
-												{{ commit.message }} &mdash; <span class="grey--text">{{ shortHash(commit.sha) }}</span>
-											</v-list-tile-title>
-											<v-list-tile-sub-title>
-												<span class='text--primary'>{{ commit.author.name }}</span>
-												<span class='text--secondary'>&lt;{{ commit.author.email }}&gt;</span>
-											</v-list-tile-sub-title>
-										</v-list-tile-content>
-										<v-list-tile-action>
-											<v-list-tile-action-text>
-												{{ legibleTime(commit.date) }}
-											</v-list-tile-action-text>
-										</v-list-tile-action>
-									</v-list-tile>
-								</template>
-                            <p class='mb-0'>
-                                <v-icon>history</v-icon> {{ commits.length }} commits (on branch <span class='grey--text'>{{ branch }}</span>)
-                            </p>
-                            <v-pagination :length='nbPages' :total-visible='7' v-model='page'></v-pagination>
-                        </v-list>
-                        <p class='text-xs-center mb-0' v-show='commits.length == 0'>
-                            No commits
+                      <v-list two-line v-show='commits.length > 0'>
+                        <template v-for='(commit, index) in pageCommits'>
+													<v-divider v-if='index > 0'></v-divider>
+													<v-list-tile avatar :key='commit.sha' @click.stop='diff(commit)'>
+														<tile-avatar :name='commit.author.name' class='mr-3'></tile-avatar>
+														<v-list-tile-content>
+															<v-list-tile-title>{{ commit.message }} &mdash; <span class="grey--text">{{ shortHash(commit.sha) }}</span></v-list-tile-title>
+															<v-list-tile-sub-title>
+																<span class='text--primary'>{{ commit.author.name }}</span>
+																<span class='text--secondary'>&lt;{{ commit.author.email }}&gt;</span>
+															</v-list-tile-sub-title>
+														</v-list-tile-content>
+														<v-list-tile-action>
+															<v-list-tile-action-text>
+																{{ legibleTime(commit.date) }}
+															</v-list-tile-action-text>
+														</v-list-tile-action>
+													</v-list-tile>
+												</template>
+                        <p class='mb-0'>
+                            <v-icon>history</v-icon> {{ commits.length }} commits (on branch <span class='grey--text'>{{ branch }}</span>)
                         </p>
+                        <v-pagination :length='nbPages' :total-visible='7' v-model='page'></v-pagination>
+                      </v-list>
+                      <p class='text-xs-center mb-0' v-show='commits.length == 0'>
+                          No commits
+                      </p>
                     </v-tab-item>
 
                     <!-- Insights -->
                     <v-tab-item class='mt-3'>
-                        Insights
+											<v-layout row wrap>
+												<v-flex xs12 sm6>
+													<div class="headline text-xs-center">Languages used</div>
+													<language-chart :chart-data="insights.languages" v-if="insights.languages.labels.length > 0"></language-chart>
+													<p class='text-xs-center mb-0' v-else>No data</p>
+												</v-flex>
+												<v-flex xs12 sm6>
+													<div class="headline text-xs-center">Contrubutions</div>
+													<contributions-chart :chart-data="insights.contributions" v-if="insights.contributions.labels.length > 0"></contributions-chart>
+													<p class='text-xs-center mb-0' v-else>No data</p>
+												</v-flex>
+												<v-flex xs12>
+													<div class="headline text-xs-center">Commit frequency</div>
+													<history-chart :chart-data="insights.history" v-if="insights.history.datasets.length > 0"></history-chart>
+													<p class='text-xs-center mb-0' v-else>No data</p>
+												</v-flex>
+											</v-layout>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -91,8 +105,10 @@
             </v-flex>
             <!-- Loading -->
             <v-flex xs12 v-else>
-                <v-progress-linear height='5' color='primary' indeterminate></v-progress-linear>
-                <p class="text-xs-center mb-0">Fetching history ...</p>
+                <v-progress-linear height='6' color='primary' :indeterminate='!initProgress.value' buffer
+                	:buffer-value='initProgress.buffered' v-model='initProgress.value'>
+                </v-progress-linear>
+								<p class="text-xs-center mb-0">Fetching data ... ({{ initProgress.value }}% done)</p>
             </v-flex>
             <!-- FAB -->
             <v-fab-transition>
@@ -170,16 +186,17 @@
 </v-card>
 </template>
 <script>
-import {
-  mapGetters
-} from 'vuex';
-import {
-  snackbar
-} from '../mixins';
+import { mapGetters } from 'vuex';
+import { snackbar } from '../mixins';
 
 import TileAvatar from './TileAvatar';
 import DialogBasic from './Dialogs/DialogBasic';
 import FileTree from './FileTree';
+import LanguageChart from './Charts/LanguageChart';
+import HistoryChart from './Charts/HistoryChart';
+import ContributionsChart from './Charts/ContributionsChart';
+
+import { getTreeLanguagesChart, getHistoryChart, getContributionsChart } from '../helpers';
 
 import RepositoryHub from '../RepositoryHub';
 import electron from 'electron';
@@ -189,250 +206,243 @@ import moment from 'moment';
 const dataDir = (electron.app || electron.remote.app).getPath('userData');
 
 export default {
-  components: {
-    TileAvatar,
-    DialogBasic,
-    FileTree
-  },
-  mixins: [snackbar],
-  props: {
-    url: {
-      type: String,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    }
-  },
-  data () {
-    return {
-      /* State */
-      init: true,
-      error: false,
-      /* Dialogs */
-      // TODO: vuetify file input component to use with dialog-form
-      dialog_clone: {
-        show: false,
-        loading: false,
-        rules: [
-          path => !!path || 'Required'
-        ],
-        valid: true,
-        destination: null
-      },
-      dialogDiff: {
-        show: false,
-        commit: null,
-        diff: [],
-        totalAdditions: 0,
-        totalDeletions: 0
-      },
-      dialogFile: {
-        show: false
-      },
-      /* Data */
-      hub: null,
-      branches: [],
-      branch: 'master',
-      files: [],
-      commits: [],
-      insights: {},
-      page: 1,
-      perPage: 5,
-      /* Tmp dir */
-      local: null,
-      cleanup: null
-    };
-  },
-  methods: {
-    async getFiles (branch) {
-      return this.hub.tree(this.name, branch);
-    },
-    async getHistory (branch) {
-      const history = await this.hub.history(this.name, branch);
-      return Promise.all(
-        history.map(
-          async commit => ({
-            sha: commit.sha(),
-            date: commit.date(),
-            message: commit.message(),
-            author: {
-              name: commit.author().name(),
-              email: commit.author().email()
-            },
-            diff: (await commit.getDiff())[0]
-          })
-        )
-      );
-    },
-    async getInsights (_branch) {
+	components: {
+		TileAvatar,
+		DialogBasic,
+		FileTree,
+		LanguageChart,
+		HistoryChart,
+		ContributionsChart
+	},
+	mixins: [snackbar],
+	props: {
+		url: {
+			type: String,
+			required: true
+		},
+		name: {
+			type: String,
+			required: true
+		}
+	},
+	data () {
+		return {
+			/* State */
+			init: true,
+			initProgress: {
+				value: 0,
+				buffered: 0
+			},
+			error: false,
+			/* Dialogs */
+			// TODO: vuetify file input component to use with dialog-form
+			dialog_clone: {
+				show: false,
+				loading: false,
+				rules: [
+					path => !!path || 'Required'
+				],
+				valid: true,
+				destination: null
+			},
+			dialogDiff: {
+				show: false,
+				commit: null,
+				diff: [],
+				totalAdditions: 0,
+				totalDeletions: 0
+			},
+			dialogFile: {
+				show: false
+			},
+			/* Data */
+			hub: null,
+			branches: [],
+			branch: 'master',
+			files: [],
+			commits: [],
+			insights: {},
+			page: 1,
+			perPage: 5,
+			/* Tmp dir */
+			local: null,
+			cleanup: null
+		};
+	},
+	methods: {
+		async getFiles (branch) {
+			return this.hub.tree(this.name, branch);
+		},
+		async getHistory (branch) {
+			const history = await this.hub.history(this.name, branch);
+			return Promise.all(
+				history.map(
+					async commit => ({
+						sha: commit.sha(),
+						date: commit.date(),
+						message: commit.message(),
+						author: {
+							name: commit.author().name(),
+							email: commit.author().email()
+						},
+						diff: (await commit.getDiff())[0]
+					})
+				)
+			);
+		},
+		async getInsights (branch) {
+			// A collection of Chart.js objects (http://www.chartjs.org/docs/latest/charts/)
+			let insights = {};
+			const files = await this.hub.tree(this.name, branch);
+			const history = await this.hub.history(this.name, branch);
 
-    },
-    /* Update overview, files, history and insights according to a branch */
-    async updateAll (branch) {
-      this.files = await this.getFiles(branch);
-      this.commits = await this.getHistory(branch);
-      this.insights = await this.getInsights(branch);
-    },
-    getNbChildren (file) {
-      if (file.children) {
-        return file.children.reduce(
-          (total, child) => total + (child.type === 'tree' ? this.getNbChildren(child) : 1), 0
-        );
-      } else {
-        return 0;
-      }
-    },
-    /* Dialog: Clone */
-    cloneCancel () {
-      this.dialog_clone.show = false;
-    },
-    async cloneClone () {
-      this.dialog_clone.loading = true;
-      try {
-        await this.hub.copy(this.name, this.dialog_clone.destination);
-        this.$emit('snackbar', 'success', 'Successfully cloned repository to ' + this.dialog_clone.destination);
-      } catch (err) {
-        this.$emit('snackbar', 'error', err.message);
-      }
-      this.dialog_clone.loading = false;
-    },
-    cloneChange (destination) {
-      if (destination.target.files[0]) {
-        this.dialog_clone.destination = destination.target.files[0].path;
-      }
-    },
-    /* Dialog: Diff */
-    async diff (commit) {
-      this.dialogDiff.diff = [];
-      this.dialogDiff.totalAdditions = 0;
-      this.dialogDiff.totalDeletions = 0;
-      const patchStatus = [{
-        str: 'unmodified',
-        icon: 'insert_drive_file'
-      },
-      {
-        str: 'added',
-        icon: 'add'
-      },
-      {
-        str: 'deleted',
-        icon: 'remove'
-      },
-      {
-        str: 'modified',
-        icon: 'edit'
-      },
-      {
-        str: 'renamed',
-        icon: 'swap_horiz'
-      },
-      {
-        str: 'copied',
-        icon: 'content_copy'
-      },
-      {
-        str: 'ignored',
-        icon: 'visibility_off'
-      },
-      {
-        str: 'untracked',
-        icon: 'clear'
-      },
-      {
-        str: 'typechange',
-        icon: 'insert_drive_file'
-      },
-      {
-        str: 'unreadable',
-        icon: 'visibility_off'
-      },
-      {
-        str: 'conflicted',
-        icon: 'report'
-      }
-      ];
-      // const diff = (await commit.getDiff())[0];
-      // [ConvenientPatch] patch = a file that changed
-      for (const patch of await commit.diff.patches()) {
-        const stats = patch.lineStats();
+			insights.languages = getTreeLanguagesChart(files);
+			insights.history = getHistoryChart(history);
+			insights.contributions = getContributionsChart(history);
 
-        let summary = {
-          oldFile: patch.oldFile().path(),
-          newFile: patch.newFile().path(),
-          status: patchStatus[patch.status()],
-          stats: {
-            insertions: stats.total_additions,
-            deletions: stats.total_deletions
-          },
-          hunks: []
-        };
-        // each hunk shows one area where the files differ.
-        for (const hunk of await patch.hunks()) {
-          const lines = await hunk.lines();
-          summary.hunks.push({
-            header: hunk.header().trim(),
-            lines: lines.map(line => ({
-              type: String.fromCharCode(line.origin()),
-              content: line.content()
-            }))
-          });
-        }
-        this.dialogDiff.diff.push(summary);
-        this.dialogDiff.totalAdditions += stats.total_additions;
-        this.dialogDiff.totalDeletions += stats.total_deletions;
-      }
-      this.dialogDiff.commit = commit;
-      this.dialogDiff.show = true;
-    },
-    /* Transform */
-    shortHash (hash) {
-      return hash ? hash.slice(0, 7) : '';
-    },
-    legibleTime (date) {
-      const m = moment(date, 'YYYY-MM-DD hh:mm:ss ZZ');
-      return m.fromNow();
-    },
-    /* Helpers */
-    parentOf (commit) {
-      const index = this.commits.findIndex(c => c.hash === commit.hash);
-      return (index !== this.commits.length - 1 ? this.commits[index + 1] : {
-        hash: '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
-      });
-    }
-  },
-  computed: {
-    ...mapGetters(['login']),
-    pageCommits () {
-      const start = (this.page - 1) * this.perPage;
-      return this.commits.slice(start, start + this.perPage);
-    },
-    nbPages () {
-      return Math.ceil(this.commits.length / this.perPage);
-    },
-    branchNames () {
-      return this.branches.map(branch => branch.shorthand().split('/')[1]);
-    },
-    nbFiles () {
-      return this.getNbChildren({
-        children: this.files
-      });
-    }
-  },
-  async mounted () {
-    try {
-      this.hub = new RepositoryHub(path.join(dataDir, '.hub'));
-      await this.hub.init();
-      await this.hub.use(this.login);
-      await this.hub.add(this.name, this.url);
-      await this.hub.update(this.name);
-      this.branches = await this.hub.branches(this.name);
-      await this.updateAll(this.branch);
-    } catch (err) {
-      this.error = err;
-    }
-    this.init = false;
-  }
+			return insights;
+		},
+		/* Update overview, files, history and insights according to a branch */
+		async updateAll (branch) {
+			this.files = await this.getFiles(branch);
+			this.commits = await this.getHistory(branch);
+			this.insights = await this.getInsights(branch);
+		},
+		getNbChildren (file) {
+			if (file.children) {
+				return file.children.reduce(
+					(total, child) => total + (child.type === 'tree' ? this.getNbChildren(child) : 1), 0
+				);
+			} else {
+				return 0;
+			}
+		},
+		/* Dialog: Clone */
+		cloneCancel () {
+			this.dialog_clone.show = false;
+		},
+		async cloneClone () {
+			this.dialog_clone.loading = true;
+			try {
+				await this.hub.copy(this.name, this.dialog_clone.destination);
+				this.$emit('snackbar', 'success', 'Successfully cloned repository to ' + this.dialog_clone.destination);
+				this.dialog_clone.show = false;
+			} catch (err) {
+				this.$emit('snackbar', 'error', err.message);
+			}
+			this.dialog_clone.loading = false;
+		},
+		cloneChange (destination) {
+			if (destination.target.files[0]) {
+				this.dialog_clone.destination = destination.target.files[0].path;
+			}
+		},
+		/* Dialog: Diff */
+		async diff (commit) {
+			this.dialogDiff.diff = [];
+			this.dialogDiff.totalAdditions = 0;
+			this.dialogDiff.totalDeletions = 0;
+			const patchStatus = [
+				{ str: 'unmodified', icon: 'insert_drive_file' },
+				{ str: 'added', icon: 'add' },
+				{ str: 'deleted', icon: 'remove' },
+				{ str: 'modified', icon: 'edit' },
+				{ str: 'renamed', icon: 'swap_horiz' },
+				{ str: 'copied', icon: 'content_copy' },
+				{ str: 'ignored', icon: 'visibility_off' },
+				{ str: 'untracked', icon: 'clear' },
+				{ str: 'typechange', icon: 'insert_drive_file' },
+				{ str: 'unreadable', icon: 'visibility_off' },
+				{ str: 'conflicted', icon: 'report' }
+			];
+			// const diff = (await commit.getDiff())[0];
+			// [ConvenientPatch] patch = a file that changed
+			for (const patch of await commit.diff.patches()) {
+				const stats = patch.lineStats();
+
+				let summary = {
+					oldFile: patch.oldFile().path(),
+					newFile: patch.newFile().path(),
+					status: patchStatus[patch.status()],
+					stats: {
+						insertions: stats.total_additions,
+						deletions: stats.total_deletions
+					},
+					hunks: []
+				};
+				// each hunk shows one area where the files differ.
+				for (const hunk of await patch.hunks()) {
+					const lines = await hunk.lines();
+					summary.hunks.push({
+						header: hunk.header().trim(),
+						lines: lines.map(line => ({
+							type: String.fromCharCode(line.origin()),
+							content: line.content()
+						}))
+					});
+				}
+				this.dialogDiff.diff.push(summary);
+				this.dialogDiff.totalAdditions += stats.total_additions;
+				this.dialogDiff.totalDeletions += stats.total_deletions;
+			}
+			this.dialogDiff.commit = commit;
+			this.dialogDiff.show = true;
+		},
+		/* Transform */
+		shortHash (hash) {
+			return hash ? hash.slice(0, 7) : '';
+		},
+		legibleTime (date) {
+			const m = moment(date, 'YYYY-MM-DD hh:mm:ss ZZ');
+			return m.fromNow();
+		},
+		/* Helpers */
+		parentOf (commit) {
+			const index = this.commits.findIndex(c => c.hash === commit.hash);
+			return (index !== this.commits.length - 1 ? this.commits[index + 1] : {
+				hash: '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+			});
+		}
+	},
+	computed: {
+		...mapGetters(['login']),
+		pageCommits () {
+			const start = (this.page - 1) * this.perPage;
+			return this.commits.slice(start, start + this.perPage);
+		},
+		nbPages () {
+			return Math.ceil(this.commits.length / this.perPage);
+		},
+		branchNames () {
+			return this.branches.map(branch => branch.shorthand().split('/')[1]);
+		},
+		nbFiles () {
+			return this.getNbChildren({
+				children: this.files
+			});
+		}
+	},
+	async created () {
+		try {
+			this.hub = new RepositoryHub(path.join(dataDir, '.hub'));
+			await this.hub.init();
+			await this.hub.use(this.login);
+			await this.hub.add(this.name, this.url);
+			await this.hub.update(this.name, progress => {
+				this.initProgress.value = Math.floor(100 * progress.indexedObjects() / progress.totalObjects());
+				this.initProgress.buffered = Math.floor(100 * progress.receivedObjects() / progress.totalObjects());
+			});
+			this.branches = await this.hub.branches(this.name);
+			await this.updateAll(this.branch);
+		} catch (err) {
+			if (err.message === 'no reference found for shorthand \'origin/master\'') {
+				err.message = 'No commits on master';
+			} else if (err.message === 'early EOF') {
+				err.message = 'You do not have read right on this repository';
+			}
+			this.error = err;
+		}
+		this.init = false;
+	}
 };
 </script>
