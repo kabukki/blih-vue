@@ -138,11 +138,13 @@ export default class RepositoryHub {
 
 		for (const entry of tree.entries()) {
 			const children = entry.isTree() ? await this.getChildren(await entry.getTree()) : null;
+			const blob = entry.isBlob() ? await entry.getBlob() : null;
 			files.push({
 				name: entry.name(),
 				sha: entry.sha(),
 				type: filemodeStr[entry.filemode()],
-				children
+				children,
+				blob
 			});
 		}
 		return files;

@@ -48,23 +48,23 @@
                     <v-tab-item class='text-xs-center mt-3'>
                       <v-list two-line v-show='commits.length > 0'>
                         <template v-for='(commit, index) in pageCommits'>
-													<v-divider v-if='index > 0'></v-divider>
-													<v-list-tile avatar :key='commit.sha' @click.stop='diff(commit)'>
-														<tile-avatar :name='commit.author.name' class='mr-3'></tile-avatar>
-														<v-list-tile-content>
-															<v-list-tile-title>{{ commit.message }} &mdash; <span class="grey--text">{{ shortHash(commit.sha) }}</span></v-list-tile-title>
-															<v-list-tile-sub-title>
-																<span class='text--primary'>{{ commit.author.name }}</span>
-																<span class='text--secondary'>&lt;{{ commit.author.email }}&gt;</span>
-															</v-list-tile-sub-title>
-														</v-list-tile-content>
-														<v-list-tile-action>
-															<v-list-tile-action-text>
-																{{ legibleTime(commit.date) }}
-															</v-list-tile-action-text>
-														</v-list-tile-action>
-													</v-list-tile>
-												</template>
+							<v-divider v-if='index > 0'></v-divider>
+							<v-list-tile avatar :key='commit.sha' @click.stop='diff(commit)'>
+								<tile-avatar :name='commit.author.name' class='mr-3'></tile-avatar>
+								<v-list-tile-content>
+									<v-list-tile-title>{{ commit.message }} &mdash; <span class="grey--text">{{ shortHash(commit.sha) }}</span></v-list-tile-title>
+									<v-list-tile-sub-title>
+										<span class='text--primary'>{{ commit.author.name }}</span>
+										<span class='text--secondary'>&lt;{{ commit.author.email }}&gt;</span>
+									</v-list-tile-sub-title>
+								</v-list-tile-content>
+								<v-list-tile-action>
+									<v-list-tile-action-text>
+										{{ legibleTime(commit.date) }}
+									</v-list-tile-action-text>
+								</v-list-tile-action>
+							</v-list-tile>
+						</template>
                         <p class='mb-0'>
                             <v-icon>history</v-icon> {{ commits.length }} commits (on branch <span class='grey--text'>{{ branch }}</span>)
                         </p>
@@ -77,23 +77,23 @@
 
                     <!-- Insights -->
                     <v-tab-item class='mt-3'>
-											<v-layout row wrap>
-												<v-flex xs12 sm6>
-													<div class="headline text-xs-center">Languages used</div>
-													<language-chart :chart-data="insights.languages" v-if="insights.languages.labels.length > 0"></language-chart>
-													<p class='text-xs-center mb-0' v-else>No data</p>
-												</v-flex>
-												<v-flex xs12 sm6>
-													<div class="headline text-xs-center">Contrubutions</div>
-													<contributions-chart :chart-data="insights.contributions" v-if="insights.contributions.labels.length > 0"></contributions-chart>
-													<p class='text-xs-center mb-0' v-else>No data</p>
-												</v-flex>
-												<v-flex xs12>
-													<div class="headline text-xs-center">Commit frequency</div>
-													<history-chart :chart-data="insights.history" v-if="insights.history.datasets.length > 0"></history-chart>
-													<p class='text-xs-center mb-0' v-else>No data</p>
-												</v-flex>
-											</v-layout>
+						<v-layout row wrap>
+							<v-flex xs12 sm6>
+								<div class="headline text-xs-center">Languages used</div>
+								<language-chart :chart-data="insights.languages" v-if="insights.languages.labels.length > 0"></language-chart>
+								<p class='text-xs-center mb-0' v-else>No data</p>
+							</v-flex>
+							<v-flex xs12 sm6>
+								<div class="headline text-xs-center">Contrubutions</div>
+								<contributions-chart :chart-data="insights.contributions" v-if="insights.contributions.labels.length > 0"></contributions-chart>
+								<p class='text-xs-center mb-0' v-else>No data</p>
+							</v-flex>
+							<v-flex xs12>
+								<div class="headline text-xs-center">Commit frequency</div>
+								<history-chart :chart-data="insights.history" v-if="insights.history.datasets.length > 0"></history-chart>
+								<p class='text-xs-center mb-0' v-else>No data</p>
+							</v-flex>
+						</v-layout>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -108,7 +108,7 @@
                 <v-progress-linear height='6' color='primary' :indeterminate='!initProgress.value' buffer
                 	:buffer-value='initProgress.buffered' v-model='initProgress.value'>
                 </v-progress-linear>
-								<p class="text-xs-center mb-0">Fetching data ... ({{ initProgress.value }}% done)</p>
+				<p class="text-xs-center mb-0">Fetching data ... ({{ initProgress.value }}% done)</p>
             </v-flex>
             <!-- FAB -->
             <v-fab-transition>
@@ -142,31 +142,31 @@
     <!-- Dialog: Diff -->
     <dialog-basic scrollable v-model='dialogDiff.show' v-if='dialogDiff.commit'>
         <span slot="header" class="headline">
-					{{ dialogDiff.commit.message }} &mdash;
-					<span class='grey--text'>{{ shortHash(dialogDiff.commit.sha) }}</span>
+			{{ dialogDiff.commit.message }} &mdash;
+			<span class='grey--text'>{{ shortHash(dialogDiff.commit.sha) }}</span>
         </span>
         <v-list two-line v-if='dialogDiff.diff.length > 0'>
-					<template v-for='(file, index) in dialogDiff.diff'>
-						<v-divider v-if='index > 0'></v-divider>
-						<v-list-tile avatar :key='file.oldFile'>
-							<v-list-tile-avatar color='grey lighten-1'>
-								<span><v-icon>{{ file.status.icon }}</v-icon></span>
-							</v-list-tile-avatar>
-							<v-list-tile-content>
-								<v-list-tile-title>{{ file.oldFile }}</v-list-tile-title>
-								<v-list-tile-sub-title>
-									<span v-show='file.stats.insertions > 0' class="success--text">{{ file.stats.insertions }} insertions</span>
-									<span v-show='file.stats.insertions > 0 && file.stats.deletions > 0'>&mdash;</span>
-									<span v-show='file.stats.deletions > 0' class="error--text">{{ file.stats.deletions }} deletions</span>
-								</v-list-tile-sub-title>
-							</v-list-tile-content>
-							<v-list-tile-action>
-								<v-list-tile-action-text>
-									{{ file.status.str }}
-								</v-list-tile-action-text>
-							</v-list-tile-action>
-						</v-list-tile>
-					</template>
+			<template v-for='(file, index) in dialogDiff.diff'>
+				<v-divider v-if='index > 0'></v-divider>
+				<v-list-tile avatar :key='file.oldFile'>
+					<v-list-tile-avatar color='grey lighten-1'>
+						<span><v-icon>{{ file.status.icon }}</v-icon></span>
+					</v-list-tile-avatar>
+					<v-list-tile-content>
+						<v-list-tile-title>{{ file.oldFile }}</v-list-tile-title>
+						<v-list-tile-sub-title>
+							<span v-show='file.stats.insertions > 0' class="success--text">{{ file.stats.insertions }} insertions</span>
+							<span v-show='file.stats.insertions > 0 && file.stats.deletions > 0'>&mdash;</span>
+							<span v-show='file.stats.deletions > 0' class="error--text">{{ file.stats.deletions }} deletions</span>
+						</v-list-tile-sub-title>
+					</v-list-tile-content>
+					<v-list-tile-action>
+						<v-list-tile-action-text>
+							{{ file.status.str }}
+						</v-list-tile-action-text>
+					</v-list-tile-action>
+				</v-list-tile>
+			</template>
         </v-list>
         <p class='text-xs-center mb-0' v-else>
             Nothing to show.
@@ -188,6 +188,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { snackbar } from '../mixins';
+import { getTreeLanguagesChart, getHistoryChart, getContributionsChart } from '../helpers';
 
 import TileAvatar from './TileAvatar';
 import DialogBasic from './Dialogs/DialogBasic';
@@ -195,8 +196,6 @@ import FileTree from './FileTree';
 import LanguageChart from './Charts/LanguageChart';
 import HistoryChart from './Charts/HistoryChart';
 import ContributionsChart from './Charts/ContributionsChart';
-
-import { getTreeLanguagesChart, getHistoryChart, getContributionsChart } from '../helpers';
 
 import RepositoryHub from '../RepositoryHub';
 import electron from 'electron';

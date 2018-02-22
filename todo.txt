@@ -1,6 +1,6 @@
 Upload component (vuetify front-end pack, Q2 2018)
 opti: page repositories keep-alive?
-File contents/diff dialog
+diff dialog
 Empty cache for one/all repos
 
 --- problems ---

@@ -4,8 +4,9 @@ import App from './App';
 import store from './store';
 import router from './router';
 
-/* CSS */
 import Vuetify from 'vuetify';
+
+/* CSS */
 import 'vuetify/dist/vuetify.min.css';
 import './assets/css/fonts/icon.css';
 import './assets/css/custom.css';

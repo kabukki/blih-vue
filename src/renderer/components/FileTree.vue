@@ -1,18 +1,24 @@
 <template>
     <div>
-        <div :style='style' @click='open = !open'>
+        <div :style='style' @click='clickOnFile'>
             <v-icon :style='`color: ${color}`'>{{ icon }}</v-icon> {{ file.name }}
         </div>
         <file-tree v-if='open' v-for='(child, index) in file.children' :key='`file${index}`' :file='child' :depth='depth + 1'></file-tree>
+		<dialog-file :name='dialogFile.name' :blob='dialogFile.blob'
+			v-model='dialogFile.show' v-if='dialogFile.show'>
+		</dialog-file>
     </div>
 </template>
 <script>
-import colors from 'vuetify/es5/util/colors';
-
 import { getFileLanguage } from '../helpers';
+
+import DialogFile from './Dialogs/DialogFile';
+
+import colors from 'vuetify/es5/util/colors';
 
 export default {
 	name: 'file-tree',
+	components: { DialogFile },
 	props: {
 		file: {
 			type: Object,
@@ -25,6 +31,13 @@ export default {
 	},
 	data () {
 		return {
+			/* Dialogs */
+			dialogFile: {
+				show: false,
+				name: null,
+				blob: null
+			},
+			/* Data */
 			open: false,
 			language: null,
 			typeIcons: {
@@ -35,11 +48,22 @@ export default {
 			}
 		};
 	},
+	methods: {
+		clickOnFile () {
+			if (this.file.type === 'tree') {
+				this.open = !this.open;
+			} else if (this.file.type === 'blob') {
+				this.dialogFile.name = this.file.name;
+				this.dialogFile.blob = this.file.blob;
+				this.dialogFile.show = true;
+			}
+		}
+	},
 	computed: {
 		style () {
 			return {
 				transform: `translate(${this.depth * 25}px)`,
-				cursor: this.file.children ? 'pointer' : 'auto'
+				cursor: (this.file.type === 'tree' || this.file.type === 'blob') ? 'pointer' : 'auto'
 			};
 		},
 		color () {

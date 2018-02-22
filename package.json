@@ -4,7 +4,7 @@
   "author": "Lucien Le Roux <lucien.le-roux@epitech.eu>",
   "description": "An electron-vue project",
   "license": null,
-	"bugs": {
+  "bugs": {
     "url": "https://github.com/kabukki/blih-vue/issues"
   },
   "main": "./dist/electron/main.js",
