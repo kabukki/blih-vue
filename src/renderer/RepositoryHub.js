@@ -1,5 +1,4 @@
 import Git from 'nodegit';
-import mkdirp from 'mkdirp-promise';
 import path from 'path';
 import fs from 'fs-extra';
 import os from 'os';
@@ -16,16 +15,16 @@ export default class RepositoryHub {
      * Set up the hub (bare name)
      * Creates directory if it does not exist.
      */
-	init () {
-		return mkdirp(this.root);
+	async init () {
+		return fs.ensureDir(this.root);
 	}
 
 	/*
      * Set the current user
      */
-	use (name) {
+	async use (name) {
 		this.path = path.join(this.root, name);
-		return mkdirp(this.path);
+		return fs.ensureDir(this.path);
 	}
 
 	/*
@@ -194,7 +193,7 @@ export default class RepositoryHub {
 			const newPath = path.join(destination, name);
 			const oldRepo = await Git.Repository.openBare(path.join(this.path, name));
 			/* Create new repo */
-			await mkdirp(newPath);
+			await fs.ensureDir(newPath);
 			await fs.copy(oldRepo.path(), path.join(newPath, '.git'));
 			let newRepo = await Git.Repository.init(newPath, 0);
 			/* Set it to non-bare */
