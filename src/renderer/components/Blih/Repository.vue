@@ -83,8 +83,8 @@
 					<v-container>
 						<div class="subheading grey--text">Danger zone</div>
 						<v-btn color='error' @click.stop='dialogDelete.show = true'>
-							<v-icon left>delete</v-icon>
-							Delete
+							<v-icon left>delete_forever</v-icon>
+							Delete repository
 						</v-btn>
 					</v-container>
 				</v-card>
@@ -94,7 +94,7 @@
 		<!-- Dialog: Delete -->
 		<dialog-basic action='Delete' @submit='dialogDelete.submit' v-model='dialogDelete.show'>
 			<span slot="header" class="headline">Delete repository ?</span>
-			This will delete the repository "{{ name }}" forever.
+			This will delete the repository <strong>{{ name }}</strong> forever.
 		</dialog-basic>
 
 		<!-- Dialog: Add -->

@@ -15,6 +15,8 @@ export default {
 	theme: config.get('theme'),
 	dark: config.get('dark'),
 	welcome: config.get('welcome'),
+	publicKeyPath: config.get('publicKeyPath'),
+	privateKeyPath: config.get('privateKeyPath'),
 	/* Data */
 	collaborators: data.get('collaborators').sort(ignoreCaseSort),
 	colorMap: defaults.colorMap, // data.get('colorMap'),

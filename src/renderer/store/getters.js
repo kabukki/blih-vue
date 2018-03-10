@@ -9,6 +9,8 @@ export default {
 	theme: state => state.theme,
 	dark: state => state.dark,
 	welcome: state => state.welcome,
+	publicKeyPath: state => state.publicKeyPath,
+	privateKeyPath: state => state.privateKeyPath,
 	/* Data */
 	collaborators: state => state.collaborators,
 	colorMap: state => state.colorMap,

@@ -1,5 +1,5 @@
 <template>
-	<v-container fluid grid-list-xs>
+	<page @init='_init_' :snackbar='snackbar'>
 		<!-- Content -->
 		<v-layout row wrap>
 			<!-- Title -->
@@ -32,7 +32,7 @@
 							<v-flex xs12 sm6>
 								<v-select label='Theme' v-model='theme' :items='themes'></v-select>
 							</v-flex>
-							<v-flex xs12 sm6 text-xs-center>
+							<v-flex xs12 sm6>
 								<v-switch label='Use a dark variant' v-model='dark'></v-switch>
 							</v-flex>
 							<v-flex xs12>
@@ -51,6 +51,29 @@
 					</v-container>
 				</v-card>
 			</v-flex>
+			<!-- Git config -->
+			<v-flex xs12>
+				<v-card tile>
+					<v-container>
+						<p class="text-xs-center subheading grey--text mb-0">Git configuration</p>
+						<v-layout row wrap>
+							<v-flex xs12>
+								<v-text-field label='Private key' hint='Path to the private key to use when cloning' v-model='privateKeyPath'></v-text-field>
+							</v-flex>
+							<v-flex xs12>
+								<v-text-field label='Public key' hint='Path to the public key to use when cloning' v-model='publicKeyPath'></v-text-field>
+							</v-flex>
+							<v-flex xs12>
+								<v-btn color='warning' @click.stop='dialogEmpty.show = true'><v-icon>delete</v-icon> Empty cache</v-btn>
+								<div class='caption'>
+									<v-icon small>info</v-icon> The cache holds local copies of repositories. This allows a faster experience because repositories only need to be updated and not entirely cloned again.
+								</div>
+							</v-flex>
+						</v-layout>
+					</v-container>
+				</v-card>
+			</v-flex>
+
 			<!-- Collaborators -->
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
@@ -114,6 +137,12 @@
 			</v-flex>
 		</v-layout>
 
+		<!-- Dialog: Empty cache -->
+		<dialog-basic action='Delete' @submit='dialogEmpty.submit' v-model='dialogEmpty.show'>
+			<span slot="header" class="headline">Empty cache ?</span>
+			This will delete the local repositories for user <strong>{{ login }}</strong>.
+		</dialog-basic>
+
 		<!-- Dialog: Edit collaborator -->
 		<dialog-basic scrollable action='Edit' @submit='dialogEditCollaborator.submit' v-model='dialogEditCollaborator.show'>
 			<span slot="header" class="headline">Edit a collaborator's details</span>
@@ -154,7 +183,6 @@
 				</v-layout>
 			</v-container>
 		</dialog-basic>
-
 
 		<!-- Dialog: Add alias -->
 		<dialog-form action='Add' :fields='dialogAddAlias.fields' @submit='dialogAddAlias.submit' v-model='dialogAddAlias.show'>
@@ -203,19 +231,28 @@
 			</v-container>
 		</dialog-basic>
 
-	</v-container>
+	</page>
 </template>
 
 <script>
 	import { mapGetters, mapActions } from 'vuex';
+	import { snackbar } from '../../mixins';
 
+	import Page from './Page';
 	import TileAvatar from '../TileAvatar';
 	import Avatar from '../Avatar';
 	import DialogBasic from '../Dialogs/DialogBasic';
 	import DialogForm from '../Dialogs/DialogForm';
 
+	import RepositoryHub from '../../RepositoryHub';
+	import electron from 'electron';
+	import path from 'path';
+
+	const dataDir = (electron.app || electron.remote.app).getPath('userData');
+
 	export default {
-		components: { TileAvatar, Avatar, DialogBasic, DialogForm },
+		components: { Page, TileAvatar, Avatar, DialogBasic, DialogForm },
+		mixins: [snackbar],
 		data () {
 			return {
 				/* Collaborators */
@@ -253,11 +290,25 @@
 						this.updateModule(this.dialogEditModule.module);
 						success();
 					}
-				}
+				},
+				dialogEmpty: {
+					show: false,
+					submit: async (success, failure) => {
+						try {
+							await this.hub.delete();
+							success();
+							this.showSnackbar('success', `Successfully deleted cache for ${this.login}`);
+						} catch (err) {
+							failure(err);
+							this.showSnackbar('error', err);
+						}
+					}
+				},
+				hub: null
 			};
 		},
 		computed: {
-			...mapGetters(['collaborators', 'modules', 'colorOf']),
+			...mapGetters(['collaborators', 'modules', 'colorOf', 'login']),
 			welcome: {
 				get () {
 					return this.$store.state.welcome;
@@ -266,7 +317,6 @@
 					this.$store.dispatch('setWelcome', value);
 				}
 			},
-			/* Appearance */
 			theme: {
 				get () {
 					return this.$store.state.theme;
@@ -283,6 +333,22 @@
 				},
 				set (value) {
 					this.$store.dispatch('setDark', value);
+				}
+			},
+			publicKeyPath: {
+				get () {
+					return this.$store.state.publicKeyPath;
+				},
+				set (path) {
+					this.$store.dispatch('setPublicKeyPath', path);
+				}
+			},
+			privateKeyPath: {
+				get () {
+					return this.$store.state.privateKeyPath;
+				},
+				set (path) {
+					this.$store.dispatch('setPrivateKeyPath', path);
 				}
 			},
 			themes () {
@@ -305,6 +371,16 @@
 		},
 		methods: {
 			...mapActions(['updateCollaborator', 'updateModule']),
+			async _init_ (callback) {
+				try {
+					this.hub = new RepositoryHub(path.join(dataDir, '.hub'));
+					await this.hub.init();
+					await this.hub.use(this.login);
+					callback();
+				} catch (err) {
+					callback(err);
+				}
+			},
 			/* Dialog: Edit collaborator */
 			editCollaborator (collaborator) {
 				// Create a copy and mutate later

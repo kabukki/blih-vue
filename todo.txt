@@ -1,13 +1,12 @@
 Upload component (vuetify front-end pack, Q2 2018)
 opti: page repositories keep-alive?
 diff dialog
-Empty cache for one/all repos
 Bouton try again dans Git.vue on error
 
 --- problems ---
 production:
-css "BLIH": ordre des !important
 
 --- ameliorations ---
 Dialogs:
 customisation des fields, decorations et leur position (avec form)
+repositoryHub global (avec vuex)

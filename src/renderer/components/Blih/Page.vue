@@ -1,6 +1,6 @@
 <template>
 	<!-- Done -->
-	<v-container fluid :fill-height="fillHeight" grid-list-xs v-if="!init && !error">
+	<v-container fluid grid-list-xs :fill-height="fillHeight" v-if="!init && !error">
 		<slot></slot>
 		<!-- Snackbar -->
 		<v-snackbar bottom v-model='snackbar.show' :color='snackbar.color'>

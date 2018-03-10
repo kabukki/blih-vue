@@ -79,14 +79,18 @@ export default {
 	setWelcome (context, value) {
 		context.commit('SET_WELCOME', { value });
 	},
+	setPublicKeyPath (context, path) {
+		context.commit('SET_PUBLIC_KEY_PATH', { path });
+	},
+	setPrivateKeyPath (context, path) {
+		context.commit('SET_PRIVATE_KEY_PATH', { path });
+	},
 	/* Data */
 	addCollaborator (context, name) {
 		if (!context.getters.collaborators.find(c => c.name === name)) {
 			context.commit('ADD_COLLABORATOR', {
 				name,
-				picture: (name.includes('@epitech.eu'))
-					? 'https://cdn.local.epitech.eu/userprofil/profilview/' + name.split('@epitech.eu')[0] + '.jpg'
-					: false,
+				picture: false,
 				aliases: []
 			});
 		}

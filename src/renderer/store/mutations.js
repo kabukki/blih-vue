@@ -45,6 +45,14 @@ export default {
 		state.welcome = payload.value;
 		config.set('welcome', state.welcome);
 	},
+	SET_PUBLIC_KEY_PATH (state, payload) {
+		state.publicKeyPath = payload.path;
+		config.set('publicKeyPath', state.publicKeyPath);
+	},
+	SET_PRIVATE_KEY_PATH (state, payload) {
+		state.privateKeyPath = payload.path;
+		config.set('privateKeyPath', state.privateKeyPath);
+	},
 	/* Data */
 	ADD_COLLABORATOR (state, payload) {
 		state.collaborators.push(payload);

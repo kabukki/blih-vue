@@ -1,10 +1,8 @@
 import Git from 'nodegit';
-import path from 'path';
 import fs from 'fs-extra';
-import os from 'os';
 import rimraf from 'rimraf';
-
-const sshDir = path.join(os.homedir(), '.ssh');
+import path from 'path';
+import store from './store';
 
 export default class RepositoryHub {
 	constructor (directory) {
@@ -46,12 +44,12 @@ export default class RepositoryHub {
 	}
 
 	/*
-     * Delete a repository
+	 * If 'name' is specified, deletes this repository, otherwise delete all repositories
      */
 	delete (name) {
 		if (this.path) {
 			return new Promise((resolve, reject) => {
-				rimraf(path.join(this.path, name), {
+				rimraf(path.join(this.path, name || '.'), {
 					disableGlob: true
 				}, err => {
 					if (err) {
@@ -77,8 +75,8 @@ export default class RepositoryHub {
 						callbacks: {
 							credentials: (_url, _username) => Git.Cred.sshKeyNew(
 								'git',
-								path.join(sshDir, 'id_rsa.pub'),
-								path.join(sshDir, 'id_rsa'),
+								store.getters.publicKeyPath,
+								store.getters.privateKeyPath,
 								''
 							),
 							transferProgress: {

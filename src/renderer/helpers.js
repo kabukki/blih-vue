@@ -3,6 +3,10 @@ import map from 'language-map';
 import colors from 'vuetify/es5/util/colors';
 import moment from 'moment';
 import store from './store';
+import path from 'path';
+import os from 'os';
+
+const sshDir = path.join(os.homedir(), '.ssh');
 
 export function ignoreCaseSort (a, b) {
 	if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
@@ -16,7 +20,9 @@ export function getConfig () {
 			lastEmail: '',
 			theme: 'Default',
 			dark: false,
-			welcome: true
+			welcome: true,
+			publicKeyPath: path.join(sshDir, 'id_rsa.pub'),
+			privateKeyPath: path.join(sshDir, 'id_rsa')
 		}
 	});
 }
