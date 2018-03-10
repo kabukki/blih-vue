@@ -64,7 +64,7 @@
 								<v-text-field label='Public key' hint='Path to the public key to use when cloning' v-model='publicKeyPath'></v-text-field>
 							</v-flex>
 							<v-flex xs12>
-								<v-btn color='warning' @click.stop='dialogEmpty.show = true'><v-icon>delete</v-icon> Empty cache</v-btn>
+								<v-btn block color='warning' @click.stop='dialogEmpty.show = true'><v-icon>delete</v-icon> Empty cache</v-btn>
 								<div class='caption'>
 									<v-icon small>info</v-icon> The cache holds local copies of repositories. This allows a faster experience because repositories only need to be updated and not entirely cloned again.
 								</div>
@@ -73,7 +73,6 @@
 					</v-container>
 				</v-card>
 			</v-flex>
-
 			<!-- Collaborators -->
 			<v-flex xs12>
 				<v-card tile class='text-xs-center'>
